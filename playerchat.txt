@@ -1,0 +1,2 @@
+/\bgod/ ==> Notch
+/\bhell\b/ ==> nether

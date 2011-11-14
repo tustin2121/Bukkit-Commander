@@ -1,0 +1,7 @@
+log:
+    player:
+        commands: false
+files:
+    playercmd: playercmd.txt
+    playerchat: playerchat.txt
+    consolecmd: consolecmd.txt
