@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="MacRoman" standalone="no"?>
+<jardesc>
+    <jar path="/Users/timpittman/Documents/minecraft-bukkit/plugins/Commander.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/BukkitCommander/CommanderRelease.jardesc" exportErrors="false" exportWarnings="false" includeDirectoryEntries="false" overwrite="false" saveDescription="false" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <file path="/BukkitCommander/playercmd.txt"/>
+        <javaElement handleIdentifier="=BukkitCommander/src"/>
+        <file path="/BukkitCommander/consolecmd.txt"/>
+        <file path="/BukkitCommander/config.yml"/>
+        <file path="/BukkitCommander/plugin.yml"/>
+        <file path="/BukkitCommander/playerchat.txt"/>
+    </selectedElements>
+</jardesc>

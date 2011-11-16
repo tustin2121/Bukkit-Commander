@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerListener;
-import org.digiplex.bukkitplugin.commander.ReplacementPair;
+import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
 
 public class PlayerChatModule extends PlayerListener implements Module {
 	public List<ReplacementPair> pairs;
@@ -34,9 +34,9 @@ public class PlayerChatModule extends PlayerListener implements Module {
 			do { //use do while, due to the find() invocation above
 				//test if it is all upper, and replace with all upper
 				if (allUpper && m.group().toUpperCase().equals(m.group())){
-					m.appendReplacement(sb, rp.getReplacement().toUpperCase());
+					m.appendReplacement(sb, rp.executeReplacement(e).toUpperCase());
 				} else {
-					m.appendReplacement(sb, rp.getReplacement());
+					m.appendReplacement(sb, rp.executeReplacement(e));
 				}
 			} while (m.find());
 			m.appendTail(sb);

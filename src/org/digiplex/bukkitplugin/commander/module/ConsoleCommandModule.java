@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.event.server.ServerListener;
-import org.digiplex.bukkitplugin.commander.ReplacementPair;
+import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
 
 public class ConsoleCommandModule extends ServerListener implements Module {
 	public List<ReplacementPair> pairs;
@@ -26,7 +26,7 @@ public class ConsoleCommandModule extends ServerListener implements Module {
 		for (ReplacementPair rp : pairs) {
 			Matcher m = rp.getRegex().matcher(e.getCommand());
 			if (m.matches()){
-				e.setCommand(m.replaceFirst(rp.getReplacement()));
+				e.setCommand(m.replaceFirst(rp.executeReplacement(null)));
 				return;
 			}
 		}

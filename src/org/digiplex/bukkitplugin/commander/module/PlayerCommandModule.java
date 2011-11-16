@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerListener;
-import org.digiplex.bukkitplugin.commander.ReplacementPair;
+import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
 
 public class PlayerCommandModule extends PlayerListener implements Module {
 	private static final Logger Log = Logger.getLogger("Minecraft");
@@ -33,7 +33,7 @@ public class PlayerCommandModule extends PlayerListener implements Module {
 		for (ReplacementPair rp : pairs) {
 			Matcher m = rp.getRegex().matcher(e.getMessage().substring(1));
 			if (m.matches()){
-				String rps = m.replaceFirst(replacementString(rp.getReplacement(), e));
+				String rps = m.replaceFirst(rp.executeReplacement(e));
 				//Log.info(rps);
 				e.setCancelled(true);
 				if (echoCmds) 
@@ -45,11 +45,5 @@ public class PlayerCommandModule extends PlayerListener implements Module {
 		if (echoCmds) {
 			Log.info("[PLAYERCMD] "+e.getPlayer().getName()+": "+e.getMessage());
 		}
-	}
-	
-	private String replacementString(String rep, PlayerCommandPreprocessEvent e){
-		return rep
-			.replaceAll("\\$p", e.getPlayer().getName())
-			;
 	}
 }

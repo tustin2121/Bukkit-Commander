@@ -25,6 +25,8 @@ import org.digiplex.bukkitplugin.commander.module.ConsoleCommandModule;
 import org.digiplex.bukkitplugin.commander.module.Module;
 import org.digiplex.bukkitplugin.commander.module.PlayerChatModule;
 import org.digiplex.bukkitplugin.commander.module.PlayerCommandModule;
+import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
+import org.digiplex.bukkitplugin.commander.replacement.ReplacementString;
 
 public class CommanderPlugin extends JavaPlugin {
 	public static final Logger Log = Logger.getLogger("Minecraft");
@@ -119,7 +121,7 @@ public class CommanderPlugin extends JavaPlugin {
 			if (!listfile.canRead()){ throw new FileNotFoundException(); }
 			
 			br = new BufferedReader(new FileReader(listfile));
-			Pattern p = Pattern.compile("\\/(.+)\\/(\\w*)\\s*==>\\s*(.*)");
+			Pattern p = Pattern.compile("\\/(.+)\\/(\\w*)\\s*=(\\w?)=>\\s*(.*)");
 			String line;
 			
 			int success = 0, lineno = 0;
@@ -132,10 +134,11 @@ public class CommanderPlugin extends JavaPlugin {
 					
 					String regex = m.group(1);
 					//String opts = m.group(2);
-					String repl = m.group(3);
+					//String method = m.group(3);
+					String repl = m.group(4);
 					//Log.info("line: "+line+" > "+regex+" ==> "+repl);
 					
-					ReplacementPair rp = new ReplacementPair(regex, repl);
+					ReplacementPair rp = new ReplacementString(regex, repl);
 					module.addReplacementPair(rp);
 				} else {
 					Log.warning("Line "+lineno+" is badly formatted. Ignoring.");
