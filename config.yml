@@ -1,6 +1,15 @@
+options:
+    default-echo: true
+    match-uppercase: true
+    commands:
+        echo: true
+    cutoff:
+        length: 1
+        indicator: --*
 log:
     player:
         commands: false
+        chat: false
 files:
     playercmd: playercmd.txt
     playerchat: playerchat.txt

@@ -1,0 +1,122 @@
+=====================================
+  Reference for Replacement Regexes
+=====================================
+
+===== Simple Replacement =====
+Simple regular expression replacement lines take the following forms:
+
+	/regex/ ==> replacement
+	/regex/ =c=> command
+	/regex/opts ==> [ropts] replacement
+	/regex/opts =c=> [ropts] command
+
+The regex is a regular expression to be matched against. The expression
+can use any of the features a regular expression in java can use, including
+end matching, look-backs, look-aheads, group capture, etc.
+
+The regex options, coming immediately after the ending slash, are optional
+one character modifiers to the regex. The following options are supported:
+	s = turn on case sensitivity (by default, all regexes are insensitive)
+	l = turn on the literal option on the regex (Pattern.LITERAL)
+
+The ropts, or replacement options, are optional, comma separated options
+to the replacement. To omit the replacement options, omit the square 
+brackets ([]). 
+
+The replacement is the phrase that will replace the matched text. This 
+phrase can use back references $0 to $9: $0 is a reference to the whole 
+matched text, $1 is a reference to the first matched group, $2 to the 
+second, etc. You may also use special references provided by commander. 
+The following are supported:
+	$p = the player who entered the command
+
+The arrow (==>) between the regex and the replacement may have a "method"
+character between the two equal signs (=). This signifies a special method
+of replacement. The following methods are supported:
+	
+	(nothing) = normal replacement
+		In normal replacement mode, if the context is a command-matching
+		context, the regex will be tested against the whole command, and
+		the replacement will be the subsitute command. If the context is
+		a chat-matching context, the regex will run as a find-replace on
+		the chat, and can hit multiple times. Each time, the replacement
+		will replace the matched text.
+		
+	c = command replacement
+		In a command-matching context, this mode is no different from normal
+		replacement above. In chat-matching context, the matched word will
+		run the specified command, and the word will not be changed. Command
+		words may trigger a mod command (see sudo below) which results in
+		the player vanishing, in which case the replacement option [cutoff]
+		can be specified, which will cutoff chat message at the matched word
+		with a comedic "--*" (changed in config.yml). If a command word is
+		matched several times, the command will only be run once.
+
+
+===== Scripting =====
+The latest version introduces basic scripting support, which will expand in
+the next version with greater scripting support.
+
+The following creates a script:
+
+	/regex/ =={
+		commands
+	}
+	/regex/opts =={ alias
+		commands
+	}
+
+The regex and regex options are the same as above.
+
+The alias is a name for the script, and is optional. It is used for logging,
+debugging, and will be used more in later versions.
+
+The commands block holds all the commands to be executed, in order, when the
+regex is matched. There can be only one command per line. The block ends 
+with a close curly bracket (}). The commands may be indented in any way, or
+not indented at all; Commander removes whitespace before and after the 
+command before executing it. Scripts may have nested blocks within them, 
+denoted with more curly brackets ({}). Note that if braces are unbalanced
+(the number of open braces does not match the number of close braces) the
+parser will throw an exception on plugin enable.
+
+
+===== Special Commands/Scripting =====
+Debugging:
+	To debug your scripts, you may call from the console "commander debug".
+	This command will turn on extensive logging to the console to make sure
+	your scripts are being executed correctly. For every command, Commander
+	will print the command exactly how it will call it right before it does
+	so. Calling this command again will disable the debugging.
+
+Mod Commands (sudo):
+	Any command, in a script or in a replacement, may be prefaced with the 
+	word "sudo". This will make commander execute the command as if the
+	console were executing it. Be careful when using this functionality, as
+	Commander does not check permissions when doing this. Using sudo in
+	front of a normal command called from the game or the console will not
+	trigger this behavior.
+	
+	(The term "sudo" comes from the same command from unix systems. The
+	word stands for "super user do".)
+
+Echo:
+	Commander supplies the command "echo", which will echo back to the
+	player (and the player alone) the argument to the command.
+	
+	Commander has an option (in config.yml) to suppress text sent to the 
+	player as a result of a command when a script is run. In future 
+	versions, this echoing can be controlled in-script as well.
+	
+	The echo command by-passes this suppression, so one can run complex
+	commands without putting a lot of text to the screen, and then, at the
+	end, echo one line back saying that all completed successfully.
+	
+	Echo suppression does not suppress broadcasts to the server, such as
+	those messages broadcast from the default /time and /gamemode commands.
+
+
+
+
+
+

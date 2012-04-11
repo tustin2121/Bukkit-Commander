@@ -1,5 +1,5 @@
 name: Commander
-version: 1.0 
+version: 1.2 
 description: |
       Using a given set of regexes, this plugin allows command aliases and chat censoring.
 author: Tustin2121
@@ -7,5 +7,8 @@ main: org.digiplex.bukkitplugin.commander.CommanderPlugin
 commands:
    commander:
       description: The main commander command
-      usage: /<command> [Reload]
+      usage: /<command> [reload|debug]
+   echo:
+      description: Echos your words back to you
+      usage: /<command> <text>
 

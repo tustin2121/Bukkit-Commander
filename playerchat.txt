@@ -1,3 +1,6 @@
 /\bgod/ ==> Notch
 /\bhell\b/ ==> nether
-/\bnigger/ =m=> /
+/fuck/ =r=> funking wagnal;fuzzy pickles 
+/\bnigger/ =c=> [cutoff] sudo kick $p
+/\*clap clap\*/ =c=> time set night
+/\blet there be light/ =c=> time set day
