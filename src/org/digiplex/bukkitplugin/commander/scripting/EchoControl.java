@@ -4,7 +4,7 @@ import org.bukkit.command.CommandSender;
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
 
 public abstract class EchoControl implements CommandSender {
-	boolean echoEnabled = false;
+	boolean echoEnabled = true;
 	CommandSender wrappedSender;
 	
 	protected EchoControl(CommandSender sender) {

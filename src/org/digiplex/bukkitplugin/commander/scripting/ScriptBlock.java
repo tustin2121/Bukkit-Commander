@@ -8,11 +8,11 @@ public class ScriptBlock implements Executable {
 	private ArrayList<Executable> commands;
 	private String alias;
 	
-	public ScriptBlock(ArrayList<String> sl) throws BadScriptException{
+	public ScriptBlock(ArrayList<String> sl) throws BadScriptException {
 		this(sl.toArray(new String[sl.size()]));
 	}
 	
-	public ScriptBlock(ArrayList<String> sl, String alias) throws BadScriptException{
+	public ScriptBlock(ArrayList<String> sl, String alias) throws BadScriptException {
 		this(sl.toArray(new String[sl.size()]));
 		this.alias = alias;
 	}
