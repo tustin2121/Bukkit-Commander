@@ -40,7 +40,7 @@ public class ConsoleCommandModule implements Module {
 			for (ReplacementPair rp : pairs) {
 				Matcher m = rp.getRegex().matcher(e.getCommand());
 				if (m.matches()){
-					env.setMatcher(m);
+					env.setMatch(m.toMatchResult());
 					
 					rp.executeEffects(env);
 					e.setCommand("commander null"); //does nothing, prints nothing

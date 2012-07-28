@@ -46,7 +46,7 @@ public class PlayerCommandModule implements Module {
 			for (ReplacementPair rp : pairs) {
 				Matcher m = rp.getRegex().matcher(e.getMessage().substring(1));
 				if (m.matches()){
-					env.setMatcher(m);
+					env.setMatch(m.toMatchResult());
 					
 					if (echoCmds)
 						Log.info("[PLAYERCMD] "+e.getPlayer().getName()+": "+ e.getMessage() +rp.predicateString());
@@ -55,21 +55,6 @@ public class PlayerCommandModule implements Module {
 					e.setCancelled(true);
 					
 					return;
-					
-					/*
-					if (rp.playerWillVanish()) {
-						rp.executeReplacement(e);
-						e.setCancelled(false);
-						return;
-					}
-					
-					String rps = m.replaceFirst(rp.executeReplacement(e));
-					//Log.info(rps);
-					e.setCancelled(true);
-					if (echoCmds) 
-						Log.info("[PLAYERCMD] "+e.getPlayer().getName()+": "+e.getMessage()+" ==> "+rps);
-					e.getPlayer().performCommand(rps);
-					return;*/
 				}
 			}
 		} catch (Exception ex){

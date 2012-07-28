@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 
 import org.bukkit.event.EventHandler;
@@ -43,19 +44,20 @@ public class PlayerChatModule implements Module {
 			}
 			
 			ArrayList<ReplacementPair> preparedEffects = new ArrayList<ReplacementPair>(); //holds all effects until all replacements done
+			ArrayList<MatchResult> matchResults = new ArrayList<MatchResult>(); //holds all match instances for the same
 			
 			for (ReplacementPair rp : pairs) {
 				StringBuffer sb = new StringBuffer();
 				Matcher m = rp.getRegex().matcher(e.getMessage());
 				
 				if (!m.find()) continue;
-				env.setMatcher(m);
+				env.setMatch(m.toMatchResult());
 				
 				if (echoCmds)
 					Log.info("[PLAYERCHAT] "+e.getPlayer().getName()+": "+ m.group(0) +rp.predicateString());
 				
 				if (rp.playerWillVanish()) { //the player will vanish as a result of this, special handling
-					int cutlen = CommanderPlugin.instance.config.getInt("options.cutoff.length", 1);
+					int cutlen = rp.getIntOption("cutoff");
 					String cuttext = CommanderPlugin.instance.config.getString("options.cutoff.indicator", "--*");
 					
 					String rep = m.group().substring(0, cutlen).concat(cuttext);
@@ -79,8 +81,10 @@ public class PlayerChatModule implements Module {
 				} while (m.find());
 				m.appendTail(sb);
 				
-				if (!preparedEffects.contains(rp))
+				if (!preparedEffects.contains(rp)) {
 					preparedEffects.add(rp);
+					matchResults.add(m.toMatchResult());
+				}
 				
 				e.setMessage(sb.toString());
 			}
@@ -90,9 +94,11 @@ public class PlayerChatModule implements Module {
 				//e.setCancelled(true);
 				//e.getPlayer().chat(sb.toString()); //chat first
 				
-				env.setMatcher(null);
-				for (ReplacementPair rp : preparedEffects){
-					rp.executeEffects(env);
+				//env.setMatcher(null);
+				for (int i = 0; i < preparedEffects.size(); i++){
+				//for (ReplacementPair rp : preparedEffects){
+					env.setMatch(matchResults.get(i));
+					preparedEffects.get(i).executeEffects(env);
 				}
 			}
 		} catch (Exception ex){

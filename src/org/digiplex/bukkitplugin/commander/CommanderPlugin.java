@@ -282,7 +282,14 @@ public class CommanderPlugin extends JavaPlugin {
 	
 	public class AdminCommand implements CommandExecutor {
 		@Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-			if (sender instanceof Player) return false;
+			if (args[0].equals("null")){ //undocumented command that does nothing, used internally
+				return true;
+			}
+			
+			if (sender instanceof Player) {
+				sender.sendMessage("Commander commands can only be executed from the console.");
+				return true;
+			}
 			if (args[0].equalsIgnoreCase("reload")){
 				reload();
 				return true;
@@ -306,8 +313,6 @@ public class CommanderPlugin extends JavaPlugin {
 					}
 					sb.execute(env);
 				}
-				return true;
-			} else if (args[0].equals("null")){ //undocumented command that does nothing, used internally
 				return true;
 			}
 			return false;

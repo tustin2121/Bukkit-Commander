@@ -3,6 +3,7 @@ package org.digiplex.bukkitplugin.commander.replacement;
 import java.util.Properties;
 import java.util.regex.PatternSyntaxException;
 
+import org.digiplex.bukkitplugin.commander.CommanderPlugin;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptLine;
 
@@ -14,14 +15,19 @@ import org.digiplex.bukkitplugin.commander.scripting.ScriptLine;
  */
 public class ReplacementCommand extends ReplacementPair {
 	ScriptLine script;
-	boolean cutoff = false;
+	int cutoff = -1;
 
 	public ReplacementCommand(String regex, String replacement, String options) throws PatternSyntaxException {
 		super(regex);
-		script = new ScriptLine(replacement);
+		script = ScriptLine.parseScriptLine(replacement); //new ScriptLine(replacement);
 		if (options != null && !options.isEmpty()){
 			Properties p = parseOpts(options);
-			cutoff = Boolean.parseBoolean(p.getProperty("cutoff", "false"));
+			{
+				String s = p.getProperty("cutoff", "false");
+				if (s.matches("\\d")) cutoff = Integer.parseInt(s);
+				else if (s.matches("true")) cutoff = CommanderPlugin.instance.config.getInt("options.cutoff.length", 1);
+				else cutoff = -1;
+			}
 		//	CommanderPlugin.Log.info("["+options+"] cutoff = "+cutoff);
 		}
 	}
@@ -32,8 +38,13 @@ public class ReplacementCommand extends ReplacementPair {
 	
 	public String predicateString() { return "==[cmd]==> "+replacement; }
 	
+	@Override public int getIntOption(String optionName) {
+		if (optionName.equals("cutoff")) return cutoff;
+		return super.getIntOption(optionName);
+	}
+	
 	@Override public boolean playerWillVanish() {
-		return cutoff;
+		return cutoff > -1;
 	}
 
 	@Override public void executeEffects(ScriptEnvironment e) {

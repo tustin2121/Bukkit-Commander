@@ -57,7 +57,7 @@ public abstract class ReplacementPair {
 		return regexString.hashCode();
 	}
 
-	public Properties parseOpts(String opts) {
+	protected Properties parseOpts(String opts) {
 		Properties p = new Properties();
 		String[] kvpairs = opts.split(",");
 		
@@ -72,4 +72,8 @@ public abstract class ReplacementPair {
 		
 		return p;
 	}
+	
+	// Abstract options getters for Replacement Pairs - to get options specified in the [brackets]
+	public boolean getBooleanOption(String optionName){ return false; }
+	public int getIntOption(String optionName){ return 0; }
 }

@@ -1,19 +1,27 @@
 package org.digiplex.bukkitplugin.commander.scripting;
 
-import org.digiplex.bukkitplugin.commander.CommanderPlugin;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptCommandLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptDirectiveEchoLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptVarAssignmentLine;
+
 
 /**
  * TODO: make script lines abstract, and have a method that will make the line based on what it parses:
  *  if the line begins with [ then it is a construct:
  *     [if @var = literal] = if construct: if a variable equals something
  *     [!if @var = literal] = not if construct: if a variable is not equal to something
- *     [for @var in supportedCollection] = for each construct: for each in a supported collection (players, online players)
+ *     [foreach @var in supportedCollection] = for each construct: for each in a supported collection (players, online players)
  *     [has "permission"] = has construct: if the current sender has the specified permission
  *     [!has "permission"] = has not contruct: if the current sender does not have the specified permission
  *     [switch @var] and [case #] = switch, on the variable
  *     [random # to #] and [case #] = same as switch, but with a random number 
- *  if the line begins with a @ then it is a variable assignment:
- *     @var = a number, string, or supported object with a name
+ *  if the line begins with a @ then it is a variable method:
+ *     @var = a number, string, or supported object with a name : assignment
+ *     @var++ : increase var if number
+ *     
  *  if the line begins with a ? then it is a scripting environment directive
  *     ?echo on/off = turns on/off echoing back messages from commands - the built-in echo command ignores it
  *  if the line begins with "say", 
@@ -21,34 +29,70 @@ import org.digiplex.bukkitplugin.commander.CommanderPlugin;
  *     the line is a normal command to be executed by the current CommandSender, or mod if it begins with "sudo" 
  * @author timpittman
  */
-public class ScriptLine implements Executable {
-	public String cmd;
-	public boolean modCommand;
+public abstract class ScriptLine implements Executable {
 	
-	public ScriptLine(String command) {
-		if (command.trim().startsWith("sudo")) { //allow "sudo" commands to be run by the console
-			modCommand = true;
-			this.cmd = command.trim()
-					.replaceFirst("(?<!\\\\)sudo", "").replaceFirst("\\sudo", "sudo"); //remove sudo, unless it has a \ in front
-					//this is a negative look-back, see ReplacementString
-		} else {
-			this.cmd = command;
+	/**
+	 * Makes a ScriptLine instance based on the parsing of the line. The returned ScriptLine may not be 
+	 * completely defined when it is returned; constructs require the line defined after them
+	 * @param line
+	 * @return
+	 */
+	public static ScriptLine parseScriptLine(String line){
+		line = line.trim();
+		switch(line.charAt(0)){
+	//	case '[': return parseConstruct(line);
+	//	case '@': return parseVariable(line);
+		case '?': return parseDirective(line);
+		default: return new ScriptCommandLine(line);
 		}
-		this.cmd = this.cmd.trim();
 	}
 	
-	@Override public void execute(ScriptEnvironment env) {
-		String command = env.substituteTokens(cmd);
-		if (env.getMatcher() != null)
-			command = env.getMatcher().replaceFirst(command);
+	private static ScriptLine parseConstruct(String line){
+		final Pattern p = Pattern.compile("\\[([!a-zA-Z]+) ([^\\]]*)\\]", Pattern.CASE_INSENSITIVE);
+		Matcher m = p.matcher(line);
+		String conname = m.group(1);
+		String params = m.group(2);
 		
-		if (CommanderPlugin.instance.scriptDebugMode)
-			CommanderPlugin.Log.info("[Commander:DEBUG:line] "+command);
-		
-		if (modCommand)
-			env.getServer().dispatchCommand(CommanderPlugin.ccs, command);
-		//	env.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
-		else
-			env.getServer().dispatchCommand(env.getCommandSender(), command);
+		ScriptLine l = null;
+		if (conname.matches("\\!?if")){
+			
+		}
+		return l;
 	}
+	
+	private static ScriptLine parseVariable(String line){
+		final Pattern p = Pattern.compile("\\@([a-zA-Z][a-zA-Z0-9]*)\\s+=\\s+(.*)", Pattern.CASE_INSENSITIVE);
+		Matcher m = p.matcher(line);
+		String variable = m.group(1);
+		String literal = m.group(2);
+		
+		ScriptLine l = new ScriptVarAssignmentLine(variable, literal);
+		return l; //TODO more
+	}
+	
+	private static ScriptLine parseDirective(String line){
+		final Pattern p = Pattern.compile("\\?(.*)", Pattern.CASE_INSENSITIVE);
+		Matcher m = p.matcher(line);
+		String dir = m.group(1);
+		
+		ScriptLine l = null;
+		if (dir.startsWith("echo")){
+			boolean b = dir.matches("(?i)echo (on|true|1|yes)");
+			l = new ScriptDirectiveEchoLine(b);
+		}
+		return l;
+	}
+	
+	///////////////////////////////////////////////////////////
+	
+	public abstract boolean isConstruct();
+	public abstract boolean isDirective();
+	
+	public abstract boolean requiresNextLine();
+	public abstract boolean requiresPreviousConstruct();
+	
+	public boolean giveNextLine(Executable script){
+		return false;
+	}
+	
 }

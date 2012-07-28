@@ -37,7 +37,7 @@ of replacement. The following methods are supported:
 	(nothing) = normal replacement
 		In normal replacement mode, if the context is a command-matching
 		context, the regex will be tested against the whole command, and
-		the replacement will be the subsitute command. If the context is
+		the replacement will be the substitute command. If the context is
 		a chat-matching context, the regex will run as a find-replace on
 		the chat, and can hit multiple times. Each time, the replacement
 		will replace the matched text.
@@ -51,6 +51,11 @@ of replacement. The following methods are supported:
 		can be specified, which will cutoff chat message at the matched word
 		with a comedic "--*" (changed in config.yml). If a command word is
 		matched several times, the command will only be run once.
+	
+	r = random replacement
+		Available only in a chat-matching context, the random replacement 
+		mode will replace the matched text with one of the possible strings 
+		(separated by semicolons (;)). 
 
 
 ===== Scripting =====
