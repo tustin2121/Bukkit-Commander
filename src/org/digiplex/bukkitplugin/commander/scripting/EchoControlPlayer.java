@@ -108,6 +108,18 @@ public class EchoControlPlayer extends EchoControl implements Player {
 	@Override public void openInventory(InventoryView arg0) {
 		((Player)wrappedSender).openInventory(arg0);
 	}
+	
+	@Override public int getExpToLevel() {
+		return ((Player)wrappedSender).getExpToLevel();
+	}
+
+	@Override public boolean hasLineOfSight(Entity arg0) {
+		return ((Player)wrappedSender).hasLineOfSight(arg0);
+	}
+
+	@Override public boolean isValid() {
+		return ((Player)wrappedSender).isValid();
+	}
 
 	@Override public InventoryView openWorkbench(Location arg0, boolean arg1) {
 		return ((Player)wrappedSender).openWorkbench(arg0, arg1);
