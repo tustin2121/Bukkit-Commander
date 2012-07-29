@@ -39,7 +39,7 @@ public class ScriptBlock implements Executable {
 					commands.add(sb);
 					workingSubblock = null;
 				}
-				if (bracecount < 0) throw new BadScriptException("Error parsing script! Unbalanced braces!");
+				if (bracecount < 0) throw new BadScriptException("Error parsing script! Unbalanced braces - too many close braces!");
 			} else {
 				
 				
@@ -52,6 +52,8 @@ public class ScriptBlock implements Executable {
 				
 			}
 		}
+		//check to make sure we closed all the braces properly
+		if (bracecount != 0) throw new BadScriptException("Error parsing script! Unbalanced braces - too many open braces!");
 	}
 	
 	public String getAlias() {return alias;}

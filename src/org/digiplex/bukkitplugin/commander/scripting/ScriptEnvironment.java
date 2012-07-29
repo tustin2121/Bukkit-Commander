@@ -66,11 +66,11 @@ public class ScriptEnvironment {
 		
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < str.length(); i++){
-			char c = sb.charAt(i);
+			char c = str.charAt(i);
 			switch (c){
 			case '\\': i++; continue; //skip over escape character
 			case '$': i++; //skip over character
-				c = sb.charAt(i);
+				c = str.charAt(i);
 				
 				switch(c){
 				case '0': case '1': case '2': case '3': case '4': 
