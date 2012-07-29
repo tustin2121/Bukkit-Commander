@@ -44,7 +44,7 @@ public class ScriptBlock implements Executable {
 				
 				
 				if (bracecount == 0){
-					ScriptLine sl = new ScriptLine(line);
+					ScriptLine sl = ScriptLine.parseScriptLine(line);
 					commands.add(sl);
 				} else {
 					workingSubblock.add(line);

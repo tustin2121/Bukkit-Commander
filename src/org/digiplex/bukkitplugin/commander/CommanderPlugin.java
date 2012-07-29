@@ -50,6 +50,8 @@ public class CommanderPlugin extends JavaPlugin {
 	
 	public boolean scriptDebugMode = false;
 	
+	@Override public String toString() { return "CommanderPlugin"; }
+	
 	@Override public void onDisable() {
 		instance = null;
 		Log.info("[Commander] Disabled");
