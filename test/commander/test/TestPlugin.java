@@ -15,8 +15,6 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-import org.junit.runner.JUnitCore;
-import org.junit.runners.JUnit4;
 
 import commander.test.placeholders.TestPlayer;
 import commander.test.placeholders.TestServer;
@@ -51,6 +49,7 @@ public class TestPlugin {
 	}
 	
 	@After public void tearDown() throws Exception {
+		server.clearCommands();
 		LOG.info("----- Done "+testname.getMethodName()+" -----");
 	}
 	
@@ -61,22 +60,26 @@ public class TestPlugin {
 	//////////////////////////////////////////////////////////////////////////
 	
 	@Test public void simpleLine() throws Exception {
-		String command = "Test Line 1";
+		String command = "Hello World!";
 		
 		ScriptLine sl = ScriptLine.parseScriptLine(command);
 		sl.execute(environment);
+		
+		assertTrue(server.checkCommands(command));
 	}
 	
 	@Test public void multilineScript() throws Exception {
 		String[] commands = new String[] {
-				"Test Line 1",
-				"Test Command 2",
-				"daytime!",
-				"Hello World!",
+				"Test Line 1  \n",
+				"Test Command 2  ",
+				" ec bc daytime!  ",
+				"Hello World! \n",
 		};
 		
 		ScriptBlock sb = new ScriptBlock(commands);
 		sb.execute(environment);
+		
+		assertTrue(server.checkCommands("Test Line 1", "Test Command 2", "ec bc daytime!", "Hello World!"));
 	}
 	
 	@Test public void detectUnevenParens() {
@@ -114,5 +117,35 @@ public class TestPlugin {
 			assertNotNull(e);
 			LOG.warning(e.getMessage());
 		}
+	}
+	
+	@Test public void innerBraceScript() throws Exception {
+		String[] commands = new String[] {
+				"Test Line 1",
+				"Test Line 2",
+				"{",
+				"    Inner Block 1",
+				"    Inner Block 2",
+				"}",
+				"Test Line 3",
+				"Test Line 4",
+		};
+		
+		ScriptBlock sb = new ScriptBlock(commands);
+		sb.execute(environment);
+		
+		assertTrue(server.checkCommands(commands[0], commands[1], commands[3].trim(), commands[4].trim(), commands[6], commands[7]));
+	}
+	
+	@Test public void variableReplacement() throws Exception {
+		environment.setVariableValue("t1", "hello world");
+		environment.setVariableValue("hope", "change");
+		
+		String command = "Variable @t1 Testing I'm @{hope}ing works";
+		
+		ScriptLine sl = ScriptLine.parseScriptLine(command);
+		sl.execute(environment);
+		
+		assertTrue(server.checkCommands("Variable hello world Testing I'm changeing works"));
 	}
 }

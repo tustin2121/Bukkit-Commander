@@ -63,21 +63,35 @@ public class TestPlayer implements Player {
 		return server;
 	}
 	
+	@Override public void sendMessage(String message) {
+		System.out.println("[TestPlayer] sendMessage() : "+message);
+	}
+
+	@Override public void sendMessage(String[] messages) {
+		System.out.println("[TestPlayer] sendMessage() :");
+		for (String msg : messages) {
+			System.out.println(" > "+msg);
+		}
+	}
 	
 	
 	@Override public boolean isPermissionSet(String name) {
+		System.out.println("[TestPlayer] isPermissionSet() : "+name);
 		return false;
 	}
 
 	@Override public boolean isPermissionSet(Permission perm) {
+		System.out.println("[TestPlayer] isPermissionSet() : "+perm.getName());
 		return false;
 	}
 
 	@Override public boolean hasPermission(String name) {
+		System.out.println("[TestPlayer] hasPermission() : "+name);
 		return false;
 	}
 
 	@Override public boolean hasPermission(Permission perm) {
+		System.out.println("[TestPlayer] hasPermission() : "+perm.getName());
 		return false;
 	}
 	
@@ -467,10 +481,6 @@ public class TestPlayer implements Player {
 
 	@Override public void abandonConversation(Conversation conversation,
 			ConversationAbandonedEvent details) {}
-
-	@Override public void sendMessage(String message) {}
-
-	@Override public void sendMessage(String[] messages) {}
 
 	@Override public boolean isOnline() {
 		return false;

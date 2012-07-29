@@ -3,6 +3,7 @@ package commander.test.placeholders;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -53,10 +54,36 @@ public class TestServer implements Server {
 		}
 	}
 	
+	private ArrayList<String> issuedCommands = new ArrayList<String>();
+	
+	public void clearCommands() {
+		issuedCommands.clear();
+	}
+	
+	public boolean checkCommands(String... cmds) {
+		try {
+			if (cmds.length != issuedCommands.size()) return false;
+			
+			for (int i = 0; i < cmds.length; i++) {
+				String cmd = cmds[i];
+				String isc = issuedCommands.get(i);
+				if (!isc.equals(cmd)) return false;
+			}
+			return true;
+		} finally {
+		//	issuedCommands.clear();
+		}
+	}
+	
 	/////////////////////////////////// Relevant Methods //////////////////////////////////////
 	
 	@Override public boolean dispatchCommand(CommandSender sender, String commandLine) throws CommandException {
 		System.out.println("[TestServer] dispatchCommand() : "+commandLine);
+		issuedCommands.add(commandLine);
+		if (commandLine.contains("ec"))
+			sender.sendMessage("Echo from '"+commandLine+"'");
+		if (commandLine.contains("bc"))
+			broadcastMessage("Broadcast from '"+commandLine+"'");
 		return true;
 	}
 	

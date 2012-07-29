@@ -11,14 +11,16 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptVarAssignmentLi
 /**
  * TODO: make script lines abstract, and have a method that will make the line based on what it parses:
  *  if the line begins with [ then it is a construct:
- *     if constructs:
+ *     conditional constructs:
  *        [if @var = literal] = if construct: if a variable equals something
  *        [!if @var = literal] = not if construct: if a variable is not equal to something
  *        [has "permission"] = has construct: if the current sender has the specified permission
- *        [!has "permission"] = has not contruct: if the current sender does not have the specified permission
- *     for constructs:
+ *        [!has "permission"] = has not construct: if the current sender does not have the specified permission
+ *     loop constructs:
  *        [foreach @var in supportedCollection] = for each construct: for each in a supported collection (players, online players)
- *     switch constructs:
+ *        [loop @var = # to #] = loop construct: loop a number of times from first # to second # in the given variable
+ *        [loop @var = # to # step #] = loop step construct: loop as above, but stepping third # at a time
+ *     case constructs:
  *        [switch @var] and [case #], [else] = switch, on the variable
  *        [random # to #] and [case #], [case #-#], [case <#], [case >#] = same as switch, but with a random number 
  *  if the line begins with a @ then it is a variable method:

@@ -88,6 +88,25 @@ public class ScriptEnvironment {
 					sb.append(commandSender.getName());
 				}
 				continue;
+			case '@': i++; //skip over character
+				StringBuffer varb = new StringBuffer();
+				c = str.charAt(i);
+				boolean inBrace = (c == '{');
+				if (inBrace) i++; //skip over {
+				
+				for (; i < str.length(); i++){ //grab the variable name
+					c = str.charAt(i);
+					if (inBrace) {
+						if (c == '}') break;
+					} else {
+						if (Character.isWhitespace(c)) break;
+					}
+					varb.append(c);
+				}
+				Object varval = this.getVariableValue(varb.toString());
+				sb.append(varval);
+				if (!inBrace) sb.append(' '); //since we consumed the space above, put it back in 
+				continue;
 			default:
 				sb.append(c);
 			}
@@ -106,6 +125,6 @@ public class ScriptEnvironment {
 			str = str.replaceAll("(?<!\\\\)\\$p", commandSender.getName()).replaceAll("\\\\$p", "$p"); 
 		}
 */	
-		return str;
+		return sb.toString();
 	}
 }

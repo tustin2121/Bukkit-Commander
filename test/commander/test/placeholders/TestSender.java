@@ -37,8 +37,6 @@ public class TestSender implements CommandSender {
 		return "TestSender";
 	}
 	
-	////////////////////////////////// Irrelevant Methods //////////////////////////////////////
-
 	@Override public boolean isPermissionSet(String name) {
 		return false;
 	}
@@ -54,6 +52,8 @@ public class TestSender implements CommandSender {
 	@Override public boolean hasPermission(Permission perm) {
 		return false;
 	}
+	
+	////////////////////////////////// Irrelevant Methods //////////////////////////////////////
 
 	@Override public PermissionAttachment addAttachment(Plugin plugin,
 			String name, boolean value) {
