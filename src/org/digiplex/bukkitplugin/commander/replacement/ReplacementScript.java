@@ -2,6 +2,7 @@ package org.digiplex.bukkitplugin.commander.replacement;
 
 import java.util.regex.PatternSyntaxException;
 
+import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 
@@ -23,7 +24,7 @@ public class ReplacementScript extends ReplacementPair {
 	
 	public String predicateString() { return "==[script]==> { "+scriptAlias+" }"; }
 	
-	@Override public void executeEffects(ScriptEnvironment e) {
+	@Override public void executeEffects(ScriptEnvironment e) throws BadScriptException {
 		block.execute(e);
 	}
 	

@@ -63,7 +63,7 @@ public class ScriptBlock implements Executable {
 		return "Script[alias="+alias+",lines="+commands.size()+"]";
 	}
 	
-	@Override public void execute(ScriptEnvironment env) {
+	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
 		if (CommanderPlugin.instance.scriptDebugMode)
 			CommanderPlugin.Log.info("[Commander:DEBUG:startScript] ");
 		

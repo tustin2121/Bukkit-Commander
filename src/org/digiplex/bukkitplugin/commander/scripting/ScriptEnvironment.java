@@ -32,11 +32,21 @@ public class ScriptEnvironment {
 		else
 			return o;
 	}
+	
 	public void setVariableValue(String name, Object obj){
 		//check if the parent already has this variable defined, and if not, then set it ourselves
 		if (parent == null || !parent.setVarFromChild(name, obj))
 			vars.put(name, obj);
 	}
+	public void setVariableGlobally(String name, Object obj) {
+		if (parent != null) {
+			vars.remove(name); //for it to be accessed globally, we need to remove all instances below it
+			parent.setVariableGlobally(name, obj);
+		} else {
+			vars.put(name, obj);
+		}
+	}
+	
 	private boolean setVarFromChild(String name, Object obj){
 		//special function that sets variables only if they already exist
 		if (vars.containsKey(name)) {

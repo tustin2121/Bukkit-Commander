@@ -12,6 +12,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
+import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 
 public class PlayerChatModule implements Module {
@@ -101,7 +102,10 @@ public class PlayerChatModule implements Module {
 					preparedEffects.get(i).executeEffects(env);
 				}
 			}
-		} catch (Exception ex){
+		} catch (BadScriptException ex) {
+			CommanderPlugin.Log.severe("[Commander] Script Error: "+ex.getMessage());
+			e.getPlayer().sendMessage("[Commander] An error occurred while processing the script.");
+		} catch (Exception ex) {
 			CommanderPlugin.Log.log(Level.SEVERE, "[Commander] An exception was caught during chat replacement processing! Chat passed through.", ex);
 		}
 	}

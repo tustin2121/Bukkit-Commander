@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptCommandLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptDirectiveEchoLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptVarAssignmentLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptVarIncrementLine;
 
 
 /**
@@ -67,15 +68,37 @@ public abstract class ScriptLine implements Executable {
 		return l;
 	}
 	
+	private static final Pattern ASSIGN_LOCAL = Pattern.compile("\\@([a-zA-Z0-9]+)\\s+=\\s+(.*)");
+	private static final Pattern ASSIGN_GLOBAL = Pattern.compile("\\@([a-zA-Z0-9]+)\\s+\\:=\\s+(.*)");
+	private static final Pattern ASSIGN_INCREMENT = Pattern.compile("\\@([a-zA-Z0-9]+)\\s+\\+\\+");
+	private static final Pattern ASSIGN_DECREMENT = Pattern.compile("\\@([a-zA-Z0-9]+)\\s+\\-\\-");
+	
 	private static ScriptLine parseVariable(String line) throws BadScriptException{
-		final Pattern p = Pattern.compile("\\@([a-zA-Z0-9]+)\\s+=\\s+(.*)", Pattern.CASE_INSENSITIVE);
-		Matcher m = p.matcher(line);
-		if (!m.matches()) throw new BadScriptException("Variable assignment not properly formatted");
-		String variable = m.group(1);
-		String literal = m.group(2);
+		Matcher m;
 		
-		ScriptLine l = new ScriptVarAssignmentLine(variable, literal);
-		return l; //TODO more
+		ScriptLine l;
+		if ( (m = ASSIGN_LOCAL.matcher(line)).matches() ) {
+			String variable = m.group(1);
+			String literal = m.group(2);
+			
+			l = new ScriptVarAssignmentLine(variable, literal);
+		} else if ( (m = ASSIGN_GLOBAL.matcher(line)).matches() ) {
+			String variable = m.group(1);
+			String literal = m.group(2);
+			
+			l = new ScriptVarAssignmentLine(variable, literal, true); //global assignment
+		} else if ( (m = ASSIGN_INCREMENT.matcher(line)).matches() ) {
+			String variable = m.group(1);
+			
+			l = new ScriptVarIncrementLine(variable);
+		} else if ( (m = ASSIGN_DECREMENT.matcher(line)).matches() ) {
+			String variable = m.group(1);
+			
+			l = new ScriptVarIncrementLine(variable, true); //decrement
+		} else {
+			throw new BadScriptException("Variable assignment not properly formatted");
+		}
+		return l;
 	}
 	
 	private static ScriptLine parseDirective(String line){

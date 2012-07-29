@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="MacRoman" standalone="no"?>
+<?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
 <jardesc>
-    <jar path="/Users/timpittman/Documents/minecraft-testbase/plugins/Commander.jar"/>
-    <options buildIfNeeded="true" compress="true" descriptionLocation="/BukkitCommander/CommanderRelease.jardesc" exportErrors="false" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <jar path="C:/Users/Tim/Documents/bukkit-testbed/plugins/Commander.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/Bukkit-Commander/CommanderRelease.jardesc" exportErrors="false" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
     <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
@@ -11,12 +11,12 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <file path="/BukkitCommander/consolecmd.txt"/>
-        <file path="/BukkitCommander/playercmd.txt"/>
-        <file path="/BukkitCommander/config.yml"/>
-        <file path="/BukkitCommander/plugin.yml"/>
-        <javaElement handleIdentifier="=BukkitCommander/src"/>
-        <file path="/BukkitCommander/playerchat.txt"/>
-        <file path="/BukkitCommander/Reference.txt"/>
+        <javaElement handleIdentifier="=Bukkit-Commander/src"/>
+        <file path="/Bukkit-Commander/config.yml"/>
+        <file path="/Bukkit-Commander/Reference.txt"/>
+        <file path="/Bukkit-Commander/consolecmd.txt"/>
+        <file path="/Bukkit-Commander/plugin.yml"/>
+        <file path="/Bukkit-Commander/playerchat.txt"/>
+        <file path="/Bukkit-Commander/playercmd.txt"/>
     </selectedElements>
 </jardesc>

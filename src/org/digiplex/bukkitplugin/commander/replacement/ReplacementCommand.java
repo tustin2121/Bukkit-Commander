@@ -48,7 +48,7 @@ public class ReplacementCommand extends ReplacementPair {
 		return cutoff > -1;
 	}
 
-	@Override public void executeEffects(ScriptEnvironment e) {
+	@Override public void executeEffects(ScriptEnvironment e) throws BadScriptException {
 		script.execute(e);
 	}
 

@@ -9,7 +9,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,6 +40,7 @@ import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 
 public class CommanderPlugin extends JavaPlugin {
 	public static final Logger Log = Logger.getLogger("Minecraft");
+	
 	public static final CommanderCommandSender ccs = new CommanderCommandSender();
 	public static CommanderPlugin instance;
 	
@@ -300,20 +304,24 @@ public class CommanderPlugin extends JavaPlugin {
 				Log.info("Script debugging "+((scriptDebugMode)?"enabled":"disabled"));
 				return true;
 			} else if (args[0].equalsIgnoreCase("runscript")){
-				if (args.length < 2) return false;
-				String scriptname = args[1];
-				ScriptBlock sb = getScript(scriptname);
-				
-				if (scriptDebugMode) Log.info("[Commander:DEBUG:run] "+scriptname+" == "+sb);
-				
-				if (sb == null){
-					Log.info("[Commander] No script for registered for the alias \""+scriptname+"\"");
-				} else {
-					ScriptEnvironment env = new ScriptEnvironment(); {
-						env.setCommandSender(sender);
-						env.setServer(sender.getServer());
+				try {
+					if (args.length < 2) return false;
+					String scriptname = args[1];
+					ScriptBlock sb = getScript(scriptname);
+					
+					if (scriptDebugMode) Log.info("[Commander:DEBUG:run] "+scriptname+" == "+sb);
+					
+					if (sb == null){
+						Log.info("[Commander] No script for registered for the alias \""+scriptname+"\"");
+					} else {
+						ScriptEnvironment env = new ScriptEnvironment(); {
+							env.setCommandSender(sender);
+							env.setServer(sender.getServer());
+						}
+						sb.execute(env);
 					}
-					sb.execute(env);
+				} catch (BadScriptException ex) {
+					Log.info("");
 				}
 				return true;
 			}

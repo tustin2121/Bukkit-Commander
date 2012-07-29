@@ -5,18 +5,27 @@ import org.digiplex.bukkitplugin.commander.scripting.ScriptLine;
 
 public class ScriptVarAssignmentLine extends ScriptLine {
 	String varname, literal;
+	boolean doGlobal;
 	
 	public ScriptVarAssignmentLine(String var, String literal) {
 		this.varname = var;
 		this.literal = literal;
+		this.doGlobal = false;
+	}
+	public ScriptVarAssignmentLine(String var, String literal, boolean global) {
+		this.varname = var;
+		this.literal = literal;
+		this.doGlobal = global;
 	}
 	
 	@Override public void execute(ScriptEnvironment env) {
 		String command = env.substituteTokens(literal);
-//		if (env.getMatcher() != null)
-//			command = env.getMatcher().replaceFirst(command);
 		
-		env.setVariableValue(varname, command);
+		if (doGlobal) {
+			env.setVariableGlobally(varname, command);
+		} else {
+			env.setVariableValue(varname, command);
+		}
 	}
 
 	@Override public boolean isConstruct() {return false;}

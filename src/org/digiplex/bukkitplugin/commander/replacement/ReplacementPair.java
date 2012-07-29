@@ -4,6 +4,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 
 public abstract class ReplacementPair {
@@ -41,8 +42,9 @@ public abstract class ReplacementPair {
 	}
 	
 	/** Performs effects of this replacement for replaced commands. 
-	 * Execute in a command replacement context. */
-	public abstract void executeEffects(ScriptEnvironment e);
+	 * Execute in a command replacement context. 
+	 * @throws BadScriptException */
+	public abstract void executeEffects(ScriptEnvironment e) throws BadScriptException;
 	/** Retrieves a replacement string for insertion into chat. 
 	 * Execute in a chat or string replacement context. */
 	public abstract String executeString(ScriptEnvironment e);
