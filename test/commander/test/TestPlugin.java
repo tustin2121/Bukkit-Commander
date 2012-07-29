@@ -137,6 +137,15 @@ public class TestPlugin {
 		assertTrue(server.checkCommands(commands[0], commands[1], commands[3].trim(), commands[4].trim(), commands[6], commands[7]));
 	}
 	
+	@Test public void escapeCharacters() throws Exception {
+		String command = "Esc\\aping \\characters \\@odds with thing i\\$s f\\un!";
+		
+		ScriptLine sl = ScriptLine.parseScriptLine(command);
+		sl.execute(environment);
+		
+		assertTrue(server.checkCommands("Escaping characters @odds with thing i$s fun!"));
+	}
+	
 	@Test public void variableReplacement() throws Exception {
 		environment.setVariableValue("t1", "hello world");
 		environment.setVariableValue("hope", "change");
@@ -147,5 +156,24 @@ public class TestPlugin {
 		sl.execute(environment);
 		
 		assertTrue(server.checkCommands("Variable hello world Testing I'm changeing works"));
+	}
+	
+	@Test public void varAssignmentAndScope() throws Exception {
+		String[] commands = new String[] {
+				"@vo = hello",
+				"Testing Var @{vo}",
+				"{",
+				"    @qu = world",
+				"    @vo = buddy",
+				"    Testing Vars @qu @vo",
+				"}",
+				"Testing Vars @qu, @vo",
+				"Test Line 4",
+		};
+		
+		ScriptBlock sb = new ScriptBlock(commands);
+		sb.execute(environment);
+		
+		assertTrue(server.checkCommands("Testing Var hello", "Testing Vars world buddy", "Testing Vars \u00D8, buddy", "Test Line 4"));
 	}
 }

@@ -67,6 +67,7 @@ public class ScriptBlock implements Executable {
 		if (CommanderPlugin.instance.scriptDebugMode)
 			CommanderPlugin.Log.info("[Commander:DEBUG:startScript] ");
 		
+		env = env.getChild(); //get the child environment, to keep scoping
 		for (Executable ex : commands){
 			ex.execute(env);
 		}

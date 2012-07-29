@@ -4,6 +4,7 @@ import java.util.Properties;
 import java.util.regex.PatternSyntaxException;
 
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
+import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptLine;
 
@@ -17,7 +18,7 @@ public class ReplacementCommand extends ReplacementPair {
 	ScriptLine script;
 	int cutoff = -1;
 
-	public ReplacementCommand(String regex, String replacement, String options) throws PatternSyntaxException {
+	public ReplacementCommand(String regex, String replacement, String options) throws PatternSyntaxException, BadScriptException {
 		super(regex);
 		script = ScriptLine.parseScriptLine(replacement); //new ScriptLine(replacement);
 		if (options != null && !options.isEmpty()){
@@ -32,7 +33,7 @@ public class ReplacementCommand extends ReplacementPair {
 		}
 	}
 	
-	public ReplacementCommand(String regex, String replacement) {
+	public ReplacementCommand(String regex, String replacement) throws PatternSyntaxException, BadScriptException {
 		this(regex, replacement, null);
 	}
 	

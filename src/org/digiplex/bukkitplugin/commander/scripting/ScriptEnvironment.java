@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
  * @author timpittman
  */
 public class ScriptEnvironment {
+	private ScriptEnvironment parent;
 	private HashMap<String, Object> vars;
 	
 	private Server server;
@@ -25,10 +26,22 @@ public class ScriptEnvironment {
 	}
 	
 	public Object getVariableValue(String name){
-		return vars.get(name);
+		Object o = vars.get(name);
+		if (o == null && parent != null)
+			return parent.getVariableValue(name); //tail call?
+		else
+			return o;
 	}
 	public void setVariableValue(String name, Object obj){
-		vars.put(name, obj);
+		//check if the parent already has this variable defined, and if not, then set it ourselves
+		if (parent == null || !parent.setVarFromChild(name, obj))
+			vars.put(name, obj);
+	}
+	private boolean setVarFromChild(String name, Object obj){
+		//special function that sets variables only if they already exist
+		if (vars.containsKey(name)) {
+			vars.put(name, obj); return true;
+		} else return false;
 	}
 	
 	
@@ -57,6 +70,25 @@ public class ScriptEnvironment {
 	
 	////////////////////////////////////////////////
 	
+	/**
+	 * Returns a child environment for this instance. Children will inherit all variables of their
+	 * parents and will modify existing variables, but will create their own variables, which will
+	 * be lost when the child is no longer used.
+	 * @return
+	 */
+	public ScriptEnvironment getChild() {
+		ScriptEnvironment child = new ScriptEnvironment();
+		child.commandSender = this.commandSender;
+		child.server = this.server;
+		child.match = this.match;
+		child.wrappedSender = this.wrappedSender;
+		
+		child.parent = this;
+		return child;
+	}
+	
+	////////////////////////////////////////////////
+	
 	public String substituteTokens(String str){
 		/* Note: the regex "(?<!a)b" tests to see if there is a 'b' that is not
 		 * preceeded by an 'a'. This is called a negative look-back. There are also
@@ -68,7 +100,10 @@ public class ScriptEnvironment {
 		for (int i = 0; i < str.length(); i++){
 			char c = str.charAt(i);
 			switch (c){
-			case '\\': i++; continue; //skip over escape character
+			case '\\': i++; //skip over escape character
+				c = str.charAt(i);
+				sb.append(c);
+				continue; 
 			case '$': i++; //skip over character
 				c = str.charAt(i);
 				
@@ -99,32 +134,21 @@ public class ScriptEnvironment {
 					if (inBrace) {
 						if (c == '}') break;
 					} else {
-						if (Character.isWhitespace(c)) break;
+						if (!Character.isLetterOrDigit(c)) break;
 					}
 					varb.append(c);
 				}
 				Object varval = this.getVariableValue(varb.toString());
-				sb.append(varval);
-				if (!inBrace) sb.append(' '); //since we consumed the space above, put it back in 
+				if (varval == null) sb.append("\u00D8"); //special "empty set" character for null values
+				else sb.append(varval);
+				if (!inBrace && i != str.length()) sb.append(c); //since we consumed the dividing character above, put it back in
+					//also, check to see if we didn't break because we ran past the end
 				continue;
 			default:
 				sb.append(c);
-			}
-			
+			}			
 		}
-/*		
-		if (match != null){ //move the group replacement to here, since it causes some trouble...
-			str = str.replaceAll("\\$0", match.group())
-					.replaceAll("\\$1", match.group(1)).replaceAll("\\$2", match.group(2)).replaceAll("\\$3", match.group(3))
-					.replaceAll("\\$4", match.group(4)).replaceAll("\\$5", match.group(5)).replaceAll("\\$6", match.group(6))
-					.replaceAll("\\$7", match.group(7)).replaceAll("\\$8", match.group(8)).replaceAll("\\$9", match.group(9));
-		}
-		
-		if (commandSender instanceof Player) {
-			//player name. Replace "$p" but not "\$p"
-			str = str.replaceAll("(?<!\\\\)\\$p", commandSender.getName()).replaceAll("\\\\$p", "$p"); 
-		}
-*/	
+
 		return sb.toString();
 	}
 }

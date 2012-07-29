@@ -25,6 +25,7 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptVarAssignmentLi
  *        [random # to #] and [case #], [case #-#], [case <#], [case >#] = same as switch, but with a random number 
  *  if the line begins with a @ then it is a variable method:
  *     @var = a number, string, or supported object with a name : assignment
+ *     @var := a number, string, etc : global assignment, forcing assignment to original environment, wipes var from all children below
  *     @var++ : increase var if number
  *     
  *  if the line begins with a ? then it is a scripting environment directive
@@ -41,12 +42,13 @@ public abstract class ScriptLine implements Executable {
 	 * completely defined when it is returned; constructs require the line defined after them
 	 * @param line
 	 * @return
+	 * @throws BadScriptException 
 	 */
-	public static ScriptLine parseScriptLine(String line){
+	public static ScriptLine parseScriptLine(String line) throws BadScriptException{
 		line = line.trim();
 		switch(line.charAt(0)){
 	//	case '[': return parseConstruct(line);
-	//	case '@': return parseVariable(line);
+		case '@': return parseVariable(line);
 		case '?': return parseDirective(line);
 		default: return new ScriptCommandLine(line);
 		}
@@ -65,9 +67,10 @@ public abstract class ScriptLine implements Executable {
 		return l;
 	}
 	
-	private static ScriptLine parseVariable(String line){
-		final Pattern p = Pattern.compile("\\@([a-zA-Z][a-zA-Z0-9]*)\\s+=\\s+(.*)", Pattern.CASE_INSENSITIVE);
+	private static ScriptLine parseVariable(String line) throws BadScriptException{
+		final Pattern p = Pattern.compile("\\@([a-zA-Z0-9]+)\\s+=\\s+(.*)", Pattern.CASE_INSENSITIVE);
 		Matcher m = p.matcher(line);
+		if (!m.matches()) throw new BadScriptException("Variable assignment not properly formatted");
 		String variable = m.group(1);
 		String literal = m.group(2);
 		
