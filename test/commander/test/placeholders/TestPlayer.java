@@ -77,21 +77,25 @@ public class TestPlayer implements Player {
 	
 	@Override public boolean isPermissionSet(String name) {
 		System.out.println("[TestPlayer] isPermissionSet() : "+name);
+		if (name.equals("commander.test1")) return true;
 		return false;
 	}
 
 	@Override public boolean isPermissionSet(Permission perm) {
 		System.out.println("[TestPlayer] isPermissionSet() : "+perm.getName());
+		if (perm.getName().equals("commander.test1")) return true;
 		return false;
 	}
 
 	@Override public boolean hasPermission(String name) {
 		System.out.println("[TestPlayer] hasPermission() : "+name);
+		if (name.equals("commander.test1")) return true;
 		return false;
 	}
 
 	@Override public boolean hasPermission(Permission perm) {
 		System.out.println("[TestPlayer] hasPermission() : "+perm.getName());
+		if (perm.getName().equals("commander.test1")) return true;
 		return false;
 	}
 	

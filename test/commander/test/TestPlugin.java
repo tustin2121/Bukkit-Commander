@@ -197,7 +197,7 @@ public class TestPlugin {
 				"    Good If Hello world!",
 				"}",
 				"Test Line 12",
-				"[if @hello = hi]",
+				"[if @hello = @i]",
 				"    This line shouldn't run",
 				"[!if @i = 1]",
 				"{",
@@ -254,6 +254,31 @@ public class TestPlugin {
 		assertTrue(server.checkCommands("But this command should run!", "But this line should", "As should this line", "Yes Run 1", "Test Line 196.2"));
 	}
 	
+	
+	@Test public void permissionConstruct() throws Exception {
+		String[] commands = new String[] {
+				"[has commander.test1]", //hardcoded in TestPlayer to true
+				"{",
+				"    This command should run",
+				"}",
+				"",
+				"[has commander.test2]", //false 
+				"    This line does not run",
+				"[else has commander.test1]", //true, test else
+				"    But this line should",
+				"[else]",
+				"    One last no run",
+				"",
+				"Test Line 196.5"
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue(server.checkCommands("This command should run", "But this line should", "Test Line 196.5"));
+	}
+	
+	
 	/**
 	 * [switch @var]
 	 * {
@@ -291,6 +316,6 @@ public class TestPlugin {
 	 * @throws Exception
 	 */
 	@Test public void switchCase() throws Exception {
-		
+		fail("Not yet implemented");
 	}
 }
