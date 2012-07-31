@@ -62,4 +62,20 @@ public abstract class ScriptConditionLine extends ScriptLine {
 		return trueBlock == null;
 	}
 	@Override public boolean requiresPreviousConstruct() {return false;}
+	
+	@Override public void verify() throws BadScriptException {
+		//verify
+		if (trueBlock == null)
+			throw new BadScriptException("Condition has no true block!", lineno);
+		
+		trueBlock.verify();
+		if (falseBlock != null) {
+			falseBlock.verify(); //recursively verifies
+			
+			//clean up after everything is verified
+			if (falseBlock instanceof ScriptElseLine) {
+				falseBlock = ((ScriptElseLine) falseBlock).getEncapsulatedLine(); 
+			}
+		}
+	}
 }

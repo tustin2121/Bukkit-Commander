@@ -49,5 +49,10 @@ public class ScriptVarIncrementLine extends ScriptLine {
 
 	@Override public boolean requiresNextLine() {return false;}
 	@Override public boolean requiresPreviousConstruct() {return false;}
+	
+	@Override public void verify() throws BadScriptException {
+		if (varname == null)
+			throw new BadScriptException("Variable is null!", lineno);
+	}
 
 }

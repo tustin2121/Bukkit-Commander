@@ -1,17 +1,12 @@
 package org.digiplex.bukkitplugin.commander.scripting;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptCommandLine;
-import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptDirectiveEchoLine;
-import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptVarAssignmentLine;
-import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptVarIncrementLine;
 
 
 public abstract class ScriptLine implements Executable {
+	protected int lineno = -1;
 	
-	
+	public int getLineNumber() { return lineno; }
+	public void setLineNumber(int lineno) { this.lineno = lineno; }
 	
 	///////////////////////////////////////////////////////////
 	

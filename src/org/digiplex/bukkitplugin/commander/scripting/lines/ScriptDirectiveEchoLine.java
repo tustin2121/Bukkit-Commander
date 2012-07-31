@@ -1,5 +1,6 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines;
 
+import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.EchoControl;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptLine;
@@ -24,5 +25,6 @@ public class ScriptDirectiveEchoLine extends ScriptLine {
 
 	@Override public boolean requiresNextLine() {return false;}
 	@Override public boolean requiresPreviousConstruct() {return false;}
-
+	
+	@Override public void verify() throws BadScriptException {}
 }

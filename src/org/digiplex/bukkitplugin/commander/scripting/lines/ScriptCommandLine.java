@@ -1,6 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines;
 
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
+import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptLine;
 
@@ -44,4 +45,9 @@ public class ScriptCommandLine extends ScriptLine {
 
 	@Override public boolean requiresNextLine() {return false;}
 	@Override public boolean requiresPreviousConstruct() {return false;}
+	
+	@Override public void verify() throws BadScriptException {
+		if (cmd == null)
+			throw new BadScriptException("Null Command line!", lineno);
+	}
 }

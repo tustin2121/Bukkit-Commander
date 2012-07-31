@@ -16,4 +16,7 @@ public class BadScriptException extends Exception {
 	public int getLineNumber() {
 		return linenum;
 	}
+	public void setLineNumber(int linenum) {
+		this.linenum = linenum;
+	}
 }

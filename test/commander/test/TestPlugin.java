@@ -75,6 +75,7 @@ public class TestPlugin {
 				"Test Line 1  \n",
 				"Test Command 2  ",
 				" ec bc daytime!  ",
+				"",
 				"Hello World! \n",
 		};
 		
@@ -211,5 +212,85 @@ public class TestPlugin {
 		sl.execute(environment);
 		
 		assertTrue(server.checkCommands("Good If Hello world!", "Test Line 12", "But this line should", "Test Line 42"));
+	}
+	
+	@Test public void ifElseConstruct() throws Exception {
+		environment.setVariableValue("hello", "hi");
+		environment.setVariableValue("i", "1");
+		
+		String[] commands = new String[] {
+				"[if @hello = world]",
+				"{",
+				"    This command should not run",
+				"}",
+				"[else]", //else test
+				"    But this command should run!",
+				"[!if @i = 1]",
+				"    This line also shouldn't run",
+				"[else if @i = 1]",
+				"{", //else if test
+				"    But this line should",
+				"    As should this line",
+				"}",
+				"[else]",
+				"    One last no run",
+				"",
+				"[if @i = 13]", //chaining test
+				"    No Run 1",
+				"[else if @i = 14]",
+				"    No Run 2",
+				"[else if @i = 20]",
+				"    No Run 3",
+				"[else if @i = 25]",
+				"    No Run 4",
+				"[else]",
+				"    Yes Run 1",
+				"Test Line 196.2"
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue(server.checkCommands("But this command should run!", "But this line should", "As should this line", "Yes Run 1", "Test Line 196.2"));
+	}
+	
+	/**
+	 * [switch @var]
+	 * {
+	 * 	 [case 1] {
+	 *     case 1
+	 *   }
+	 *   [case 2] {
+	 *     case 2
+	 *   }
+	 *   [else] {
+	 *     case else
+	 *   }
+	 * }
+	 * 
+	 * [switch @num]
+	 * {
+	 *   [case 1-2] {
+	 *     case 1 or 2
+	 *   }
+	 *   [case 3-6] {
+	 *     case 3, 4, 5, or 6
+	 *   }
+	 *   [case > 7] {
+	 *     cases above 7
+	 *   }
+	 *   [case < -3] {
+	 *     cases below -3
+	 *   }
+	 *   [else] {
+	 *     cases -1, -2, -3, and 7
+	 *   }
+	 * }
+	 * 
+	 * 
+	 * @throws Exception
+	 */
+	@Test public void switchCase() throws Exception {
+		
 	}
 }

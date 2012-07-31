@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptCommandLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptConditionLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptDirectiveEchoLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptElseLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptVarAssignmentLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptVarIncrementLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptHasConstruct;
@@ -71,9 +72,11 @@ public class ScriptParser {
 		
 		
 		for (int i = 0; i < script.length; i++, lineno++) {
+			curr = script[i].trim();
+			if (curr.isEmpty()) continue; //ignore blank lines
+			
 			switch (state) {
 			case NORMAL: {
-				curr = script[i].trim();
 				
 				//check if this line starts a block, either at the end of the line or on it's own 
 				if (curr.endsWith("{") && !curr.endsWith("\\{")) { //don't do it if it is escaped
@@ -87,7 +90,13 @@ public class ScriptParser {
 				}
 				
 				//parse script line now
-				ScriptLine sl = parseScriptLine(curr);
+				ScriptLine sl;
+				try {
+					sl = parseScriptLine(curr);
+				} catch (BadScriptException ex) {
+					ex.setLineNumber(lineno); 
+					throw ex;
+				}
 				
 				//determine who owns this line
 				if (lastConstruct != null && lastConstruct.requiresNextLine()) {
@@ -98,9 +107,10 @@ public class ScriptParser {
 					if (sl.requiresPreviousConstruct()) {
 						if (lastConstruct == null) throw new BadScriptException("Encountered construct that has no parent!", lineno);
 						lastConstruct.giveNextLine(sl);
+					} else {
+						lines.add(sl); //if we're not attaching it to the previous, add to the list
 					}
 					lastConstruct = sl;
-					lines.add(sl); //also add to list
 				} else {
 					//otherwise, just add the line
 					lines.add(sl);
@@ -108,7 +118,6 @@ public class ScriptParser {
 				}
 			} break;
 			case MAKING_BLOCK: {
-				curr = script[i].trim();
 				
 				if (curr.endsWith("{") && !curr.endsWith("\\{")) {
 					blockDeep++;
@@ -137,8 +146,10 @@ public class ScriptParser {
 			if (blockDeep > 0) throw new BadScriptException("Unbalanced braces -- too many open braces!");
 			throw new BadScriptException("Ended parsing in illegal state!");
 		}
+		ScriptBlock finalblock = new ScriptBlock(lines);
+		finalblock.verify();
 		
-		return new ScriptBlock(lines);
+		return finalblock;
 	}
 	
 	/**
@@ -160,7 +171,7 @@ public class ScriptParser {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	private static final Pattern CON_OVERALL = Pattern.compile("\\[(\\!?[a-zA-Z]+)\\s+([^\\]]*)\\]");
+	private static final Pattern CON_OVERALL = Pattern.compile("\\[(\\!?[a-zA-Z]+)\\s*([^\\]]*)\\]");
 	private static final Pattern CON_EQUAL = Pattern.compile("\\@(\\w+)\\s+\\=\\s+(.+)");
 	private static final Pattern CON_COMPARE = Pattern.compile("\\@(\\w+)\\s+(<|>|<=|>=)\\s+(.+)");
 	
@@ -170,8 +181,10 @@ public class ScriptParser {
 		String conname = m.group(1);
 		String params = m.group(2);
 		
-		ScriptConditionLine l = null;
 		if (conname.matches("\\!?if")){
+			if (params == null || params.isEmpty()) throw new BadScriptException("If construct has no condition!");
+			
+			ScriptConditionLine l = null;
 			if ( (m = CON_EQUAL.matcher(params)).matches() ) {
 				String var = m.group(1);
 				String eq = m.group(2);
@@ -187,12 +200,24 @@ public class ScriptParser {
 				l = new ScriptIfVarCompareConstruct(var, eq, gtb, eqb);
 			}
 			l.setNotMode(conname.startsWith("!"));
+			return l;
+			
+		} else if (conname.matches("else")) {
+			//special handling, so we can do [else if condition]
+			if (params != null && !params.isEmpty()) {
+				ScriptLine sl = parseConstruct(String.format("[%s]", params));
+				return new ScriptElseLine(sl);
+			} else {
+				return new ScriptElseLine(null);
+			}
+			
 		} else if (conname.matches("\\!?has")) {
-			l = new ScriptHasConstruct(params);
+			if (params == null || params.isEmpty()) throw new BadScriptException("Has construct has no permission!");
+			return new ScriptHasConstruct(params);
+			
 		} else {
 			throw new BadScriptException("Unknown construct: "+conname);
 		}
-		return l;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////

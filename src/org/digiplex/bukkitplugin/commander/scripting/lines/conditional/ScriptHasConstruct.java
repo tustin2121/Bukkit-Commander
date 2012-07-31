@@ -18,4 +18,11 @@ public class ScriptHasConstruct extends ScriptConditionLine {
 	@Override public String toString() {
 		return "Condition["+((not)?"!":" ")+"has "+permission+" ]";
 	}
+	
+	@Override public void verify() throws BadScriptException {
+		super.verify();
+		
+		if (permission == null) //probably unneeded
+			throw new BadScriptException("Has construct has no permission!", lineno);
+	}
 }

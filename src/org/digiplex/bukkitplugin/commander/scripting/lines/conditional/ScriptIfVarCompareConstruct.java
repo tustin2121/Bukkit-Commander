@@ -45,4 +45,13 @@ public class ScriptIfVarCompareConstruct extends ScriptConditionLine {
 	@Override public String toString() {
 		return "Condition["+((not)?"!":" ")+"if compare "+var+" = "+equals+", gt="+gt+", eq="+eq+" ]";
 	}
+	
+	@Override public void verify() throws BadScriptException {
+		super.verify();
+		
+		if (var == null) //probably unneeded
+			throw new BadScriptException("If has no variable!", lineno);
+		if (equals == null) //probably unneeded
+			throw new BadScriptException("If has no literal!", lineno);
+	}
 }

@@ -1,7 +1,6 @@
 package org.digiplex.bukkitplugin.commander.scripting;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
@@ -81,6 +80,12 @@ public class ScriptBlock implements Executable {
 		
 		if (CommanderPlugin.instance.scriptDebugMode)
 			CommanderPlugin.Log.info("[Commander:DEBUG:endScript] ");
+	}
+	
+	@Override public void verify() throws BadScriptException {
+		for (Executable ex : commands){
+			ex.verify();
+		}
 	}
 	
 }
