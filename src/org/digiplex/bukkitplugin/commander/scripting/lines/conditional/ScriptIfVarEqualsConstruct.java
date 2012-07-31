@@ -35,11 +35,11 @@ public class ScriptIfVarEqualsConstruct extends ScriptConditionLine {
 	}
 	
 	@Override public void verify() throws BadScriptException {
-		super.verify();
-		
 		if (var == null) //probably unneeded
 			throw new BadScriptException("If has no variable!", lineno);
 		if (equals == null) //probably unneeded
 			throw new BadScriptException("If has no literal!", lineno);
+		
+		super.verify();
 	}
 }

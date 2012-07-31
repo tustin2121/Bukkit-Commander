@@ -20,6 +20,12 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfV
  *     conditional constructs:
  *        [if @var = literal] = if construct: if a variable equals something
  *        [!if @var = literal] = not if construct: if a variable is not equal to something
+ *        [if @var > literal]
+ *        [if @var < literal]
+ *        [if @var >= literal]
+ *        [if @var <= literal] = comparison constructs : compare strings alphabetically, or numbers numerically
+ *        [if @var] = check construct : if a variable is not null, or checks a boolean variable is true
+ *        
  *        [has "permission"] = has construct: if the current sender has the specified permission
  *        [!has "permission"] = has not construct: if the current sender does not have the specified permission
  *     loop constructs:
@@ -28,14 +34,31 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfV
  *        [loop @var = # to # step #] = loop step construct: loop as above, but stepping third # at a time
  *     case constructs:
  *        [switch @var] and [case #], [else] = switch, on the variable
- *        [random # to #] and [case #], [case #-#], [case <#], [case >#] = same as switch, but with a random number 
+ *        [random # to #] and [case #], [case #-#], [case <#], [case >#] = same as switch, but with a random number
+ *   
  *  if the line begins with a @ then it is a variable method:
  *     @var = a number, string, or supported object with a name : assignment
  *     @var := a number, string, etc : global assignment, forcing assignment to original environment, wipes var from all children below
  *     @var++ : increase var if number
+ *     @var = $(x) : getting a value of the environment, such as the server, and returning it as a return value
+ *     values for x:
+ *        command values:
+ *           command.* = a namespace for values derived from the last executed command
+ *           command.return = a special value that commands can set via the Commander API (forthcoming)
+ *           command.found = true if the command was found and executed successfully
+ *           command.error = true if the command threw an error while executing
+ *        collections supported:
+ *           server.players = collection of all players
+ *           server.online = collection of all currently online players
+ *        player values:
+ *           player.location.x = gets x block location of player
+ *           player.location.y = gets y block location of player
+ *           player.location.z = gets z block location of player
+ *         
  *     
  *  if the line begins with a ? then it is a scripting environment directive
  *     ?echo on/off = turns on/off echoing back messages from commands - the built-in echo command ignores it
+ *     ?errorignore on/off = turns on/off error ignoring - if a command error is thrown, when on, the script continues
  *  if the line begins with "say", 
  *  else:
  *     the line is a normal command to be executed by the current CommandSender, or mod if it begins with "sudo" 
