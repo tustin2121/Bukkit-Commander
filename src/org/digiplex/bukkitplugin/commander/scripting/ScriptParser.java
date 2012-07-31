@@ -5,10 +5,41 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptCommandLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptConditionLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptDirectiveEchoLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptVarAssignmentLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptVarIncrementLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptHasConstruct;
+import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfVarCompareConstruct;
+import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfVarEqualsConstruct;
 
+/**
+ * TODO: make script lines abstract, and have a method that will make the line based on what it parses:
+ *  if the line begins with [ then it is a construct:
+ *     conditional constructs:
+ *        [if @var = literal] = if construct: if a variable equals something
+ *        [!if @var = literal] = not if construct: if a variable is not equal to something
+ *        [has "permission"] = has construct: if the current sender has the specified permission
+ *        [!has "permission"] = has not construct: if the current sender does not have the specified permission
+ *     loop constructs:
+ *        [foreach @var in supportedCollection] = for each construct: for each in a supported collection (players, online players)
+ *        [loop @var = # to #] = loop construct: loop a number of times from first # to second # in the given variable
+ *        [loop @var = # to # step #] = loop step construct: loop as above, but stepping third # at a time
+ *     case constructs:
+ *        [switch @var] and [case #], [else] = switch, on the variable
+ *        [random # to #] and [case #], [case #-#], [case <#], [case >#] = same as switch, but with a random number 
+ *  if the line begins with a @ then it is a variable method:
+ *     @var = a number, string, or supported object with a name : assignment
+ *     @var := a number, string, etc : global assignment, forcing assignment to original environment, wipes var from all children below
+ *     @var++ : increase var if number
+ *     
+ *  if the line begins with a ? then it is a scripting environment directive
+ *     ?echo on/off = turns on/off echoing back messages from commands - the built-in echo command ignores it
+ *  if the line begins with "say", 
+ *  else:
+ *     the line is a normal command to be executed by the current CommandSender, or mod if it begins with "sudo" 
+ * @author timpittman
+ */
 public class ScriptParser {
 	private static enum ParseState {
 		NORMAL,
@@ -69,6 +100,7 @@ public class ScriptParser {
 						lastConstruct.giveNextLine(sl);
 					}
 					lastConstruct = sl;
+					lines.add(sl); //also add to list
 				} else {
 					//otherwise, just add the line
 					lines.add(sl);
@@ -118,25 +150,51 @@ public class ScriptParser {
 	private static ScriptLine parseScriptLine(String line) throws BadScriptException{
 		line = line.trim();
 		switch(line.charAt(0)){
-	//	case '[': return parseConstruct(line);
+		case '[': return parseConstruct(line);
 		case '@': return parseVariable(line);
 		case '?': return parseDirective(line);
 		default: return new ScriptCommandLine(line);
 		}
 	}
 	
-	private static ScriptLine parseConstruct(String line){
-		final Pattern p = Pattern.compile("\\[(\\!?[a-zA-Z]+) ([^\\]]*)\\]", Pattern.CASE_INSENSITIVE);
-		Matcher m = p.matcher(line);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	private static final Pattern CON_OVERALL = Pattern.compile("\\[(\\!?[a-zA-Z]+)\\s+([^\\]]*)\\]");
+	private static final Pattern CON_EQUAL = Pattern.compile("\\@(\\w+)\\s+\\=\\s+(.+)");
+	private static final Pattern CON_COMPARE = Pattern.compile("\\@(\\w+)\\s+(<|>|<=|>=)\\s+(.+)");
+	
+	private static ScriptLine parseConstruct(String line) throws BadScriptException{
+		Matcher m = CON_OVERALL.matcher(line);
+		if (!m.matches()) throw new BadScriptException("Badly formatted Construct!");
 		String conname = m.group(1);
 		String params = m.group(2);
 		
-		ScriptLine l = null;
+		ScriptConditionLine l = null;
 		if (conname.matches("\\!?if")){
-			
+			if ( (m = CON_EQUAL.matcher(params)).matches() ) {
+				String var = m.group(1);
+				String eq = m.group(2);
+				
+				l = new ScriptIfVarEqualsConstruct(var, eq);
+			} else if ( (m = CON_COMPARE.matcher(params)).matches() ) {
+				String var = m.group(1);
+				String op = m.group(2);
+				String eq = m.group(3);
+				
+				boolean gtb = op.startsWith(">"); //> or >=
+				boolean eqb = op.endsWith("="); //>= or <=
+				l = new ScriptIfVarCompareConstruct(var, eq, gtb, eqb);
+			}
+			l.setNotMode(conname.startsWith("!"));
+		} else if (conname.matches("\\!?has")) {
+			l = new ScriptHasConstruct(params);
+		} else {
+			throw new BadScriptException("Unknown construct: "+conname);
 		}
 		return l;
 	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	private static final Pattern ASSIGN_LOCAL = Pattern.compile("\\@([a-zA-Z0-9]+)\\s+=\\s+(.*)");
 	private static final Pattern ASSIGN_GLOBAL = Pattern.compile("\\@([a-zA-Z0-9]+)\\s+\\:=\\s+(.*)");

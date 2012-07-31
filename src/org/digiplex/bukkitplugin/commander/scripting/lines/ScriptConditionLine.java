@@ -13,19 +13,18 @@ import org.digiplex.bukkitplugin.commander.scripting.ScriptLine;
  * after that, the line [else] defines the false block, going by the same rules.
  * @author timpittman
  */
-public class ScriptConditionLine extends ScriptLine {
-	String condition; 
-	String comparitor;
+public abstract class ScriptConditionLine extends ScriptLine {
+	boolean not;
 	
 	Executable trueBlock;
 	Executable falseBlock;
 	
-	public ScriptConditionLine(String command) {
-		
-	}
-	
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
-		boolean condres = true; //TODO if condition is true
+		if (trueBlock != null)
+			throw new BadScriptException("If statement does not have a true block!");
+		
+		boolean condres = this.executeCondition(env);
+		if (not) condres = !condres;
 		
 		/* how this works:
 		 * if the condition result is true, the true statement is run. If that statement is a block, the whole block
@@ -40,9 +39,27 @@ public class ScriptConditionLine extends ScriptLine {
 		}
 	}
 	
+	protected abstract boolean executeCondition(ScriptEnvironment env) throws BadScriptException;
+	
+	public boolean inNotMode() { return not; }
+	public void setNotMode(boolean not) { this.not = not; }
+	
+	@Override public boolean giveNextLine(Executable script) {
+		if (trueBlock == null) {
+			trueBlock = script;
+		} else if (falseBlock == null) {
+			falseBlock = script;
+		} else {
+			return false;
+		}
+		return true;
+	}
+	
 	@Override public boolean isConstruct() {return true;}
 	@Override public boolean isDirective() {return false;}
 
-	@Override public boolean requiresNextLine() {return true;}
+	@Override public boolean requiresNextLine() {
+		return trueBlock == null;
+	}
 	@Override public boolean requiresPreviousConstruct() {return false;}
 }

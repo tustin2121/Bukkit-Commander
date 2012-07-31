@@ -185,4 +185,31 @@ public class TestPlugin {
 		
 		assertTrue(server.checkCommands("Testing Var hello", "Testing Vars world buddy", "Testing Vars \u00D8, buddy", "Test Line 4"));
 	}
+	
+	@Test public void ifConstruct() throws Exception {
+		environment.setVariableValue("hello", "world");
+		environment.setVariableValue("i", "1");
+		
+		String[] commands = new String[] {
+				"[if @hello = world]",
+				"{",
+				"    Good If Hello world!",
+				"}",
+				"Test Line 12",
+				"[if @hello = hi]",
+				"    This line shouldn't run",
+				"[if @i = 2]",
+				"{",
+				"    This line also shouldn't run",
+				"}",
+				"[if @i = 1]",
+				"    But this line should",
+				"Test Line 42"
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue(server.checkCommands("Good If Hello world!", "Test Line 12", "But this line should", "Test Line 42"));
+	}
 }
