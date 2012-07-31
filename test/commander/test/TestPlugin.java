@@ -5,9 +5,11 @@ import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
 import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
+import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptLine;
+import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -62,7 +64,7 @@ public class TestPlugin {
 	@Test public void simpleLine() throws Exception {
 		String command = "Hello World!";
 		
-		ScriptLine sl = ScriptLine.parseScriptLine(command);
+		Executable sl = ScriptParser.parseScript(command);
 		sl.execute(environment);
 		
 		assertTrue(server.checkCommands(command));
@@ -76,8 +78,8 @@ public class TestPlugin {
 				"Hello World! \n",
 		};
 		
-		ScriptBlock sb = new ScriptBlock(commands);
-		sb.execute(environment);
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
 		
 		assertTrue(server.checkCommands("Test Line 1", "Test Command 2", "ec bc daytime!", "Hello World!"));
 	}
@@ -90,11 +92,11 @@ public class TestPlugin {
 				"Test Line 3",
 				"Test Line 4",
 		};
-		ScriptBlock sb;
+		Executable sl;
 		
 		try {
-			sb = new ScriptBlock(commands);
-			sb.execute(environment);
+			sl = ScriptParser.parseScript(commands);
+			sl.execute(environment);
 			fail("Did not detect uneven open paren!");
 		} catch (BadScriptException e) {
 			assertNotNull(e);
@@ -110,8 +112,8 @@ public class TestPlugin {
 		};
 		
 		try {
-			sb = new ScriptBlock(commands);
-			sb.execute(environment);
+			sl = ScriptParser.parseScript(commands);
+			sl.execute(environment);
 			fail("Did not detect uneven close paren!");
 		} catch (BadScriptException e) {
 			assertNotNull(e);
@@ -125,22 +127,29 @@ public class TestPlugin {
 				"Test Line 2",
 				"{",
 				"    Inner Block 1",
+				"    {",
+				"        Inner-inner Block 1",
+				"        Inner-inner Block 2",
+				"    }",
 				"    Inner Block 2",
 				"}",
 				"Test Line 3",
 				"Test Line 4",
 		};
 		
-		ScriptBlock sb = new ScriptBlock(commands);
-		sb.execute(environment);
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
 		
-		assertTrue(server.checkCommands(commands[0], commands[1], commands[3].trim(), commands[4].trim(), commands[6], commands[7]));
+		assertTrue(server.checkCommands(commands[0], commands[1], 
+				commands[3].trim(), commands[5].trim(),
+				commands[6].trim(), commands[8].trim(),
+				commands[10], commands[11]));
 	}
 	
 	@Test public void escapeCharacters() throws Exception {
 		String command = "Esc\\aping \\characters \\@odds with thing i\\$s f\\un!";
 		
-		ScriptLine sl = ScriptLine.parseScriptLine(command);
+		Executable sl = ScriptParser.parseScript(command);
 		sl.execute(environment);
 		
 		assertTrue(server.checkCommands("Escaping characters @odds with thing i$s fun!"));
@@ -152,7 +161,7 @@ public class TestPlugin {
 		
 		String command = "Variable @t1 Testing I'm @{hope}ing works";
 		
-		ScriptLine sl = ScriptLine.parseScriptLine(command);
+		Executable sl = ScriptParser.parseScript(command);
 		sl.execute(environment);
 		
 		assertTrue(server.checkCommands("Variable hello world Testing I'm changeing works"));
@@ -171,8 +180,8 @@ public class TestPlugin {
 				"Test Line 4",
 		};
 		
-		ScriptBlock sb = new ScriptBlock(commands);
-		sb.execute(environment);
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
 		
 		assertTrue(server.checkCommands("Testing Var hello", "Testing Vars world buddy", "Testing Vars \u00D8, buddy", "Test Line 4"));
 	}

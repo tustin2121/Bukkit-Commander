@@ -1,6 +1,8 @@
 package org.digiplex.bukkitplugin.commander.scripting;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
 
@@ -22,11 +24,18 @@ public class ScriptBlock implements Executable {
 		this.alias = alias;
 	}
 	
-	public ScriptBlock(String[] scriptLines) throws BadScriptException {
+	protected ScriptBlock(List<Executable> scriptLines) {
+		commands = new ArrayList<Executable>(scriptLines);
+	}
+	
+	private ScriptBlock(String[] scriptLines) throws BadScriptException {
 		commands = new ArrayList<Executable>();
 		
 		int bracecount = 0;
 		ArrayList<String> workingSubblock = null;
+		
+		ScriptLine lastConstruct = null;
+		
 		for (String line : scriptLines){ //parse
 			line = line.trim();
 			if (line.equals("{")){ //block brace
@@ -41,10 +50,8 @@ public class ScriptBlock implements Executable {
 				}
 				if (bracecount < 0) throw new BadScriptException("Error parsing script! Unbalanced braces - too many close braces!");
 			} else {
-				
-				
 				if (bracecount == 0){
-					ScriptLine sl = ScriptLine.parseScriptLine(line);
+					ScriptLine sl = (ScriptLine) ScriptParser.parseScript(line);
 					commands.add(sl);
 				} else {
 					workingSubblock.add(line);

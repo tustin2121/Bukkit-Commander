@@ -5,8 +5,10 @@ import java.util.regex.PatternSyntaxException;
 
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
 import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
+import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptLine;
+import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
 
 /**
  * Force command, even in chat. This means that the regex will be detected, and won't be replaced,
@@ -15,12 +17,12 @@ import org.digiplex.bukkitplugin.commander.scripting.ScriptLine;
  * @author timpittman
  */
 public class ReplacementCommand extends ReplacementPair {
-	ScriptLine script;
+	Executable script;
 	int cutoff = -1;
 
 	public ReplacementCommand(String regex, String replacement, String options) throws PatternSyntaxException, BadScriptException {
 		super(regex);
-		script = ScriptLine.parseScriptLine(replacement); //new ScriptLine(replacement);
+		script = ScriptParser.parseScript(replacement); //new ScriptLine(replacement);
 		if (options != null && !options.isEmpty()){
 			Properties p = parseOpts(options);
 			{
