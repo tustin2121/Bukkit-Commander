@@ -14,5 +14,8 @@ public class ScriptHasConstruct extends ScriptConditionLine {
 	@Override protected boolean executeCondition(ScriptEnvironment env) throws BadScriptException {
 		return env.getCommandSender().hasPermission(permission);
 	}
-
+	
+	@Override public String toString() {
+		return "Condition["+((not)?"!":" ")+"has "+permission+" ]";
+	}
 }

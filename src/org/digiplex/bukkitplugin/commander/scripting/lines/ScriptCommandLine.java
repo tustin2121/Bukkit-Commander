@@ -35,6 +35,10 @@ public class ScriptCommandLine extends ScriptLine {
 			env.getServer().dispatchCommand(env.getCommandSender(), command);
 	}
 	
+	@Override public String toString() {
+		return "Command["+cmd+"]";
+	}
+	
 	@Override public boolean isConstruct() {return false;}
 	@Override public boolean isDirective() {return false;}
 

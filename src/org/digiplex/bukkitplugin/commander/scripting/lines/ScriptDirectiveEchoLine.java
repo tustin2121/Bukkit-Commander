@@ -14,6 +14,10 @@ public class ScriptDirectiveEchoLine extends ScriptLine {
 	@Override public void execute(ScriptEnvironment env) {
 		((EchoControl)env.getCommandSender()).setEchoingEnabled(enable);
 	}
+	
+	@Override public String toString() {
+		return "Directive[ echo="+enable+"]";
+	}
 
 	@Override public boolean isConstruct() {return false;}
 	@Override public boolean isDirective() {return true;}

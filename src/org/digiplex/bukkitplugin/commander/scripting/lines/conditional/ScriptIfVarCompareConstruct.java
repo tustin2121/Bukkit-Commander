@@ -41,5 +41,8 @@ public class ScriptIfVarCompareConstruct extends ScriptConditionLine {
 			throw new BadScriptException("Invalid type of variable: "+val.getClass().toString());
 		}
 	}
-
+	
+	@Override public String toString() {
+		return "Condition["+((not)?"!":" ")+"if compare "+var+" = "+equals+", gt="+gt+", eq="+eq+" ]";
+	}
 }

@@ -1,14 +1,16 @@
 package commander.test;
 
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
 import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
-import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
-import org.digiplex.bukkitplugin.commander.scripting.ScriptLine;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -20,8 +22,6 @@ import org.junit.rules.TestName;
 
 import commander.test.placeholders.TestPlayer;
 import commander.test.placeholders.TestServer;
-
-import static junit.framework.Assert.*;
 
 public class TestPlugin {
 	private static final Logger LOG = Logger.getLogger("TESTPLUGIN");
@@ -198,7 +198,7 @@ public class TestPlugin {
 				"Test Line 12",
 				"[if @hello = hi]",
 				"    This line shouldn't run",
-				"[if @i = 2]",
+				"[!if @i = 1]",
 				"{",
 				"    This line also shouldn't run",
 				"}",

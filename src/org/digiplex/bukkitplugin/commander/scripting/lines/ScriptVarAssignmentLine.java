@@ -27,6 +27,10 @@ public class ScriptVarAssignmentLine extends ScriptLine {
 			env.setVariableValue(varname, command);
 		}
 	}
+	
+	@Override public String toString() {
+		return "VarAssign["+varname+"="+literal+", global="+doGlobal+"]";
+	}
 
 	@Override public boolean isConstruct() {return false;}
 	@Override public boolean isDirective() {return false;}

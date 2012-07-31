@@ -14,13 +14,13 @@ import org.digiplex.bukkitplugin.commander.scripting.ScriptLine;
  * @author timpittman
  */
 public abstract class ScriptConditionLine extends ScriptLine {
-	boolean not;
+	protected boolean not;
 	
-	Executable trueBlock;
-	Executable falseBlock;
+	protected Executable trueBlock;
+	protected Executable falseBlock;
 	
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
-		if (trueBlock != null)
+		if (trueBlock == null)
 			throw new BadScriptException("If statement does not have a true block!");
 		
 		boolean condres = this.executeCondition(env);

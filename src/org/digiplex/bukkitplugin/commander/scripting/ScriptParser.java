@@ -78,7 +78,7 @@ public class ScriptParser {
 				//check if this line starts a block, either at the end of the line or on it's own 
 				if (curr.endsWith("{") && !curr.endsWith("\\{")) { //don't do it if it is escaped
 					state = ParseState.MAKING_BLOCK;
-					blockDeep = 1; linesave = lineno;
+					blockDeep = 1; linesave = lineno + 1;
 					if (curr.equals("{")) continue; //don't insert this line
 					
 					curr = curr.substring(0, curr.indexOf('{')-1).trim();
@@ -104,6 +104,7 @@ public class ScriptParser {
 				} else {
 					//otherwise, just add the line
 					lines.add(sl);
+					lastConstruct = null; //if it's just a normal line, there should be nothing more to do with the previous construct
 				}
 			} break;
 			case MAKING_BLOCK: {

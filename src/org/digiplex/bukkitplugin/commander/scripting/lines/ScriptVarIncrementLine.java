@@ -39,7 +39,11 @@ public class ScriptVarIncrementLine extends ScriptLine {
 		
 		env.setVariableValue(varname, vi);
 	}
-
+	
+	@Override public String toString() {
+		return "Var++["+varname+" "+((increment)?"++":"--")+"]";
+	}
+	
 	@Override public boolean isConstruct() {return false;}
 	@Override public boolean isDirective() {return false;}
 
