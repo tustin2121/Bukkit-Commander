@@ -6,6 +6,7 @@ import java.util.regex.MatchResult;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.digiplex.bukkitplugin.commander.scripting.env.GameEnvironment;
 
 /**
  * This object holds the environment that scripts are executed in. Scripts use the objects
@@ -20,6 +21,11 @@ public class ScriptEnvironment {
 	private CommandSender commandSender;
 	private EchoControl wrappedSender;
 	private MatchResult match;
+	
+	private boolean continueOnError = false;
+	private Object commandReturn;
+	private boolean commandFound;
+	private Exception commandError;
 	
 	public ScriptEnvironment(){
 		vars = new HashMap<String, Object>();
@@ -58,10 +64,7 @@ public class ScriptEnvironment {
 	public Server getServer() {return server;}
 	public void setServer(Server server) {this.server = server;}
 	
-	public CommandSender getCommandSender() {
-	//	return commandSender;
-		return wrappedSender;
-	}
+	public CommandSender getCommandSender() {return wrappedSender;}
 	public void setCommandSender(CommandSender commandSender) {
 		this.commandSender = commandSender;
 		if (commandSender instanceof Player)
@@ -77,6 +80,36 @@ public class ScriptEnvironment {
 		if (commandSender instanceof Player) return (Player)wrappedSender;
 		return null;
 	}
+	
+	
+	public void setCommandResults(boolean found) {
+		this.commandFound = found;
+		this.commandError = null;
+		this.commandReturn = null;
+	}
+	public void setCommandResultsFound(Object returnobj) {
+		this.commandFound = true;
+		this.commandError = null;
+		this.commandReturn = returnobj;
+	}
+	public void setCommandResultsError(Exception ex) {
+		this.commandFound = false;
+		this.commandError = ex;
+		this.commandReturn = null;
+	}
+	
+	public Object getCommandReturn() { return commandReturn; }
+	public void setCommandReturn(Object commandReturn) { this.commandReturn = commandReturn; }
+	
+	public boolean getCommandFound() {return commandFound;}
+	public void setCommandFound(boolean commandFound) {this.commandFound = commandFound;}
+	
+	public boolean didLastCommandError() { return commandError != null; }
+	public Exception getCommandError() {return commandError;}
+	public void setCommandError(Exception commandError) {this.commandError = commandError;}
+	
+	public boolean shouldContinueOnError() {return continueOnError;}
+	public void setContinueOnError(boolean continueOnError) {this.continueOnError = continueOnError;}
 	
 	////////////////////////////////////////////////
 	
@@ -126,14 +159,30 @@ public class ScriptEnvironment {
 					}
 					int gnum = c - '0'; //convert the char to the actual int value
 					sb.append(match.group(gnum));
+					break;
 				case 'p': case 'P':
 					if (!(commandSender instanceof Player)) {
 						sb.append('$').append(c); break;
 					}
 					sb.append(commandSender.getName());
+					break;
+				case '{': { //environment properties
+					i++; //skip over brace
+					StringBuffer varb = new StringBuffer();
+					c = str.charAt(i);
+					
+					for (; i < str.length(); i++){ //grab the variable name
+						c = str.charAt(i);
+						if (c == '}') break;
+						varb.append(c);
+					}
+					Object varval = GameEnvironment.getEnvironmentVariable(varb.toString(), this);
+					if (varval == null) sb.append("\u00D8"); //special "empty set" character for null values
+					else sb.append(varval);
+				} break;
 				}
 				continue;
-			case '@': i++; //skip over character
+			case '@': { i++; //skip over character
 				StringBuffer varb = new StringBuffer();
 				c = str.charAt(i);
 				boolean inBrace = (c == '{');
@@ -153,9 +202,9 @@ public class ScriptEnvironment {
 				else sb.append(varval);
 				if (!inBrace && i != str.length()) sb.append(c); //since we consumed the dividing character above, put it back in
 					//also, check to see if we didn't break because we ran past the end
-				continue;
+			} continue;
 			default:
-				sb.append(c);
+				sb.append(c); break;
 			}			
 		}
 
