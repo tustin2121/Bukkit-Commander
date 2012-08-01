@@ -1,4 +1,6 @@
-package org.digiplex.bukkitplugin.commander.scripting;
+package org.digiplex.bukkitplugin.commander.scripting.lines;
+
+import org.digiplex.bukkitplugin.commander.scripting.Executable;
 
 
 

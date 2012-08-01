@@ -1,8 +1,8 @@
-package org.digiplex.bukkitplugin.commander.scripting.lines;
+package org.digiplex.bukkitplugin.commander.scripting.lines.variables;
 
 import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
-import org.digiplex.bukkitplugin.commander.scripting.ScriptLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
 
 public class ScriptVarAssignmentLine extends ScriptLine {
 	String varname, literal;

@@ -7,8 +7,8 @@ import org.digiplex.bukkitplugin.commander.CommanderPlugin;
 import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
-import org.digiplex.bukkitplugin.commander.scripting.ScriptLine;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
+import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
 
 /**
  * Force command, even in chat. This means that the regex will be detected, and won't be replaced,

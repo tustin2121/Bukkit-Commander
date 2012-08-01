@@ -278,6 +278,59 @@ public class TestPlugin {
 		assertTrue(server.checkCommands("This command should run", "But this line should", "Test Line 196.5"));
 	}
 	
+	@Test public void comparisonCondition() throws Exception {
+		environment.setVariableValue("x", 1);
+		
+		String[] commands = new String[] {
+				"[if @x > 0] {",
+				"    X is one here",
+				"}",
+				"@x--",
+				"[if @x > 0]",
+				"    X is now zero and cond false",
+				"[if @x <= 0]",
+				"    This will run",
+				"[!if @x = 0]",
+				"    This will not",
+				"[else if @x < 0]",
+				"    Also won't run",
+				"[else if @x >= 0]",
+				"    Runs",
+				"Test Line 196.5"
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue(server.checkCommands("X is one here", "This will run", "Runs", "Test Line 196.5"));
+	}
+	
+	@Test public void checkCondition() throws Exception {
+		environment.setVariableValue("x", true);
+		environment.setVariableValue("y", false);
+		environment.setVariableValue("z", null);
+		environment.setVariableValue("w", "Hello");
+		
+		String[] commands = new String[] {
+				"[if @x] {",
+				"    True statement",
+				"}",
+				"[if @y]",
+				"    false statement",
+				"[if @z]",
+				"    null statement",
+				"[else if @w]",
+				"    Object statement",
+				"[!if @y]",
+				"    Not false",
+				"Test Line 295"
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue(server.checkCommands("True statement", "Object statement", "Not false", "Test Line 295"));
+	}
 	
 	/**
 	 * [switch @var]

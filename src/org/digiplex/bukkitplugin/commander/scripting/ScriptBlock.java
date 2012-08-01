@@ -1,9 +1,11 @@
 package org.digiplex.bukkitplugin.commander.scripting;
+//Note: ScriptBlock is not a "line" so doesn't go in lines package. Also, visibility concerns.
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
+import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
 
 public class ScriptBlock implements Executable {
 	private ArrayList<Executable> commands;
@@ -32,8 +34,6 @@ public class ScriptBlock implements Executable {
 		
 		int bracecount = 0;
 		ArrayList<String> workingSubblock = null;
-		
-		ScriptLine lastConstruct = null;
 		
 		for (String line : scriptLines){ //parse
 			line = line.trim();

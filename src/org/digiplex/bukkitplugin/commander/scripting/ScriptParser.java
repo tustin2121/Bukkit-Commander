@@ -5,14 +5,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptCommandLine;
-import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptConditionLine;
-import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptDirectiveEchoLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptElseLine;
-import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptVarAssignmentLine;
-import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptVarIncrementLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptConditionLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptHasConstruct;
+import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfVarCheckConstruct;
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfVarCompareConstruct;
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfVarEqualsConstruct;
+import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDirectiveEchoLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarAssignmentLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarIncrementLine;
 
 /**
  * TODO: make script lines abstract, and have a method that will make the line based on what it parses:
@@ -195,8 +197,9 @@ public class ScriptParser {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	private static final Pattern CON_OVERALL = Pattern.compile("\\[(\\!?[a-zA-Z]+)\\s*([^\\]]*)\\]");
-	private static final Pattern CON_EQUAL = Pattern.compile("\\@(\\w+)\\s+\\=\\s+(.+)");
+	private static final Pattern CON_EQUAL = Pattern.compile("\\@(\\w+)\\s+(\\!?)\\=\\s+(.+)");
 	private static final Pattern CON_COMPARE = Pattern.compile("\\@(\\w+)\\s+(<|>|<=|>=)\\s+(.+)");
+	private static final Pattern CON_CHECK = Pattern.compile("\\@(\\w+)");
 	
 	private static ScriptLine parseConstruct(String line) throws BadScriptException{
 		Matcher m = CON_OVERALL.matcher(line);
@@ -207,12 +210,15 @@ public class ScriptParser {
 		if (conname.matches("\\!?if")){
 			if (params == null || params.isEmpty()) throw new BadScriptException("If construct has no condition!");
 			
+			boolean notmode = false;
 			ScriptConditionLine l = null;
 			if ( (m = CON_EQUAL.matcher(params)).matches() ) {
 				String var = m.group(1);
-				String eq = m.group(2);
+				String nt = m.group(2);
+				String eq = m.group(3);
 				
 				l = new ScriptIfVarEqualsConstruct(var, eq);
+				notmode ^= !nt.isEmpty();
 			} else if ( (m = CON_COMPARE.matcher(params)).matches() ) {
 				String var = m.group(1);
 				String op = m.group(2);
@@ -221,8 +227,13 @@ public class ScriptParser {
 				boolean gtb = op.startsWith(">"); //> or >=
 				boolean eqb = op.endsWith("="); //>= or <=
 				l = new ScriptIfVarCompareConstruct(var, eq, gtb, eqb);
+			} else if ( (m = CON_CHECK.matcher(params)).matches() ) {
+				String var = m.group(1);
+				
+				l = new ScriptIfVarCheckConstruct(var);
 			}
-			l.setNotMode(conname.startsWith("!"));
+			notmode ^= conname.startsWith("!");
+			l.setNotMode(notmode);
 			return l;
 			
 		} else if (conname.matches("else")) {
@@ -245,10 +256,10 @@ public class ScriptParser {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	private static final Pattern ASSIGN_LOCAL = Pattern.compile("\\@([a-zA-Z0-9]+)\\s+=\\s+(.*)");
-	private static final Pattern ASSIGN_GLOBAL = Pattern.compile("\\@([a-zA-Z0-9]+)\\s+\\:=\\s+(.*)");
-	private static final Pattern ASSIGN_INCREMENT = Pattern.compile("\\@([a-zA-Z0-9]+)\\s+\\+\\+");
-	private static final Pattern ASSIGN_DECREMENT = Pattern.compile("\\@([a-zA-Z0-9]+)\\s+\\-\\-");
+	private static final Pattern ASSIGN_LOCAL = Pattern.compile("\\@([a-zA-Z0-9]+)\\s*=\\s*(.*)");
+	private static final Pattern ASSIGN_GLOBAL = Pattern.compile("\\@([a-zA-Z0-9]+)\\s*\\:=\\s*(.*)");
+	private static final Pattern ASSIGN_INCREMENT = Pattern.compile("\\@([a-zA-Z0-9]+)\\s*\\+\\+");
+	private static final Pattern ASSIGN_DECREMENT = Pattern.compile("\\@([a-zA-Z0-9]+)\\s*\\-\\-");
 	
 	private static ScriptLine parseVariable(String line) throws BadScriptException{
 		Matcher m;
