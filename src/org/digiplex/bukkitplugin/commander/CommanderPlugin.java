@@ -9,10 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Formatter;
-import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,6 +21,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.digiplex.bukkitplugin.commander.api.CommanderEnvVarModule;
 import org.digiplex.bukkitplugin.commander.module.ConsoleCommandModule;
 import org.digiplex.bukkitplugin.commander.module.Module;
 import org.digiplex.bukkitplugin.commander.module.PlayerChatModule;
@@ -37,6 +35,7 @@ import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.EchoControl;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
+import org.digiplex.bukkitplugin.commander.scripting.env.GameEnvironment;
 
 public class CommanderPlugin extends JavaPlugin {
 	public static final Logger Log = Logger.getLogger("Minecraft");
@@ -110,6 +109,10 @@ public class CommanderPlugin extends JavaPlugin {
 		aliasedScripts.clear();
 		
 		loadLists();
+	}
+	
+	public void addCommanderScriptHook(String namespace, CommanderEnvVarModule hook) {
+		GameEnvironment.registerCommanderPlugin(namespace, hook);
 	}
 	
 	public void loadLists(){
