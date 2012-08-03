@@ -1,7 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines.conditional;
 
-import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 
 public class ScriptIfVarCheckConstruct extends ScriptConditionLine {
 	String var;

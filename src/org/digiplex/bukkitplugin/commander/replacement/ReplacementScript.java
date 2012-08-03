@@ -2,9 +2,9 @@ package org.digiplex.bukkitplugin.commander.replacement;
 
 import java.util.regex.PatternSyntaxException;
 
-import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 
 public class ReplacementScript extends ReplacementPair {
 	private String scriptAlias;

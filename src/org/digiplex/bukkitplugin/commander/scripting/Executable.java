@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting;
 
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
+
 public interface Executable {
 	/**
 	 * Executes this executable with the given environment.

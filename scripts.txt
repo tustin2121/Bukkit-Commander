@@ -1,0 +1,3 @@
+{ hello
+	sudo say hello world
+}

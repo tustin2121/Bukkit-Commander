@@ -4,10 +4,10 @@ import java.util.Properties;
 import java.util.regex.PatternSyntaxException;
 
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
-import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
 
 /**

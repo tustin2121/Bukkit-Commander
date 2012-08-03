@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -31,11 +32,12 @@ import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementRandom;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementScript;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementString;
-import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.EchoControl;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
+import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
 import org.digiplex.bukkitplugin.commander.scripting.env.GameEnvironment;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 
 public class CommanderPlugin extends JavaPlugin {
 	public static final Logger Log = Logger.getLogger("Minecraft");
@@ -128,6 +130,18 @@ public class CommanderPlugin extends JavaPlugin {
 			File consoleCommandFile = new File(this.getDataFolder(), config.getString("files.consolecmd"));
 			checkListFile(consoleCommandFile, "consolecmd.txt");
 			loadListFromFile(consoleCommandFile, ccmd);
+			
+			//load additional script files here
+			List<String> lst = config.getStringList("files.script-files");
+			for (String filename : lst) {
+				File scriptfile = new File(this.getDataFolder(), filename);
+				if (!scriptfile.exists()) {
+					Log.warning("Script file \""+filename+"\" does not exist!");
+					continue;
+				} else {
+					
+				}
+			}
 			
 		} finally {}
 	}
@@ -248,7 +262,8 @@ public class CommanderPlugin extends JavaPlugin {
 								blockDepth--;
 							} 
 							if (blockDepth == 0){
-								ScriptBlock block = new ScriptBlock(scriptblock, repl);
+								ScriptBlock block = (ScriptBlock)ScriptParser.parseScript(scriptblock);//new ScriptBlock(scriptblock, repl);
+								block.setAlias(repl);
 								rp = new ReplacementScript(regex, block);
 								setScriptForAlias(repl, block);
 								break;
@@ -268,6 +283,75 @@ public class CommanderPlugin extends JavaPlugin {
 				}
 			}
 			Log.info("[Commander] Successfully imported "+success+" patterns from "+listfile.getName());
+		} catch (BadScriptException e) {
+			Log.severe("[Commander] Error reading replacement file "+listfile.getName()+" : "+e.getMessage());
+		} catch (FileNotFoundException ex){
+			Log.warning("[Commander] Could not open replacement file: "+listfile.getName());
+		} catch (IOException e) {
+			Log.log(Level.WARNING, "[Commander] IOException thrown while parsing replacement file "+listfile.getName(), e);
+		} finally {
+			try { if (br != null) br.close(); } catch (IOException e) {}
+		}
+	}
+	
+	public void loadScriptsFromFile(File listfile) {
+		BufferedReader br = null;
+		try {
+			if (!listfile.canRead()){ throw new FileNotFoundException(); }
+			
+			br = new BufferedReader(new FileReader(listfile));
+			Pattern p = Pattern.compile("{\\s*(.*)");
+			String line;
+			
+			int success = 0, lineno = 0; int err = 0;
+			while ((line = br.readLine()) != null) {
+				lineno++;
+				if (line.isEmpty() || line.startsWith("#")) continue;
+				Matcher m = p.matcher(line);
+				if (m.matches()) {
+					success++;
+					
+					String name = m.group(1);
+					
+					{
+						int blockDepth = 1;
+						ArrayList<String> scriptblock = new ArrayList<String>();
+						
+						while ((line = br.readLine()) != null){
+							//loop through input lines to get the script block
+							lineno++;
+							if (line.isEmpty() || line.startsWith("#")) continue;
+							
+							if (line.trim().endsWith("{") && !line.trim().endsWith("\\{")){
+								blockDepth++;
+							} else if (line.trim().equals("}")) {
+								blockDepth--;
+							} 
+							if (blockDepth == 0){
+								if (name == null || name.isEmpty()) {
+									Log.warning("Found a script block with no alias!"+ ((err == 0)?" All scripts in script files must have an alias! No way to call them otherwise!":"")+" Skipping parsing.");
+									err++;
+									//if we can't store it, don't even bother parsing it.
+									break;
+								}
+								ScriptBlock block = (ScriptBlock)ScriptParser.parseScript(scriptblock);//new ScriptBlock(scriptblock, repl);
+								block.setAlias(name);
+								setScriptForAlias(name, block);
+								break;
+							} else {
+								scriptblock.add(line);
+							}
+						}
+						if (blockDepth != 0){
+							//if the above loop broke without completing the script, it hit the end of line
+							throw new BadScriptException("EOF reached before end of script reached! Please re-balance braces!");
+						}
+					}
+				} else {
+					Log.warning("[Commander] Line "+lineno+" does not start a script block. Only named blocks of script, not loose code, are allowed in script files.");
+				}
+			}
+			Log.info("[Commander] Successfully imported "+success+" scripts from "+listfile.getName());
 		} catch (BadScriptException e) {
 			Log.severe("[Commander] Error reading replacement file "+listfile.getName()+" : "+e.getMessage());
 		} catch (FileNotFoundException ex){

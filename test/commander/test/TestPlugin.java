@@ -8,10 +8,10 @@ import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
-import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -330,6 +330,62 @@ public class TestPlugin {
 		sl.execute(environment);
 		
 		assertTrue(server.checkCommands("True statement", "Object statement", "Not false", "Test Line 295"));
+	}
+	
+	@Test public void forIntLoop() throws Exception {
+		String[] commands = new String[] {
+				"[loop @i = 0 to 5] {", //inclusive on both ends
+				"    This is loop @i",
+				"    @i = 42", //the loop construct does not care if you step on its variable, it simply overwrites it on next loop
+				"}",
+				"[loop @i = 0 to 6 step 2]",
+				"    Step 2 Loop @i",
+				"[loop @i = 0 to 3 step 2]",
+				"    Step 2 odd Loop @i",
+				"Test Line 42"
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue(server.checkCommands("This is loop 0", "This is loop 1", "This is loop 2", "This is loop 3", "This is loop 4", "This is loop 5",
+				"Step 2 Loop 0", "Step 2 Loop 2", "Step 2 Loop 4", "Step 2 Loop 6",
+				"Step 2 odd Loop 0", "Step 2 odd Loop 2",
+				"Test Line 42"));
+	}
+	
+	@Test public void whileLoop() throws Exception {
+		environment.setVariableValue("i", "0");
+		
+		String[] commands = new String[] {
+				"[while @i < 5] {", //if statement, except it loops
+				"    This is loop @i",
+				"}",
+				"Test Line 42"
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue(server.checkCommands("This is loop 0", "This is loop 1", "This is loop 2", "This is loop 3", "This is loop 4", 
+				"Test Line 42"));
+	}
+	
+	@Test public void invalidLoopFormat() {
+		String[] commands = new String[] {
+				"[loop @hello = w to z]",
+				"    This loop is invalid",
+		};
+		Executable sl;
+		
+		try {
+			sl = ScriptParser.parseScript(commands);
+			sl.execute(environment);
+			fail("Parser somehow parsed this!");
+		} catch (BadScriptException e) {
+			assertNotNull(e);
+			LOG.warning(e.getMessage());
+		}
 	}
 	
 	/**

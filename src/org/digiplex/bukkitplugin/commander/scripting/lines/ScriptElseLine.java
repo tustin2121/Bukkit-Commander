@@ -1,8 +1,8 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines;
 
-import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 
 public class ScriptElseLine extends ScriptLine {
 	Executable line;

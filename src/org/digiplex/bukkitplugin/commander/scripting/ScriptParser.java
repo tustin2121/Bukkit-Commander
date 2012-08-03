@@ -1,18 +1,23 @@
 package org.digiplex.bukkitplugin.commander.scripting;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
+import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptBreakLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptCommandLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptElseLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptRunLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptConditionLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptHasConstruct;
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfVarCheckConstruct;
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfVarCompareConstruct;
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfVarEqualsConstruct;
 import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDirectiveEchoLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.loop.ScriptLoopConstruct;
 import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarAssignmentLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarIncrementLine;
 
@@ -37,6 +42,9 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarIn
  *     case constructs:
  *        [switch @var] and [case #], [else] = switch, on the variable
  *        [random # to #] and [case #], [case #-#], [case <#], [case >#] = same as switch, but with a random number
+ *     statement constructs: (Not actually a construct, just using the brackets to stand out)
+ *        [break] = break line, causes a loop or script to break out
+ *        [run scriptname] = calls a aliased script from the Commander hash table of stored scripts (read: "function call") 
  *   
  *  if the line begins with a @ then it is a variable method:
  *     @var = a number, string, or supported object with a name : assignment
@@ -57,6 +65,10 @@ public class ScriptParser {
 	private static enum ParseState {
 		NORMAL,
 		MAKING_BLOCK,
+	}
+	
+	public static Executable parseScript(List<String> script) throws BadScriptException {
+		return parseScript(script.toArray(new String[script.size()]), 0);
 	}
 	
 	public static Executable parseScript(String[] script) throws BadScriptException {
@@ -187,6 +199,7 @@ public class ScriptParser {
 	private static final Pattern CON_EQUAL = Pattern.compile("\\@(\\w+)\\s+(\\!?)\\=\\s+(.+)");
 	private static final Pattern CON_COMPARE = Pattern.compile("\\@(\\w+)\\s+(<|>|<=|>=)\\s+(.+)");
 	private static final Pattern CON_CHECK = Pattern.compile("\\@(\\w+)");
+	private static final Pattern CON_LOOP = Pattern.compile("@(\\w+)\\s+\\=\\s+(\\d+)\\s+to\\s+(\\d+|@\\w+)\\s+(?:step (\\d+))?");
 	
 	private static ScriptLine parseConstruct(String line) throws BadScriptException{
 		Matcher m = CON_OVERALL.matcher(line);
@@ -218,24 +231,66 @@ public class ScriptParser {
 				String var = m.group(1);
 				
 				l = new ScriptIfVarCheckConstruct(var);
+			} else {
+				throw new BadScriptException("If construct is misformatted!");
 			}
 			notmode ^= conname.startsWith("!");
 			l.setNotMode(notmode);
 			return l;
 			
-		} else if (conname.matches("else")) {
-			//special handling, so we can do [else if condition]
-			if (params != null && !params.isEmpty()) {
-				ScriptLine sl = parseConstruct(String.format("[%s]", params));
-				return new ScriptElseLine(sl);
+		} else if (conname.matches("loop")) {
+			if (params == null || params.isEmpty()) throw new BadScriptException("Loops must be in the format [loop @var = # to # step #] (step optional)!");
+			if ( (m = CON_LOOP.matcher(params)).matches() ) {
+				String var = m.group(1);
+				String start = m.group(2);
+				String end = m.group(3);
+				String step = m.group(4);
+				int starti, endi = 0, stepi;
+				try {
+					starti = Integer.parseInt(start);
+					stepi = Integer.parseInt(step);
+					if (!end.startsWith("@"))
+						endi = Integer.parseInt(end);
+				} catch (NumberFormatException ex) {
+					throw new BadScriptException("Loop construct must have a number for the first and step values! The last value must be either a number or a variable!");
+				}
+				
+				if (end.startsWith("@")) {
+					return new ScriptLoopConstruct(var, starti, end, stepi);
+				} else {
+					return new ScriptLoopConstruct(var, starti, endi, stepi);
+				}
+				
 			} else {
-				return new ScriptElseLine(null);
+				throw new BadScriptException("Loop construct is misformatted!");
 			}
 			
 		} else if (conname.matches("\\!?has")) {
 			if (params == null || params.isEmpty()) throw new BadScriptException("Has construct has no permission!");
 			return new ScriptHasConstruct(params);
 			
+		} else if (conname.matches("else")) {
+			if (params != null && !params.isEmpty()) {
+				//special handling, so we can do [else if condition]
+				ScriptLine sl = parseConstruct(String.format("[%s]", params));
+				return new ScriptElseLine(sl);
+			} else {
+				return new ScriptElseLine(null);
+			}
+			
+		} else if (conname.matches("break")) {
+			if (params != null && !params.isEmpty()) {
+				throw new BadScriptException("Break construct cannot have an argument!");
+			} else {
+				return new ScriptBreakLine();
+			}
+			
+		} else if (conname.matches("run")) {
+			if (params != null && !params.isEmpty()) {
+				return new ScriptRunLine(params);
+			} else {
+				throw new BadScriptException("Run construct must have an script alias name!");
+			}
 		} else {
 			throw new BadScriptException("Unknown construct: "+conname);
 		}

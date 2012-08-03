@@ -12,8 +12,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
-import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BreakScriptException;
 
 public class PlayerChatModule implements Module {
 	private static final Logger Log = Logger.getLogger("Minecraft");
@@ -66,8 +67,9 @@ public class PlayerChatModule implements Module {
 					e.setMessage(sb.toString());
 					//e.setCancelled(true);
 					//e.getPlayer().chat(sb.toString()); //chat first
-					
-					rp.executeEffects(env); //then execute the replacement
+					try {
+						rp.executeEffects(env); //then execute the replacement
+					} catch (BreakScriptException ex) {} //catch any break statements
 					return;
 				}
 				

@@ -11,6 +11,7 @@ import org.bukkit.event.server.ServerCommandEvent;
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BreakScriptException;
 
 public class ConsoleCommandModule implements Module {
 	public List<ReplacementPair> pairs;
@@ -42,7 +43,9 @@ public class ConsoleCommandModule implements Module {
 				if (m.matches()){
 					env.setMatch(m.toMatchResult());
 					
-					rp.executeEffects(env);
+					try {
+						rp.executeEffects(env);
+					} catch (BreakScriptException ex){}
 					e.setCommand("commander null"); //does nothing, prints nothing
 					//e.setCommand(m.replaceFirst(rp.executeString(env)));
 					

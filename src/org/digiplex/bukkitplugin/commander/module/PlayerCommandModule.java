@@ -12,6 +12,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BreakScriptException;
 
 public class PlayerCommandModule implements Module {
 	private static final Logger Log = Logger.getLogger("Minecraft");
@@ -51,7 +52,9 @@ public class PlayerCommandModule implements Module {
 					if (echoCmds)
 						Log.info("[PLAYERCMD] "+e.getPlayer().getName()+": "+ e.getMessage() +rp.predicateString());
 					
-					rp.executeEffects(env);
+					try {
+						rp.executeEffects(env);
+					} catch (BreakScriptException ex) {}
 					e.setCancelled(true);
 					
 					return;

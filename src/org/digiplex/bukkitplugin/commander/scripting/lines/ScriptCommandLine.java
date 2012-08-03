@@ -4,8 +4,8 @@ import java.util.logging.Level;
 
 import org.bukkit.command.CommandException;
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
-import org.digiplex.bukkitplugin.commander.scripting.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 
 public class ScriptCommandLine extends ScriptLine {
 	public String cmd;

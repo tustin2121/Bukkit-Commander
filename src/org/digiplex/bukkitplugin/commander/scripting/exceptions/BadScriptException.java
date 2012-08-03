@@ -1,4 +1,4 @@
-package org.digiplex.bukkitplugin.commander.scripting;
+package org.digiplex.bukkitplugin.commander.scripting.exceptions;
 
 public class BadScriptException extends Exception {
 	private static final long serialVersionUID = 8951068159356743076L;

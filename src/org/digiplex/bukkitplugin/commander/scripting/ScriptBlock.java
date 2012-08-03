@@ -5,22 +5,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
 
 public class ScriptBlock implements Executable {
 	private ArrayList<Executable> commands;
 	private String alias;
 	
-	public ScriptBlock(ArrayList<String> sl) throws BadScriptException {
+	private ScriptBlock(ArrayList<String> sl) throws BadScriptException {
 		this(sl.toArray(new String[sl.size()]));
 	}
 	
-	public ScriptBlock(ArrayList<String> sl, String alias) throws BadScriptException {
+	private ScriptBlock(ArrayList<String> sl, String alias) throws BadScriptException {
 		this(sl.toArray(new String[sl.size()]));
 		this.alias = alias;
 	}
 	
-	public ScriptBlock(String[] scriptLines, String alias) throws BadScriptException {
+	private ScriptBlock(String[] scriptLines, String alias) throws BadScriptException {
 		this(scriptLines);
 		this.alias = alias;
 	}

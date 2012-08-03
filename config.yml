@@ -14,3 +14,5 @@ files:
     playercmd: playercmd.txt
     playerchat: playerchat.txt
     consolecmd: consolecmd.txt
+    script-files:
+        - scripts.txt
