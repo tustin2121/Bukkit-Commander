@@ -22,6 +22,7 @@ public class ScriptEnvironment {
 	private EchoControl wrappedSender;
 	private MatchResult match;
 	
+	private int looplim = 200;
 	private boolean continueOnError = false;
 	private Object commandReturn;
 	private boolean commandFound;
@@ -57,6 +58,8 @@ public class ScriptEnvironment {
 		//special function that sets variables only if they already exist
 		if (vars.containsKey(name)) {
 			vars.put(name, obj); return true;
+		} else if (parent != null) {
+			return parent.setVarFromChild(name, obj);
 		} else return false;
 	}
 	
@@ -111,6 +114,9 @@ public class ScriptEnvironment {
 	public boolean shouldContinueOnError() {return continueOnError;}
 	public void setContinueOnError(boolean continueOnError) {this.continueOnError = continueOnError;}
 	
+	public int getLoopLimit() {return looplim;}
+	public void setLoopLimit(int looplim) {this.looplim = looplim;}
+	
 	////////////////////////////////////////////////
 	
 	/**
@@ -125,6 +131,13 @@ public class ScriptEnvironment {
 		child.server = this.server;
 		child.match = this.match;
 		child.wrappedSender = this.wrappedSender;
+		
+		child.continueOnError = this.continueOnError;
+		child.looplim = this.looplim;
+		
+		child.commandError = this.commandError;
+		child.commandFound = this.commandFound;
+		child.commandReturn = this.commandReturn;
 		
 		child.parent = this;
 		return child;

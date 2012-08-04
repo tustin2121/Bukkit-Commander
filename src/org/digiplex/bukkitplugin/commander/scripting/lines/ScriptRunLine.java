@@ -30,5 +30,8 @@ public class ScriptRunLine extends ScriptLine {
 
 	@Override public boolean requiresNextLine() {return false;}
 	@Override public boolean requiresPreviousConstruct() {return false;}
-
+	
+	@Override public String toString() {
+		return "Run["+blockalias+"]";
+	}
 }

@@ -20,7 +20,7 @@ public class ScriptElseLine extends ScriptLine {
 		line.execute(env);
 	}
 	
-	@Override public boolean giveNextLine(Executable script) {
+	@Override public boolean giveNextLine(Executable script) throws BadScriptException {
 		if (line == null) {
 			line = script;
 		} else if (line instanceof ScriptLine) {

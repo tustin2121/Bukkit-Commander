@@ -40,7 +40,7 @@ public abstract class ScriptConditionLine extends ScriptLine {
 		}
 	}
 	
-	protected abstract boolean executeCondition(ScriptEnvironment env) throws BadScriptException;
+	public abstract boolean executeCondition(ScriptEnvironment env) throws BadScriptException;
 	
 	public boolean inNotMode() { return not; }
 	public void setNotMode(boolean not) { this.not = not; }

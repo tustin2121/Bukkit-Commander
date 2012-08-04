@@ -17,17 +17,36 @@ public class ScriptLoopConstruct extends ScriptLine {
 		if (start < end && step < 0) throw new BadScriptException("Loop's step must be a positive when counting upward!");
 		if (start > end && step > 0) throw new BadScriptException("Loop's step must be a negative when counting downward!");
 		
+		this.varname = varname;
 		this.start = start; this.end = end; this.step = step;
 	}
 	
 	public ScriptLoopConstruct(String varname, int start, String endvar, int step) throws BadScriptException {
 		if (step == 0) throw new BadScriptException("Loop's step must be non-zero!");
+		
+		this.varname = varname;
+		this.start = start; this.step = step; 
+		this.endvar = endvar;
 	}
 	
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
 		env = env.getChild(); //entering new scope
-		env.setVariableValue(varname, start);
-		for (int i = start; i > end; i += step) {
+		
+		if (endvar != null) {
+			Object o = env.getVariableValue(endvar);
+			if (o instanceof String) 
+				try {
+					end = Integer.parseInt((String) o);
+				} catch (NumberFormatException ex) {
+					throw new BadScriptException("End variable is not an integer!");
+				}
+			else if (o instanceof Integer)
+				end = (Integer) o;
+			else
+				throw new BadScriptException("End variable is not an integer!");
+		}
+		
+		for (int i = start; i <= end; i += step) {
 //			Object o = env.getVariableValue(varname);
 //			if (!(o instanceof Integer))
 //				throw new BadScriptException("Looping variable is not (or is no longer) an integer!", lineno);
@@ -47,7 +66,19 @@ public class ScriptLoopConstruct extends ScriptLine {
 		if (loopline == null)
 			throw new BadScriptException("Loop has no body!");
 	}
-
+	
+	@Override public boolean giveNextLine(Executable script) throws BadScriptException {
+		if (loopline == null)
+			this.loopline = script;
+		else
+			throw new BadScriptException("Loop constructs cannot accept 'else' statements.");
+		return true;
+	}
+	
+	@Override public String toString() {
+		return "Loop["+varname+" = "+start+" to "+end+" step "+step+"]";
+	}
+	
 	@Override public boolean isConstruct() {return true;}
 	@Override public boolean isDirective() {return false;}
 

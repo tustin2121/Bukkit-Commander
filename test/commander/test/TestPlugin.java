@@ -333,12 +333,14 @@ public class TestPlugin {
 	}
 	
 	@Test public void forIntLoop() throws Exception {
+		environment.setVariableValue("e", 6);
+		
 		String[] commands = new String[] {
 				"[loop @i = 0 to 5] {", //inclusive on both ends
 				"    This is loop @i",
 				"    @i = 42", //the loop construct does not care if you step on its variable, it simply overwrites it on next loop
 				"}",
-				"[loop @i = 0 to 6 step 2]",
+				"[loop @i = 0 to @e step 2]", //loop reads the end variable once
 				"    Step 2 Loop @i",
 				"[loop @i = 0 to 3 step 2]",
 				"    Step 2 odd Loop @i",
@@ -348,26 +350,10 @@ public class TestPlugin {
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue(server.checkCommands("This is loop 0", "This is loop 1", "This is loop 2", "This is loop 3", "This is loop 4", "This is loop 5",
+		assertTrue(server.checkCommands(
+				"This is loop 0", "This is loop 1", "This is loop 2", "This is loop 3", "This is loop 4", "This is loop 5",
 				"Step 2 Loop 0", "Step 2 Loop 2", "Step 2 Loop 4", "Step 2 Loop 6",
 				"Step 2 odd Loop 0", "Step 2 odd Loop 2",
-				"Test Line 42"));
-	}
-	
-	@Test public void whileLoop() throws Exception {
-		environment.setVariableValue("i", "0");
-		
-		String[] commands = new String[] {
-				"[while @i < 5] {", //if statement, except it loops
-				"    This is loop @i",
-				"}",
-				"Test Line 42"
-		};
-		
-		Executable sl = ScriptParser.parseScript(commands);
-		sl.execute(environment);
-		
-		assertTrue(server.checkCommands("This is loop 0", "This is loop 1", "This is loop 2", "This is loop 3", "This is loop 4", 
 				"Test Line 42"));
 	}
 	
@@ -385,6 +371,62 @@ public class TestPlugin {
 		} catch (BadScriptException e) {
 			assertNotNull(e);
 			LOG.warning(e.getMessage());
+		}
+	}
+	
+	@Test public void whileLoop() throws Exception {
+		environment.setVariableValue("i", "0");
+		
+		String[] commands = new String[] {
+				"[while @i < 5] {", //if statement, except it loops
+				"    This is loop @i",
+				"    @i++",
+				"}",
+				"Test Line 42"
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue(server.checkCommands("This is loop 0", "This is loop 1", "This is loop 2", "This is loop 3", "This is loop 4", 
+				"Test Line 42"));
+	}
+	
+	@Test public void whileLoopLoopLimit() throws Exception {
+		environment.setVariableValue("i", "0");
+		
+		String[] commands = new String[] {
+				"[while @i < 500] {", 
+				"    @i++", //this will hit the legal limit, 200, before it reaches the right tim
+				"}",
+				"Test Line 42"
+		};
+		Executable sl;
+		
+		try {
+			sl = ScriptParser.parseScript(commands);
+			sl.execute(environment);
+			fail("Limit never triggered?!");
+		} catch (BadScriptException ex) {
+			assertNotNull(ex);
+			LOG.warning(ex.getMessage());
+		}
+		
+		commands = new String[] {
+				"?looplim 1000",
+				"[while @i < 500] {", 
+				"    @i++", //with directive above, this will not hit the limit
+				"}",
+				"Test Line 42"
+		};
+		try {
+			sl = ScriptParser.parseScript(commands);
+			sl.execute(environment);
+			
+			assertTrue(server.checkCommands("Test Line 42"));
+		} catch (BadScriptException ex) {
+			LOG.warning(ex.getMessage());
+			fail("Should not have gotten a bad script exception.");
 		}
 	}
 	

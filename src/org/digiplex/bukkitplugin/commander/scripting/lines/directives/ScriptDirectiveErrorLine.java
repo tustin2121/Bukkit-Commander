@@ -1,23 +1,24 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines.directives;
 
-import org.digiplex.bukkitplugin.commander.scripting.EchoControl;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
 
-public class ScriptDirectiveEchoLine extends ScriptLine {
+public class ScriptDirectiveErrorLine extends ScriptLine {
 	boolean enable;
 	
-	public ScriptDirectiveEchoLine(boolean enable) {
-		this.enable = enable;
+	public ScriptDirectiveErrorLine(boolean ignore) {
+		this.enable = ignore;
 	}
 
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
-		((EchoControl)env.getCommandSender()).setEchoingEnabled(enable);
+		env.setContinueOnError(enable);
 	}
+
+	@Override public void verify() throws BadScriptException {}
 	
 	@Override public String toString() {
-		return "Directive[echo="+enable+"]";
+		return "Directive[errorContinue="+enable+"]";
 	}
 
 	@Override public boolean isConstruct() {return false;}
@@ -25,6 +26,5 @@ public class ScriptDirectiveEchoLine extends ScriptLine {
 
 	@Override public boolean requiresNextLine() {return false;}
 	@Override public boolean requiresPreviousConstruct() {return false;}
-	
-	@Override public void verify() throws BadScriptException {}
+
 }

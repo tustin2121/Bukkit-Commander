@@ -11,7 +11,7 @@ public class ScriptIfVarEqualsConstruct extends ScriptConditionLine {
 		this.equals = equals;
 	}
 	
-	@Override protected boolean executeCondition(ScriptEnvironment env) throws BadScriptException {
+	@Override public boolean executeCondition(ScriptEnvironment env) throws BadScriptException {
 		Object val = env.getVariableValue(var);
 		String eqcmd = env.substituteTokens(equals);
 		

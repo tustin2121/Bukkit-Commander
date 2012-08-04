@@ -10,7 +10,7 @@ public class ScriptHasConstruct extends ScriptConditionLine {
 		this.permission = permission;
 	}
 	
-	@Override protected boolean executeCondition(ScriptEnvironment env) throws BadScriptException {
+	@Override public boolean executeCondition(ScriptEnvironment env) throws BadScriptException {
 		return env.getCommandSender().hasPermission(permission);
 	}
 	

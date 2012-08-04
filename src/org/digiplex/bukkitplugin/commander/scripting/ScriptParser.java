@@ -17,7 +17,10 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfV
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfVarCompareConstruct;
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfVarEqualsConstruct;
 import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDirectiveEchoLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDirectiveErrorLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDirectiveLoopLimLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.loop.ScriptLoopConstruct;
+import org.digiplex.bukkitplugin.commander.scripting.lines.loop.ScriptWhileLoop;
 import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarAssignmentLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarIncrementLine;
 
@@ -56,6 +59,7 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarIn
  *  if the line begins with a ? then it is a scripting environment directive
  *     ?echo on/off = turns on/off echoing back messages from commands - the built-in echo command ignores it
  *     ?errorignore on/off = turns on/off error ignoring - if a command error is thrown, when on, the script continues
+ *     ?looplim [num] = adjusts the loop protection limit. Use sparingly.
  *  if the line begins with "say", 
  *  else:
  *     the line is a normal command to be executed by the current CommandSender, or mod if it begins with "sudo" 
@@ -196,10 +200,7 @@ public class ScriptParser {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	private static final Pattern CON_OVERALL = Pattern.compile("\\[(\\!?[a-zA-Z]+)\\s*([^\\]]*)\\]");
-	private static final Pattern CON_EQUAL = Pattern.compile("\\@(\\w+)\\s+(\\!?)\\=\\s+(.+)");
-	private static final Pattern CON_COMPARE = Pattern.compile("\\@(\\w+)\\s+(<|>|<=|>=)\\s+(.+)");
-	private static final Pattern CON_CHECK = Pattern.compile("\\@(\\w+)");
-	private static final Pattern CON_LOOP = Pattern.compile("@(\\w+)\\s+\\=\\s+(\\d+)\\s+to\\s+(\\d+|@\\w+)\\s+(?:step (\\d+))?");
+	private static final Pattern CON_LOOP = Pattern.compile("@(\\w+)\\s+\\=\\s+(\\d+)\\s+to\\s+(\\d+|@\\w+)(?:\\s+step\\s+(\\d+))?");
 	
 	private static ScriptLine parseConstruct(String line) throws BadScriptException{
 		Matcher m = CON_OVERALL.matcher(line);
@@ -210,33 +211,7 @@ public class ScriptParser {
 		if (conname.matches("\\!?if")){
 			if (params == null || params.isEmpty()) throw new BadScriptException("If construct has no condition!");
 			
-			boolean notmode = false;
-			ScriptConditionLine l = null;
-			if ( (m = CON_EQUAL.matcher(params)).matches() ) {
-				String var = m.group(1);
-				String nt = m.group(2);
-				String eq = m.group(3);
-				
-				l = new ScriptIfVarEqualsConstruct(var, eq);
-				notmode ^= !nt.isEmpty();
-			} else if ( (m = CON_COMPARE.matcher(params)).matches() ) {
-				String var = m.group(1);
-				String op = m.group(2);
-				String eq = m.group(3);
-				
-				boolean gtb = op.startsWith(">"); //> or >=
-				boolean eqb = op.endsWith("="); //>= or <=
-				l = new ScriptIfVarCompareConstruct(var, eq, gtb, eqb);
-			} else if ( (m = CON_CHECK.matcher(params)).matches() ) {
-				String var = m.group(1);
-				
-				l = new ScriptIfVarCheckConstruct(var);
-			} else {
-				throw new BadScriptException("If construct is misformatted!");
-			}
-			notmode ^= conname.startsWith("!");
-			l.setNotMode(notmode);
-			return l;
+			return parseCondition(params, conname.startsWith("!"));
 			
 		} else if (conname.matches("loop")) {
 			if (params == null || params.isEmpty()) throw new BadScriptException("Loops must be in the format [loop @var = # to # step #] (step optional)!");
@@ -245,18 +220,19 @@ public class ScriptParser {
 				String start = m.group(2);
 				String end = m.group(3);
 				String step = m.group(4);
-				int starti, endi = 0, stepi;
+				int starti, endi = 0, stepi = 1;
 				try {
 					starti = Integer.parseInt(start);
-					stepi = Integer.parseInt(step);
 					if (!end.startsWith("@"))
 						endi = Integer.parseInt(end);
+					if (step != null && !step.isEmpty())
+						stepi = Integer.parseInt(step);
 				} catch (NumberFormatException ex) {
 					throw new BadScriptException("Loop construct must have a number for the first and step values! The last value must be either a number or a variable!");
 				}
 				
 				if (end.startsWith("@")) {
-					return new ScriptLoopConstruct(var, starti, end, stepi);
+					return new ScriptLoopConstruct(var, starti, end.substring(1), stepi);
 				} else {
 					return new ScriptLoopConstruct(var, starti, endi, stepi);
 				}
@@ -264,6 +240,14 @@ public class ScriptParser {
 			} else {
 				throw new BadScriptException("Loop construct is misformatted!");
 			}
+			
+		} else if (conname.matches("\\!?while")) {
+			if (params == null || params.isEmpty()) throw new BadScriptException("While loops must have a condition, like if constructs!");
+			
+			ScriptConditionLine cl = parseCondition(params, conname.startsWith("!"));
+			cl.setNotMode(conname.startsWith("!"));
+			
+			return new ScriptWhileLoop(cl);
 			
 		} else if (conname.matches("\\!?has")) {
 			if (params == null || params.isEmpty()) throw new BadScriptException("Has construct has no permission!");
@@ -294,6 +278,42 @@ public class ScriptParser {
 		} else {
 			throw new BadScriptException("Unknown construct: "+conname);
 		}
+	}
+	
+	private static final Pattern CON_EQUAL = Pattern.compile("\\@(\\w+)\\s+(\\!?)\\=\\s+(.+)");
+	private static final Pattern CON_COMPARE = Pattern.compile("\\@(\\w+)\\s+(<|>|<=|>=)\\s+(.+)");
+	private static final Pattern CON_CHECK = Pattern.compile("\\@(\\w+)");
+	
+	private static ScriptConditionLine parseCondition(String params, boolean not) throws BadScriptException {
+		boolean notmode = false;
+		
+		ScriptConditionLine l = null;
+		Matcher m;
+		if ( (m = CON_EQUAL.matcher(params)).matches() ) {
+			String var = m.group(1);
+			String nt = m.group(2);
+			String eq = m.group(3);
+			
+			l = new ScriptIfVarEqualsConstruct(var, eq);
+			notmode ^= !nt.isEmpty();
+		} else if ( (m = CON_COMPARE.matcher(params)).matches() ) {
+			String var = m.group(1);
+			String op = m.group(2);
+			String eq = m.group(3);
+			
+			boolean gtb = op.startsWith(">"); //> or >=
+			boolean eqb = op.endsWith("="); //>= or <=
+			l = new ScriptIfVarCompareConstruct(var, eq, gtb, eqb);
+		} else if ( (m = CON_CHECK.matcher(params)).matches() ) {
+			String var = m.group(1);
+			
+			l = new ScriptIfVarCheckConstruct(var);
+		} else {
+			throw new BadScriptException("If construct is misformatted!");
+		}
+		notmode ^= not;
+		l.setNotMode(notmode);
+		return l;
 	}
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -331,15 +351,28 @@ public class ScriptParser {
 		return l;
 	}
 	
-	private static ScriptLine parseDirective(String line){
+	private static final Pattern DIR_LOOPLIM = Pattern.compile("looplim (\\d+)");
+	
+	private static ScriptLine parseDirective(String line) throws BadScriptException{
 		final Pattern p = Pattern.compile("\\?(.*)", Pattern.CASE_INSENSITIVE);
 		Matcher m = p.matcher(line);
+		if (!m.matches()) throw new BadScriptException("Question mark signifies a directive, but no directive found.");
 		String dir = m.group(1);
 		
 		ScriptLine l = null;
 		if (dir.startsWith("echo")){
 			boolean b = dir.matches("(?i)echo (on|true|1|yes)");
 			l = new ScriptDirectiveEchoLine(b);
+		} else if (dir.startsWith("errorignore")) {
+			boolean b = dir.matches("(?i)errorignore (on|true|1|yes)");
+			l = new ScriptDirectiveErrorLine(b);
+		} else if (dir.startsWith("looplim")) {
+			m = DIR_LOOPLIM.matcher(dir);
+			if (!m.matches())
+				throw new BadScriptException("Loop limit directive must have a number!");
+			int num = Integer.parseInt(m.group(1));
+			
+			l = new ScriptDirectiveLoopLimLine(num);
 		}
 		return l;
 	}

@@ -12,7 +12,7 @@ public class ScriptIfVarCompareConstruct extends ScriptConditionLine {
 		this.gt = gt; this.eq = eq;
 	}
 	
-	@Override protected boolean executeCondition(ScriptEnvironment env) throws BadScriptException {
+	@Override public boolean executeCondition(ScriptEnvironment env) throws BadScriptException {
 		Object val = env.getVariableValue(var);
 		String eqcmd = env.substituteTokens(equals);
 		

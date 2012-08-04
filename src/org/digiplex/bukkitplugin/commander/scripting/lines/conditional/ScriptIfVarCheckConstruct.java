@@ -10,7 +10,7 @@ public class ScriptIfVarCheckConstruct extends ScriptConditionLine {
 		this.var = var;
 	}
 
-	@Override protected boolean executeCondition(ScriptEnvironment env) throws BadScriptException {
+	@Override public boolean executeCondition(ScriptEnvironment env) throws BadScriptException {
 		Object val = env.getVariableValue(var);
 		if (val instanceof Boolean) {
 			return ((Boolean) val).booleanValue();
