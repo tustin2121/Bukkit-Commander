@@ -5,6 +5,8 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
@@ -16,6 +18,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -67,7 +70,7 @@ public class TestPlugin {
 		Executable sl = ScriptParser.parseScript(command);
 		sl.execute(environment);
 		
-		assertTrue(server.checkCommands(command));
+		assertTrue("Commands don't match!", server.checkCommands(command));
 	}
 	
 	@Test public void multilineScript() throws Exception {
@@ -82,7 +85,7 @@ public class TestPlugin {
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue(server.checkCommands("Test Line 1", "Test Command 2", "ec bc daytime!", "Hello World!"));
+		assertTrue("Commands don't match!", server.checkCommands("Test Line 1", "Test Command 2", "ec bc daytime!", "Hello World!"));
 	}
 	
 	@Test public void detectUnevenParens() {
@@ -141,7 +144,7 @@ public class TestPlugin {
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue(server.checkCommands(commands[0], commands[1], 
+		assertTrue("Commands don't match!", server.checkCommands(commands[0], commands[1], 
 				commands[3].trim(), commands[5].trim(),
 				commands[6].trim(), commands[8].trim(),
 				commands[10], commands[11]));
@@ -153,7 +156,7 @@ public class TestPlugin {
 		Executable sl = ScriptParser.parseScript(command);
 		sl.execute(environment);
 		
-		assertTrue(server.checkCommands("Escaping characters @odds with thing i$s fun!"));
+		assertTrue("Commands don't match!", server.checkCommands("Escaping characters @odds with thing i$s fun!"));
 	}
 	
 	@Test public void variableReplacement() throws Exception {
@@ -165,7 +168,7 @@ public class TestPlugin {
 		Executable sl = ScriptParser.parseScript(command);
 		sl.execute(environment);
 		
-		assertTrue(server.checkCommands("Variable hello world Testing I'm changeing works"));
+		assertTrue("Commands don't match!", server.checkCommands("Variable hello world Testing I'm changeing works"));
 	}
 	
 	@Test public void varAssignmentAndScope() throws Exception {
@@ -184,7 +187,7 @@ public class TestPlugin {
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue(server.checkCommands("Testing Var hello", "Testing Vars world buddy", "Testing Vars \u00D8, buddy", "Test Line 4"));
+		assertTrue("Commands don't match!", server.checkCommands("Testing Var hello", "Testing Vars world buddy", "Testing Vars \u00D8, buddy", "Test Line 4"));
 	}
 	
 	@Test public void ifConstruct() throws Exception {
@@ -211,7 +214,7 @@ public class TestPlugin {
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue(server.checkCommands("Good If Hello world!", "Test Line 12", "But this line should", "Test Line 42"));
+		assertTrue("Commands don't match!", server.checkCommands("Good If Hello world!", "Test Line 12", "But this line should", "Test Line 42"));
 	}
 	
 	@Test public void ifElseConstruct() throws Exception {
@@ -251,20 +254,22 @@ public class TestPlugin {
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue(server.checkCommands("But this command should run!", "But this line should", "As should this line", "Yes Run 1", "Test Line 196.2"));
+		assertTrue("Commands don't match!", server.checkCommands("But this command should run!", "But this line should", "As should this line", "Yes Run 1", "Test Line 196.2"));
 	}
 	
 	
 	@Test public void permissionConstruct() throws Exception {
 		String[] commands = new String[] {
-				"[has commander.test1]", //hardcoded in TestPlayer to true
+				"[if has commander.test1]", //hardcoded in TestPlayer to true
 				"{",
 				"    This command should run",
 				"}",
 				"",
-				"[has commander.test2]", //false 
+				"[has commander.test2]", //false, test shortcut 
 				"    This line does not run",
-				"[else has commander.test1]", //true, test else
+				"[else if Player !has commander.test3]", //false, test not, other player, error handling
+				"    This command does not run either",
+				"[else if TestPlayer has commander.test1]", //true, test other player
 				"    But this line should",
 				"[else]",
 				"    One last no run",
@@ -275,8 +280,26 @@ public class TestPlugin {
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue(server.checkCommands("This command should run", "But this line should", "Test Line 196.5"));
+		assertTrue("Commands don't match!", server.checkCommands("This command should run", "But this line should", "Test Line 196.5"));
 	}
+	
+	@Test public void invalidPermissionFormat() {
+		String[] commands = new String[] {
+				"[TestPlayer has commander.test1]",
+				"    This construct is invalid, means nothing",
+		};
+		Executable sl;
+		
+		try {
+			sl = ScriptParser.parseScript(commands);
+			sl.execute(environment);
+			fail("Parser somehow parsed this!");
+		} catch (BadScriptException e) {
+			assertNotNull(e);
+			LOG.warning(e.getMessage());
+		}
+	}
+	
 	
 	@Test public void comparisonCondition() throws Exception {
 		environment.setVariableValue("x", 1);
@@ -302,7 +325,7 @@ public class TestPlugin {
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue(server.checkCommands("X is one here", "This will run", "Runs", "Test Line 196.5"));
+		assertTrue("Commands don't match!", server.checkCommands("X is one here", "This will run", "Runs", "Test Line 196.5"));
 	}
 	
 	@Test public void checkCondition() throws Exception {
@@ -329,7 +352,7 @@ public class TestPlugin {
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue(server.checkCommands("True statement", "Object statement", "Not false", "Test Line 295"));
+		assertTrue("Commands don't match!", server.checkCommands("True statement", "Object statement", "Not false", "Test Line 295"));
 	}
 	
 	@Test public void forIntLoop() throws Exception {
@@ -350,7 +373,7 @@ public class TestPlugin {
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue(server.checkCommands(
+		assertTrue("Commands don't match!", server.checkCommands(
 				"This is loop 0", "This is loop 1", "This is loop 2", "This is loop 3", "This is loop 4", "This is loop 5",
 				"Step 2 Loop 0", "Step 2 Loop 2", "Step 2 Loop 4", "Step 2 Loop 6",
 				"Step 2 odd Loop 0", "Step 2 odd Loop 2",
@@ -388,7 +411,8 @@ public class TestPlugin {
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue(server.checkCommands("This is loop 0", "This is loop 1", "This is loop 2", "This is loop 3", "This is loop 4", 
+		assertTrue("Commands don't match!", 
+				server.checkCommands("This is loop 0", "This is loop 1", "This is loop 2", "This is loop 3", "This is loop 4", 
 				"Test Line 42"));
 	}
 	
@@ -423,7 +447,7 @@ public class TestPlugin {
 			sl = ScriptParser.parseScript(commands);
 			sl.execute(environment);
 			
-			assertTrue(server.checkCommands("Test Line 42"));
+			assertTrue("Commands don't match!", server.checkCommands("Test Line 42"));
 		} catch (BadScriptException ex) {
 			LOG.warning(ex.getMessage());
 			fail("Should not have gotten a bad script exception.");
@@ -466,7 +490,32 @@ public class TestPlugin {
 	 * 
 	 * @throws Exception
 	 */
+	@Ignore
 	@Test public void switchCase() throws Exception {
 		fail("Not yet implemented");
+	}
+	
+	
+	@Test public void advancedScripting1_giveCommand() throws Exception {
+		Matcher m = Pattern.compile("\\/give (\\S+) (\\S+) (\\S+)")
+				.matcher("/give everyone 320 cobblestone");
+		//assumeTrue(m.matches());
+		assertTrue("Cannot run test because prerequisite matching failed!", m.matches()); //this should be assumeTrue() but eclipse has a bug... 359944
+		environment.setMatch(m);
+		
+		String[] commands = new String[] {
+				"[if $1 = everyone] {",
+				"    [foreach @player in $(server.players)] {",
+				"        give @player $3 $2",
+				"    }",
+				"}",
+				"[else]",
+				"    give $1 $3 $2",
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue("Commands don't match!", server.checkCommands("True statement", "Object statement", "Not false", "Test Line 295"));
 	}
 }

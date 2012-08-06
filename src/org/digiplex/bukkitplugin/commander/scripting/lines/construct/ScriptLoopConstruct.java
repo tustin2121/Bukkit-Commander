@@ -1,4 +1,4 @@
-package org.digiplex.bukkitplugin.commander.scripting.lines.loop;
+package org.digiplex.bukkitplugin.commander.scripting.lines.construct;
 
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;

@@ -1,17 +1,17 @@
-package org.digiplex.bukkitplugin.commander.scripting.lines.loop;
+package org.digiplex.bukkitplugin.commander.scripting.lines.construct;
 
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BreakScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
-import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptConditionLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptCondition;
 
 public class ScriptWhileLoop extends ScriptLine {
-	ScriptConditionLine condition;
+	ScriptCondition condition;
 	Executable loopline;
 	
-	public ScriptWhileLoop(ScriptConditionLine condition) {
+	public ScriptWhileLoop(ScriptCondition condition) {
 		this.condition = condition;
 	}
 	
@@ -21,7 +21,7 @@ public class ScriptWhileLoop extends ScriptLine {
 		int loopnum = 0;
 		int looplimit = env.getLoopLimit();
 		
-		while (condition.executeCondition(env)) {
+		while (condition.testCondition(env)) {
 			try {
 				loopline.execute(env);
 			} catch (BreakScriptException ex) {

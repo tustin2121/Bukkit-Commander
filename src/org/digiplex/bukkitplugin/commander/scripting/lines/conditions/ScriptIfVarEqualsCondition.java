@@ -1,12 +1,17 @@
-package org.digiplex.bukkitplugin.commander.scripting.lines.conditional;
+package org.digiplex.bukkitplugin.commander.scripting.lines.conditions;
 
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 
-public class ScriptIfVarEqualsConstruct extends ScriptConditionLine {
+public class ScriptIfVarEqualsCondition extends ScriptCondition {
 	String var, equals;
 	
-	public ScriptIfVarEqualsConstruct(String var, String equals) {
+	public ScriptIfVarEqualsCondition(String var, String equals) throws BadScriptException {
+		if (var == null || var.isEmpty()) 
+			throw new BadScriptException("Check condition has no variable to check!");
+		if (equals == null || equals.isEmpty()) 
+			throw new BadScriptException("Check condition has no value to check against!");
+		
 		this.var = var;
 		this.equals = equals;
 	}
@@ -30,15 +35,6 @@ public class ScriptIfVarEqualsConstruct extends ScriptConditionLine {
 	}
 	
 	@Override public String toString() {
-		return "Condition["+((not)?"!":" ")+"if equals "+var+" = "+equals+" ]";
-	}
-	
-	@Override public void verify() throws BadScriptException {
-		if (var == null) //probably unneeded
-			throw new BadScriptException("If has no variable!", lineno);
-		if (equals == null) //probably unneeded
-			throw new BadScriptException("If has no literal!", lineno);
-		
-		super.verify();
+		return "Condition["+((not)?"!":" ")+"if var equals "+var+" = "+equals+" ]";
 	}
 }

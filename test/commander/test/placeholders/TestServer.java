@@ -75,6 +75,12 @@ public class TestServer implements Server {
 		}
 	}
 	
+	ArrayList<Player> playerList = new ArrayList<Player>();
+	
+	public void addPlayer(Player player) {
+		playerList.add(player);
+	}
+	
 	/////////////////////////////////// Relevant Methods //////////////////////////////////////
 	
 	@Override public boolean dispatchCommand(CommandSender sender, String commandLine) throws CommandException {
@@ -88,15 +94,26 @@ public class TestServer implements Server {
 	}
 	
 	@Override public Player getPlayer(String name) {
+		for (Player p : playerList) {
+			if (p.getName().equalsIgnoreCase(name)) return p;
+		}
 		return null;
 	}
 
 	@Override public Player getPlayerExact(String name) {
+		for (Player p : playerList) {
+			if (p.getName().equals(name)) return p;
+		}
 		return null;
 	}
 
 	@Override public List<Player> matchPlayer(String name) {
-		return null;
+		ArrayList<Player> matched = new ArrayList<Player>();
+		for (Player p : playerList) {
+			if (p.getName().matches(name))
+				matched.add(p);
+		}
+		return matched;
 	}
 	
 	@Override public PluginManager getPluginManager() {
@@ -141,6 +158,14 @@ public class TestServer implements Server {
 		return null;
 	}
 	
+	@Override public Player[] getOnlinePlayers() {
+		return playerList.toArray(new Player[playerList.size()]);
+	}
+	
+	@Override public OfflinePlayer[] getOfflinePlayers() {
+		return null;
+	}
+	
 	////////////////////////////////// Irrelevant Methods //////////////////////////////////////
 
 	@Override public void sendPluginMessage(Plugin source, String channel, byte[] message) {}
@@ -158,10 +183,6 @@ public class TestServer implements Server {
 	}
 
 	@Override public String getBukkitVersion() {
-		return null;
-	}
-
-	@Override public Player[] getOnlinePlayers() {
 		return null;
 	}
 
@@ -354,10 +375,6 @@ public class TestServer implements Server {
 	}
 
 	@Override public File getWorldContainer() {
-		return null;
-	}
-
-	@Override public OfflinePlayer[] getOfflinePlayers() {
 		return null;
 	}
 

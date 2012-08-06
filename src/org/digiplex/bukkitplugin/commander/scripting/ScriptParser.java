@@ -11,16 +11,20 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptCommandLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptElseLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptRunLine;
-import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptConditionLine;
-import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptHasConstruct;
-import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfVarCheckConstruct;
-import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfVarCompareConstruct;
-import org.digiplex.bukkitplugin.commander.scripting.lines.conditional.ScriptIfVarEqualsConstruct;
+import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptCondition;
+import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptHasCondition;
+import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfCheckCondition;
+import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfCompareCondition;
+import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfEqualsCondition;
+import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfVarCheckCondition;
+import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfVarCompareCondition;
+import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfVarEqualsCondition;
+import org.digiplex.bukkitplugin.commander.scripting.lines.construct.ScriptIfConstruct;
+import org.digiplex.bukkitplugin.commander.scripting.lines.construct.ScriptLoopConstruct;
+import org.digiplex.bukkitplugin.commander.scripting.lines.construct.ScriptWhileLoop;
 import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDirectiveEchoLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDirectiveErrorLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDirectiveLoopLimLine;
-import org.digiplex.bukkitplugin.commander.scripting.lines.loop.ScriptLoopConstruct;
-import org.digiplex.bukkitplugin.commander.scripting.lines.loop.ScriptWhileLoop;
 import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarAssignmentLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarIncrementLine;
 
@@ -54,7 +58,8 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarIn
  *     @var := a number, string, etc : global assignment, forcing assignment to original environment, wipes var from all children below
  *     @var++ : increase var if number
  *     @var = $(x) : getting a value of the environment, such as the server, and returning it as a return value (See GameEnvironment)
- *         
+ *     @var = {collection; of; strings; semicolon; separated} : collection 
+ *     @var = %(x + y - z * w / t % f) : doing integer math
  *     
  *  if the line begins with a ? then it is a scripting environment directive
  *     ?echo on/off = turns on/off echoing back messages from commands - the built-in echo command ignores it
@@ -211,7 +216,19 @@ public class ScriptParser {
 		if (conname.matches("\\!?if")){
 			if (params == null || params.isEmpty()) throw new BadScriptException("If construct has no condition!");
 			
-			return parseCondition(params, conname.startsWith("!"));
+			ScriptCondition sc = parseCondition(params, conname.startsWith("!"));
+			return new ScriptIfConstruct(sc);
+			
+		} else if (conname.matches("\\!?while")) {
+			if (params == null || params.isEmpty()) throw new BadScriptException("While loops must have a condition, like if constructs!");
+			
+			ScriptCondition cl = parseCondition(params, conname.startsWith("!"));
+			return new ScriptWhileLoop(cl);
+			
+		} else if (conname.matches("\\!?has")) { //convenience shortcut for [if has perm]
+			ScriptCondition sc = new ScriptHasCondition(null, params);
+			sc.setNotMode(conname.startsWith("!"));
+			return new ScriptIfConstruct(sc); //has construct is just a special case if
 			
 		} else if (conname.matches("loop")) {
 			if (params == null || params.isEmpty()) throw new BadScriptException("Loops must be in the format [loop @var = # to # step #] (step optional)!");
@@ -241,18 +258,6 @@ public class ScriptParser {
 				throw new BadScriptException("Loop construct is misformatted!");
 			}
 			
-		} else if (conname.matches("\\!?while")) {
-			if (params == null || params.isEmpty()) throw new BadScriptException("While loops must have a condition, like if constructs!");
-			
-			ScriptConditionLine cl = parseCondition(params, conname.startsWith("!"));
-			cl.setNotMode(conname.startsWith("!"));
-			
-			return new ScriptWhileLoop(cl);
-			
-		} else if (conname.matches("\\!?has")) {
-			if (params == null || params.isEmpty()) throw new BadScriptException("Has construct has no permission!");
-			return new ScriptHasConstruct(params);
-			
 		} else if (conname.matches("else")) {
 			if (params != null && !params.isEmpty()) {
 				//special handling, so we can do [else if condition]
@@ -280,34 +285,68 @@ public class ScriptParser {
 		}
 	}
 	
-	private static final Pattern CON_EQUAL = Pattern.compile("\\@(\\w+)\\s+(\\!?)\\=\\s+(.+)");
-	private static final Pattern CON_COMPARE = Pattern.compile("\\@(\\w+)\\s+(<|>|<=|>=)\\s+(.+)");
-	private static final Pattern CON_CHECK = Pattern.compile("\\@(\\w+)");
+	private static final Pattern CON_HAS = Pattern.compile("(\\S*)\\s?(\\!?)has\\s+(.+)");
+	private static final Pattern CON_VAR_EQUAL = Pattern.compile("\\@(\\w+)\\s+(\\!?)\\=\\s+(.+)");
+	private static final Pattern CON_VAR_COMPARE = Pattern.compile("\\@(\\w+)\\s+(<|>|<=|>=)\\s+(.+)");
+	private static final Pattern CON_VAR_CHECK = Pattern.compile("\\@(\\w+)");
+	private static final Pattern CON_EQUAL = Pattern.compile("([^!<>=]+)(\\!?)\\=\\s+(.+)");
+	private static final Pattern CON_COMPARE = Pattern.compile("([^!<>=]+)(<|>|<=|>=)\\s+(.+)");
+	private static final Pattern CON_CHECK = Pattern.compile("(.+)");
 	
-	private static ScriptConditionLine parseCondition(String params, boolean not) throws BadScriptException {
+	private static ScriptCondition parseCondition(String params, boolean not) throws BadScriptException {
 		boolean notmode = false;
 		
-		ScriptConditionLine l = null;
+		ScriptCondition l = null;
 		Matcher m;
-		if ( (m = CON_EQUAL.matcher(params)).matches() ) {
+		//start with var conditions, since they are more specialized (maybe?)
+		if ( (m = CON_HAS.matcher(params)).matches() ) {
+			String ply = m.group(1);
+			String nt = m.group(2);
+			String perm = m.group(3).trim();
+			
+			if (ply == null || ply.isEmpty()) ply = null; //defaults to current player
+			l = new ScriptHasCondition(ply, perm);
+			notmode ^= !nt.isEmpty();
+		} else if ( (m = CON_VAR_EQUAL.matcher(params)).matches() ) {
 			String var = m.group(1);
 			String nt = m.group(2);
-			String eq = m.group(3);
+			String eq = m.group(3).trim();
 			
-			l = new ScriptIfVarEqualsConstruct(var, eq);
+			l = new ScriptIfVarEqualsCondition(var, eq);
 			notmode ^= !nt.isEmpty();
-		} else if ( (m = CON_COMPARE.matcher(params)).matches() ) {
+		} else if ( (m = CON_VAR_COMPARE.matcher(params)).matches() ) {
 			String var = m.group(1);
 			String op = m.group(2);
-			String eq = m.group(3);
+			String eq = m.group(3).trim();
 			
 			boolean gtb = op.startsWith(">"); //> or >=
 			boolean eqb = op.endsWith("="); //>= or <=
-			l = new ScriptIfVarCompareConstruct(var, eq, gtb, eqb);
-		} else if ( (m = CON_CHECK.matcher(params)).matches() ) {
+			l = new ScriptIfVarCompareCondition(var, eq, gtb, eqb);
+		} else if ( (m = CON_VAR_CHECK.matcher(params)).matches() ) {
 			String var = m.group(1);
 			
-			l = new ScriptIfVarCheckConstruct(var);
+			l = new ScriptIfVarCheckCondition(var);
+			
+		//then move to general case conditions
+		} else if ( (m = CON_EQUAL.matcher(params)).matches() ) {
+			String var = m.group(1).trim();
+			String nt = m.group(2);
+			String eq = m.group(3).trim();
+			
+			l = new ScriptIfEqualsCondition(var, eq);
+			notmode ^= !nt.isEmpty();
+		} else if ( (m = CON_COMPARE.matcher(params)).matches() ) {
+			String var = m.group(1).trim();
+			String op = m.group(2);
+			String eq = m.group(3).trim();
+			
+			boolean gtb = op.startsWith(">"); //> or >=
+			boolean eqb = op.endsWith("="); //>= or <=
+			l = new ScriptIfCompareCondition(var, eq, gtb, eqb);
+		} else if ( (m = CON_CHECK.matcher(params)).matches() ) {
+			String var = m.group(1).trim();
+			
+			l = new ScriptIfCheckCondition(var);
 		} else {
 			throw new BadScriptException("If construct is misformatted!");
 		}

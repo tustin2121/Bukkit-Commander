@@ -51,6 +51,7 @@ public class TestPlayer implements Player {
 	
 	public TestPlayer(Server server) {
 		this.server = server;
+		((TestServer)server).addPlayer(this);
 	}
 	
 	/////////////////////////////////// Relevant Methods //////////////////////////////////////

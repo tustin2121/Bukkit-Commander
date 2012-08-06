@@ -1,6 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.MatchResult;
 
 import org.bukkit.Server;
@@ -28,8 +29,11 @@ public class ScriptEnvironment {
 	private boolean commandFound;
 	private Exception commandError;
 	
+	private HashMap<String, List<String>> collections;
+	
 	public ScriptEnvironment(){
 		vars = new HashMap<String, Object>();
+		collections = new HashMap<String, List<String>>(2);
 	}
 	
 	public Object getVariableValue(String name){
@@ -63,6 +67,23 @@ public class ScriptEnvironment {
 		} else return false;
 	}
 	
+	public String pushCollection(List<String> collection){
+		String id = "{s"+Integer.toHexString(collection.hashCode())+"}";
+		setCollectionForId(id, collection);
+		return id;
+	}
+	public void setCollectionForId(String id, List<String> collection){
+		ScriptEnvironment p = parent;
+		while (p.parent != null) //go to top-most environment
+			p = p.parent;
+		p.collections.put(id, collection); //collections are global, its the variables that might lose scope
+	}
+	public List<String> getCollection(String id) {
+		ScriptEnvironment p = parent;
+		while (p.parent != null) //go to top-most environment
+			p = p.parent;
+		return p.collections.get(id);
+	}
 	
 	public Server getServer() {return server;}
 	public void setServer(Server server) {this.server = server;}
@@ -179,18 +200,24 @@ public class ScriptEnvironment {
 					}
 					sb.append(commandSender.getName());
 					break;
-				case '{': { //environment properties
+				case '(': { //environment properties
 					i++; //skip over brace
 					StringBuffer varb = new StringBuffer();
 					c = str.charAt(i);
 					
 					for (; i < str.length(); i++){ //grab the variable name
 						c = str.charAt(i);
-						if (c == '}') break;
+						if (c == ')') break;
 						varb.append(c);
 					}
 					Object varval = GameEnvironment.getEnvironmentVariable(varb.toString(), this);
 					if (varval == null) sb.append("\u00D8"); //special "empty set" character for null values
+					else if (varval instanceof List) {
+						@SuppressWarnings("unchecked") 
+						String id = pushCollection((List<String>) varval);
+						
+						sb.append(id);
+					}
 					else sb.append(varval);
 				} break;
 				}

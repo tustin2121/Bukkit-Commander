@@ -1,31 +1,27 @@
-package org.digiplex.bukkitplugin.commander.scripting.lines.conditional;
+package org.digiplex.bukkitplugin.commander.scripting.lines.construct;
 
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptElseLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptCondition;
 
-/**
- * Conditions are defined thusly: "\[(if)\s+([^\]])\]"
- * 
- * The line [if condition] defines a conditional. The next line is the true block. If the
- * next line is a open curly brace, it is a block, going to the next matched curly brace.
- * after that, the line [else] defines the false block, going by the same rules.
- * @author timpittman
- */
-public abstract class ScriptConditionLine extends ScriptLine {
-	protected boolean not;
+public class ScriptIfConstruct extends ScriptLine {
+	protected ScriptCondition condition;
 	
 	protected Executable trueBlock;
 	protected Executable falseBlock;
 	
+	public ScriptIfConstruct(ScriptCondition condition) {
+		this.condition = condition;
+	}
+
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
 		if (trueBlock == null)
 			throw new BadScriptException("If statement does not have a true block!");
 		
-		boolean condres = this.executeCondition(env);
-		if (not) condres = !condres;
+		boolean condres = condition.testCondition(env);
 		
 		/* how this works:
 		 * if the condition result is true, the true statement is run. If that statement is a block, the whole block
@@ -39,12 +35,8 @@ public abstract class ScriptConditionLine extends ScriptLine {
 			if (falseBlock != null) falseBlock.execute(env);
 		}
 	}
-	
-	public abstract boolean executeCondition(ScriptEnvironment env) throws BadScriptException;
-	
-	public boolean inNotMode() { return not; }
-	public void setNotMode(boolean not) { this.not = not; }
-	
+
+
 	@Override public boolean giveNextLine(Executable script) {
 		if (trueBlock == null) {
 			trueBlock = script;
@@ -54,6 +46,10 @@ public abstract class ScriptConditionLine extends ScriptLine {
 			return false;
 		}
 		return true;
+	}
+	
+	@Override public String toString() {
+		return "If["+condition+"]";
 	}
 	
 	@Override public boolean isConstruct() {return true;}
@@ -79,4 +75,5 @@ public abstract class ScriptConditionLine extends ScriptLine {
 			}
 		}
 	}
+
 }

@@ -1,12 +1,15 @@
-package org.digiplex.bukkitplugin.commander.scripting.lines.conditional;
+package org.digiplex.bukkitplugin.commander.scripting.lines.conditions;
 
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 
-public class ScriptIfVarCheckConstruct extends ScriptConditionLine {
+public class ScriptIfVarCheckCondition extends ScriptCondition {
 	String var;
 	
-	public ScriptIfVarCheckConstruct(String var) {
+	public ScriptIfVarCheckCondition(String var) throws BadScriptException {
+		if (var == null || var.isEmpty()) 
+			throw new BadScriptException("Check condition has no variable to check!");
+		
 		this.var = var;
 	}
 
@@ -23,13 +26,6 @@ public class ScriptIfVarCheckConstruct extends ScriptConditionLine {
 	}
 	
 	@Override public String toString() {
-		return "Condition["+((not)?"!":" ")+"if check "+var+" ]";
-	}
-	
-	@Override public void verify() throws BadScriptException {
-		if (var == null) //probably unneeded
-			throw new BadScriptException("If has no variable!", lineno);
-		
-		super.verify();
+		return "Condition["+((not)?"!":" ")+"if var check "+var+" ]";
 	}
 }

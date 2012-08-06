@@ -16,11 +16,13 @@ public class ScriptBlock implements Executable {
 		this(sl.toArray(new String[sl.size()]));
 	}
 	
+	@SuppressWarnings("unused") 
 	private ScriptBlock(ArrayList<String> sl, String alias) throws BadScriptException {
 		this(sl.toArray(new String[sl.size()]));
 		this.alias = alias;
 	}
 	
+	@SuppressWarnings("unused") 
 	private ScriptBlock(String[] scriptLines, String alias) throws BadScriptException {
 		this(scriptLines);
 		this.alias = alias;
