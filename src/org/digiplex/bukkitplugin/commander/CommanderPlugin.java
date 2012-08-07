@@ -8,20 +8,16 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.digiplex.bukkitplugin.commander.CommanderEngine.EchoCommand;
 import org.digiplex.bukkitplugin.commander.api.CommanderEnvVarModule;
 import org.digiplex.bukkitplugin.commander.module.ConsoleCommandModule;
 import org.digiplex.bukkitplugin.commander.module.Module;
@@ -32,9 +28,7 @@ import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementRandom;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementScript;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementString;
-import org.digiplex.bukkitplugin.commander.scripting.EchoControl;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
-import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
 import org.digiplex.bukkitplugin.commander.scripting.env.GameEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
@@ -42,38 +36,33 @@ import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptExcepti
 public class CommanderPlugin extends JavaPlugin {
 	public static final Logger Log = Logger.getLogger("Minecraft");
 	
-	public static final CommanderCommandSender ccs = new CommanderCommandSender();
-	public static CommanderPlugin instance;
-	
 	public FileConfiguration config;
 	
 	PlayerCommandModule pcmd = null;
 	PlayerChatModule pchat = null;
 	ConsoleCommandModule ccmd = null;
 	
-	HashMap<String, ScriptBlock> aliasedScripts = null;
-	
-	public boolean scriptDebugMode = false;
-	
 	@Override public String toString() { return "CommanderPlugin"; }
 	
 	@Override public void onDisable() {
-		instance = null;
+		CommanderEngine.unregisterInstance();
 		Log.info("[Commander] Disabled");
 	}
 
 	@Override public void onEnable() {
-		instance = this;
+		CommanderEngine.registerInstance(); //creates an instance
+		CommanderEngine instance = CommanderEngine.getInstance();
 		
 		config = this.getConfig();
 		config.options().copyDefaults(true);
 		this.saveConfig();
+		instance.setConfig(config);
 		
 		copyReferenceFile();
 		
 		PluginManager pm = this.getServer().getPluginManager();
 		
-		this.getCommand("commander").setExecutor(new AdminCommand());
+		this.getCommand("commander").setExecutor(instance.new AdminCommand());
 		if (config.getBoolean("options.commands.echo", true))
 			this.getCommand("echo").setExecutor(new EchoCommand());
 		
@@ -88,8 +77,6 @@ public class CommanderPlugin extends JavaPlugin {
 		
 		ccmd = new ConsoleCommandModule();
 		pm.registerEvents(ccmd, this);
-		
-		aliasedScripts = new HashMap<String, ScriptBlock>();
 		
 		loadLists();
 		
@@ -108,7 +95,7 @@ public class CommanderPlugin extends JavaPlugin {
 		
 		ccmd.clearReplacementPairs();
 		
-		aliasedScripts.clear();
+		CommanderEngine.getInstance().reload(); //probably not good if being used by more than 1 plugin
 		
 		loadLists();
 	}
@@ -265,7 +252,7 @@ public class CommanderPlugin extends JavaPlugin {
 								ScriptBlock block = (ScriptBlock)ScriptParser.parseScript(scriptblock);//new ScriptBlock(scriptblock, repl);
 								block.setAlias(repl);
 								rp = new ReplacementScript(regex, block);
-								setScriptForAlias(repl, block);
+								CommanderEngine.getInstance().setScriptForAlias(repl, block);
 								break;
 							} else {
 								scriptblock.add(line);
@@ -336,7 +323,7 @@ public class CommanderPlugin extends JavaPlugin {
 								}
 								ScriptBlock block = (ScriptBlock)ScriptParser.parseScript(scriptblock);//new ScriptBlock(scriptblock, repl);
 								block.setAlias(name);
-								setScriptForAlias(name, block);
+								CommanderEngine.getInstance().setScriptForAlias(name, block);
 								break;
 							} else {
 								scriptblock.add(line);
@@ -365,68 +352,5 @@ public class CommanderPlugin extends JavaPlugin {
 	
 	////////////////////////////////////////////////
 	
-	public static void setScriptForAlias(String alias, ScriptBlock script){
-		if (alias == null || alias.isEmpty()) return;
-		instance.aliasedScripts.put(alias, script);
-	}
-	public static ScriptBlock getScript(String alias){
-		return instance.aliasedScripts.get(alias);
-	}
 	
-	public class AdminCommand implements CommandExecutor {
-		@Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-			if (args[0].equals("null")){ //undocumented command that does nothing, used internally
-				return true;
-			}
-			
-			if (sender instanceof Player) {
-				sender.sendMessage("Commander commands can only be executed from the console.");
-				return true;
-			}
-			if (args[0].equalsIgnoreCase("reload")){
-				reload();
-				return true;
-			} else if (args[0].equalsIgnoreCase("debug")){
-				scriptDebugMode = !scriptDebugMode;
-				Log.info("Script debugging "+((scriptDebugMode)?"enabled":"disabled"));
-				return true;
-			} else if (args[0].equalsIgnoreCase("runscript")){
-				try {
-					if (args.length < 2) return false;
-					String scriptname = args[1];
-					ScriptBlock sb = getScript(scriptname);
-					
-					if (scriptDebugMode) Log.info("[Commander:DEBUG:run] "+scriptname+" == "+sb);
-					
-					if (sb == null){
-						Log.info("[Commander] No script for registered for the alias \""+scriptname+"\"");
-					} else {
-						ScriptEnvironment env = new ScriptEnvironment(); {
-							env.setCommandSender(sender);
-							env.setServer(sender.getServer());
-						}
-						sb.execute(env);
-					}
-				} catch (BadScriptException ex) {
-					Log.info("");
-				}
-				return true;
-			}
-			return false;
-		}
-	}
-	
-	public class EchoCommand implements CommandExecutor {
-		@Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-			if (args.length == 0) return false;
-			
-			StringBuffer sb = new StringBuffer(args[0]);
-			for (int i = 1; i < args.length; i++){
-				sb.append(' ').append(args[i]);
-			}
-			((EchoControl)sender).getWrappedSender().sendMessage(sb.toString());
-			//sender.sendMessage(sb.toString());
-			return true;
-		}
-	}
 }
