@@ -81,6 +81,10 @@ public class TestServer implements Server {
 		playerList.add(player);
 	}
 	
+	@Override public String toString() {
+		return "TestServer[]";
+	}
+	
 	/////////////////////////////////// Relevant Methods //////////////////////////////////////
 	
 	@Override public boolean dispatchCommand(CommandSender sender, String commandLine) throws CommandException {

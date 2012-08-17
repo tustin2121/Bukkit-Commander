@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerChatEvent;
-import org.digiplex.bukkitplugin.commander.CommanderPlugin;
+import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
@@ -60,7 +60,7 @@ public class PlayerChatModule implements Module {
 				
 				if (rp.playerWillVanish()) { //the player will vanish as a result of this, special handling
 					int cutlen = rp.getIntOption("cutoff");
-					String cuttext = CommanderPlugin.instance.config.getString("options.cutoff.indicator", "--*");
+					String cuttext = CommanderEngine.getConfig().getString("options.cutoff.indicator", "--*");
 					
 					String rep = m.group().substring(0, cutlen).concat(cuttext);
 					m.appendReplacement(sb, rep);
@@ -105,10 +105,10 @@ public class PlayerChatModule implements Module {
 				}
 			}
 		} catch (BadScriptException ex) {
-			CommanderPlugin.Log.severe("[Commander] Script Error: "+ex.getMessage());
+			CommanderEngine.Log.severe("[Commander] Script Error: "+ex.getMessage());
 			e.getPlayer().sendMessage("[Commander] An error occurred while processing the script.");
 		} catch (Exception ex) {
-			CommanderPlugin.Log.log(Level.SEVERE, "[Commander] An exception was caught during chat replacement processing! Chat passed through.", ex);
+			CommanderEngine.Log.log(Level.SEVERE, "[Commander] An exception was caught during chat replacement processing! Chat passed through.", ex);
 		}
 	}
 }

@@ -3,12 +3,11 @@ package org.digiplex.bukkitplugin.commander.replacement;
 import java.util.Properties;
 import java.util.regex.PatternSyntaxException;
 
-import org.digiplex.bukkitplugin.commander.CommanderPlugin;
+import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
-import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
 
 /**
  * Force command, even in chat. This means that the regex will be detected, and won't be replaced,
@@ -28,7 +27,7 @@ public class ReplacementCommand extends ReplacementPair {
 			{
 				String s = p.getProperty("cutoff", "false");
 				if (s.matches("\\d")) cutoff = Integer.parseInt(s);
-				else if (s.matches("true")) cutoff = CommanderPlugin.instance.config.getInt("options.cutoff.length", 1);
+				else if (s.matches("true")) cutoff = CommanderEngine.getConfig().getInt("options.cutoff.length", 1);
 				else cutoff = -1;
 			}
 		//	CommanderPlugin.Log.info("["+options+"] cutoff = "+cutoff);

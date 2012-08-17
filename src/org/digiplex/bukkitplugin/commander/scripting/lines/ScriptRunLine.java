@@ -1,6 +1,6 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines;
 
-import org.digiplex.bukkitplugin.commander.CommanderPlugin;
+import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
@@ -14,7 +14,7 @@ public class ScriptRunLine extends ScriptLine {
 	}
 	
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
-		ScriptBlock block = CommanderPlugin.getScript(blockalias);
+		ScriptBlock block = CommanderEngine.getInstance().getScript(blockalias);
 		if (block == null)
 			throw new BadScriptException("No stored script has the alias \""+blockalias+"\"!");
 		

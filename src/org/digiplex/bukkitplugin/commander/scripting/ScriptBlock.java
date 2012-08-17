@@ -4,7 +4,7 @@ package org.digiplex.bukkitplugin.commander.scripting;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.digiplex.bukkitplugin.commander.CommanderPlugin;
+import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
 
@@ -73,16 +73,16 @@ public class ScriptBlock implements Executable {
 	}
 	
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
-		if (CommanderPlugin.instance.scriptDebugMode)
-			CommanderPlugin.Log.info("[Commander:DEBUG:startScript] ");
+		if (CommanderEngine.getInstance().scriptDebugMode)
+			CommanderEngine.Log.info("[Commander:DEBUG:startScript] ");
 		
 		env = env.getChild(); //get the child environment, to keep scoping
 		for (Executable ex : commands){
 			ex.execute(env);
 		}
 		
-		if (CommanderPlugin.instance.scriptDebugMode)
-			CommanderPlugin.Log.info("[Commander:DEBUG:endScript] ");
+		if (CommanderEngine.getInstance().scriptDebugMode)
+			CommanderEngine.Log.info("[Commander:DEBUG:endScript] ");
 	}
 	
 	@Override public void verify() throws BadScriptException {

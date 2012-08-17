@@ -1,7 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting;
 
 import org.bukkit.command.CommandSender;
-import org.digiplex.bukkitplugin.commander.CommanderPlugin;
+import org.digiplex.bukkitplugin.commander.CommanderEngine;
 
 public abstract class EchoControl implements CommandSender {
 	boolean echoEnabled = true;
@@ -9,7 +9,7 @@ public abstract class EchoControl implements CommandSender {
 	
 	protected EchoControl(CommandSender sender) {
 		this.wrappedSender = sender;
-		this.echoEnabled = CommanderPlugin.instance.config.getBoolean("options.default-echo", true);
+		this.echoEnabled = CommanderEngine.getConfig().getBoolean("options.default-echo", true);
 	}
 	
 	public CommandSender getWrappedSender() { return wrappedSender;}

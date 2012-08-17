@@ -19,6 +19,7 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfEq
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfVarCheckCondition;
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfVarCompareCondition;
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfVarEqualsCondition;
+import org.digiplex.bukkitplugin.commander.scripting.lines.construct.ScriptForEachConstruct;
 import org.digiplex.bukkitplugin.commander.scripting.lines.construct.ScriptIfConstruct;
 import org.digiplex.bukkitplugin.commander.scripting.lines.construct.ScriptLoopConstruct;
 import org.digiplex.bukkitplugin.commander.scripting.lines.construct.ScriptWhileLoop;
@@ -154,6 +155,7 @@ public class ScriptParser {
 				
 				if (curr.endsWith("{") && !curr.endsWith("\\{")) {
 					blockDeep++;
+					blockLines.add(curr);
 				} else if (curr.equals("}")) {
 					if (--blockDeep == 0) { //pre-decrement
 						state = ParseState.NORMAL;
@@ -167,6 +169,8 @@ public class ScriptParser {
 						} else {
 							lines.add(sb);
 						}
+					} else {
+						blockLines.add(curr);
 					}
 				} else {
 					blockLines.add(curr);
@@ -206,6 +210,7 @@ public class ScriptParser {
 	
 	private static final Pattern CON_OVERALL = Pattern.compile("\\[(\\!?[a-zA-Z]+)\\s*([^\\]]*)\\]");
 	private static final Pattern CON_LOOP = Pattern.compile("@(\\w+)\\s+\\=\\s+(\\d+)\\s+to\\s+(\\d+|@\\w+)(?:\\s+step\\s+(\\d+))?");
+	private static final Pattern CON_FOREACH = Pattern.compile("@(\\w+)\\s+in\\s+(.+)");
 	
 	private static ScriptLine parseConstruct(String line) throws BadScriptException{
 		Matcher m = CON_OVERALL.matcher(line);
@@ -213,16 +218,16 @@ public class ScriptParser {
 		String conname = m.group(1);
 		String params = m.group(2);
 		
-		if (conname.matches("\\!?if")){
+		if (conname.matches("\\!?(if|unless)")){
 			if (params == null || params.isEmpty()) throw new BadScriptException("If construct has no condition!");
 			
-			ScriptCondition sc = parseCondition(params, conname.startsWith("!"));
+			ScriptCondition sc = parseCondition(params, conname.startsWith("!") ^ conname.contains("u"));
 			return new ScriptIfConstruct(sc);
 			
-		} else if (conname.matches("\\!?while")) {
+		} else if (conname.matches("\\!?(while|until)")) {
 			if (params == null || params.isEmpty()) throw new BadScriptException("While loops must have a condition, like if constructs!");
 			
-			ScriptCondition cl = parseCondition(params, conname.startsWith("!"));
+			ScriptCondition cl = parseCondition(params, conname.startsWith("!") ^ conname.contains("u"));
 			return new ScriptWhileLoop(cl);
 			
 		} else if (conname.matches("\\!?has")) { //convenience shortcut for [if has perm]
@@ -253,6 +258,17 @@ public class ScriptParser {
 				} else {
 					return new ScriptLoopConstruct(var, starti, endi, stepi);
 				}
+				
+			} else {
+				throw new BadScriptException("Loop construct is misformatted!");
+			}
+			
+		} else if (conname.matches("foreach")) {
+			if (params == null || params.isEmpty()) throw new BadScriptException("ForEach loops must have a variable and collection!");
+			if ( (m = CON_FOREACH.matcher(params)).matches() ) {
+				String var = m.group(1);
+				String collection = m.group(2);
+				return new ScriptForEachConstruct(var, collection);
 				
 			} else {
 				throw new BadScriptException("Loop construct is misformatted!");

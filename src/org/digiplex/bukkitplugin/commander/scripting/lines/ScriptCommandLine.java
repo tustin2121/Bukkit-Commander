@@ -3,7 +3,7 @@ package org.digiplex.bukkitplugin.commander.scripting.lines;
 import java.util.logging.Level;
 
 import org.bukkit.command.CommandException;
-import org.digiplex.bukkitplugin.commander.CommanderPlugin;
+import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 
@@ -28,13 +28,13 @@ public class ScriptCommandLine extends ScriptLine {
 //		if (env.getMatch() != null)
 //			command = env.getMatch().replaceFirst(command);
 		
-		if (CommanderPlugin.instance.scriptDebugMode)
-			CommanderPlugin.Log.info("[Commander:DEBUG:line] "+command);
+		if (CommanderEngine.getInstance().scriptDebugMode)
+			CommanderEngine.Log.info("[Commander:DEBUG:line] "+command);
 		
 		try {
 			boolean found;
 			if (modCommand)
-				found = env.getServer().dispatchCommand(CommanderPlugin.ccs, command);
+				found = env.getServer().dispatchCommand(CommanderEngine.ccs, command);
 			else
 				found = env.getServer().dispatchCommand(env.getCommandSender(), command);
 			
@@ -42,7 +42,7 @@ public class ScriptCommandLine extends ScriptLine {
 		} catch (CommandException ex) {
 			env.setCommandError(ex);
 			if (!env.shouldContinueOnError()) throw ex;
-			CommanderPlugin.Log.log(Level.SEVERE, "Error from command while processing script! Command=\""+command+"\"\n", ex);
+			CommanderEngine.Log.log(Level.SEVERE, "Error from command while processing script! Command=\""+command+"\"\n", ex);
 		}
 	}
 	

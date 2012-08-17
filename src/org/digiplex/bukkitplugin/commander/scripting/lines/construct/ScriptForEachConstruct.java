@@ -20,8 +20,10 @@ public class ScriptForEachConstruct extends ScriptLine {
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
 		List<String> collection;
 		String cmd = env.substituteTokens(rhs);
-		if (cmd.matches("{s([0-9a-fA-F]+)}")) { //there is a collection id there and there alone
+		if (cmd.matches("\\{s([0-9a-fA-F]+)\\}")) { //there is a collection id there and there alone
 			collection = env.getCollection(cmd);
+			if (collection == null)
+				throw new BadScriptException("Collection id does not exist!");
 		} else {
 			throw new BadScriptException("Given something not a collection! Cannot iterate!");
 		}

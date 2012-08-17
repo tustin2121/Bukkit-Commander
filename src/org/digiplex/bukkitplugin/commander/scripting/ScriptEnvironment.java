@@ -73,7 +73,7 @@ public class ScriptEnvironment {
 		return id;
 	}
 	public void setCollectionForId(String id, List<String> collection){
-		ScriptEnvironment p = parent;
+		ScriptEnvironment p = this;
 		while (p.parent != null) //go to top-most environment
 			p = p.parent;
 		p.collections.put(id, collection); //collections are global, its the variables that might lose scope

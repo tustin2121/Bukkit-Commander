@@ -61,7 +61,7 @@ public class CommanderEngine {
 		currentOptions = new MemoryConfiguration(defaultOptions);
 	}
 	
-	public Configuration getConfig() { return currentOptions; }
+	public static Configuration getConfig() { return getInstance().currentOptions; }
 	
 	public void setConfig(Configuration config) {
 		this.currentOptions = config;

@@ -4,6 +4,7 @@ import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
+import java.util.Arrays;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +32,7 @@ public class TestPlugin {
 	
 	public static CommanderPlugin plugin;
 	public static TestServer server;
+	public static TestPlayer myplayer;
 	
 	public ScriptEnvironment environment;
 	
@@ -41,6 +43,13 @@ public class TestPlugin {
 		server = new TestServer();
 		Bukkit.setServer(server);
 		
+		myplayer = new TestPlayer("TestPlayer", server);
+		//other players on the server
+		new TestPlayer("AAA", server);
+		new TestPlayer("BBB", server);
+		new TestPlayer("Notch", server);
+		new TestPlayer("Ben", server);
+		
 		plugin = new CommanderPlugin();
 		server.getPluginManager().enablePlugin(plugin);
 	}
@@ -48,7 +57,7 @@ public class TestPlugin {
 	@Before public void setUp() throws Exception {
 		environment = new ScriptEnvironment(); {
 			environment.setServer(server);
-			environment.setCommandSender(new TestPlayer(server));
+			environment.setCommandSender(myplayer);
 		}
 		LOG.info("------ Starting "+testname.getMethodName() +" ------");
 	}
@@ -208,13 +217,17 @@ public class TestPlugin {
 				"}",
 				"[if @i = 1]",
 				"    But this line should",
+				"[unless @i = 1]",
+				"    This line should not",
+				"[unless @i = 2]",
+				"    This line runs!",
 				"Test Line 42"
 		};
 		
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue("Commands don't match!", server.checkCommands("Good If Hello world!", "Test Line 12", "But this line should", "Test Line 42"));
+		assertTrue("Commands don't match!", server.checkCommands("Good If Hello world!", "Test Line 12", "But this line should", "This line runs!", "Test Line 42"));
 	}
 	
 	@Test public void ifElseConstruct() throws Exception {
@@ -397,12 +410,35 @@ public class TestPlugin {
 		}
 	}
 	
+	@Test public void forEachLoop() throws Exception {
+		String id = environment.pushCollection(Arrays.asList("Hello", "World", "I Am", "And I shall", "Always", "Be"));
+		environment.setVariableValue("coll", id);
+		
+		String[] commands = new String[] {
+				"[foreach @i in @coll] {",
+				"    say @i",
+				"}",
+				"Test Line 21"
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue("Commands don't match!", 
+				server.checkCommands("say Hello", "say World", "say I Am", "say And I shall", "say Always", "say Be", 
+				"Test Line 21"));
+	}
+	
 	@Test public void whileLoop() throws Exception {
 		environment.setVariableValue("i", "0");
 		
 		String[] commands = new String[] {
 				"[while @i < 5] {", //if statement, except it loops
 				"    This is loop @i",
+				"    @i++",
+				"}",
+				"[until @i > 8] {",
+				"    This is until @i",
 				"    @i++",
 				"}",
 				"Test Line 42"
@@ -412,8 +448,10 @@ public class TestPlugin {
 		sl.execute(environment);
 		
 		assertTrue("Commands don't match!", 
-				server.checkCommands("This is loop 0", "This is loop 1", "This is loop 2", "This is loop 3", "This is loop 4", 
-				"Test Line 42"));
+				server.checkCommands(
+						"This is loop 0", "This is loop 1", "This is loop 2", "This is loop 3", "This is loop 4",
+						"This is until 5", "This is until 6", "This is until 7", "This is until 8",
+						"Test Line 42"));
 	}
 	
 	@Test public void whileLoopLoopLimit() throws Exception {
@@ -516,6 +554,7 @@ public class TestPlugin {
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue("Commands don't match!", server.checkCommands("True statement", "Object statement", "Not false", "Test Line 295"));
+		assertTrue("Commands don't match!", server.checkCommands(
+				"give TestPlayer cobblestone 320", "give AAA cobblestone 320", "give BBB cobblestone 320", "give Notch cobblestone 320", "give Ben cobblestone 320"));
 	}
 }

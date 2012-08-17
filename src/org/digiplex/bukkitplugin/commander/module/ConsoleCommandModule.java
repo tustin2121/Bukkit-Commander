@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.server.ServerCommandEvent;
-import org.digiplex.bukkitplugin.commander.CommanderPlugin;
+import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BreakScriptException;
@@ -53,7 +53,7 @@ public class ConsoleCommandModule implements Module {
 				}
 			}
 		} catch (Exception ex){
-			CommanderPlugin.Log.log(Level.SEVERE, "[Commander] An exception was caught during command replacement processing! Command passed through.", ex);
+			CommanderEngine.Log.log(Level.SEVERE, "[Commander] An exception was caught during command replacement processing! Command passed through.", ex);
 		}
 	}
 }

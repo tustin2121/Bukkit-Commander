@@ -47,17 +47,23 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 public class TestPlayer implements Player {
+	public String playerName;
 	private Server server;
 	
-	public TestPlayer(Server server) {
+	public TestPlayer(String name, Server server) {
+		this.playerName = name;
 		this.server = server;
 		((TestServer)server).addPlayer(this);
+	}
+	
+	@Override public String toString() {
+		return "TestPlayer["+playerName+"]";
 	}
 	
 	/////////////////////////////////// Relevant Methods //////////////////////////////////////
 	
 	@Override public String getName() {
-		return "TestPlayer";
+		return playerName;
 	}
 	
 	@Override public Server getServer() {
@@ -65,11 +71,11 @@ public class TestPlayer implements Player {
 	}
 	
 	@Override public void sendMessage(String message) {
-		System.out.println("[TestPlayer] sendMessage() : "+message);
+		System.out.println("["+playerName+"] sendMessage() : "+message);
 	}
 
 	@Override public void sendMessage(String[] messages) {
-		System.out.println("[TestPlayer] sendMessage() :");
+		System.out.println("["+playerName+"] sendMessage() :");
 		for (String msg : messages) {
 			System.out.println(" > "+msg);
 		}
@@ -77,25 +83,25 @@ public class TestPlayer implements Player {
 	
 	
 	@Override public boolean isPermissionSet(String name) {
-		System.out.println("[TestPlayer] isPermissionSet() : "+name);
+		System.out.println("["+playerName+"] isPermissionSet() : "+name);
 		if (name.equals("commander.test1")) return true;
 		return false;
 	}
 
 	@Override public boolean isPermissionSet(Permission perm) {
-		System.out.println("[TestPlayer] isPermissionSet() : "+perm.getName());
+		System.out.println("["+playerName+"] isPermissionSet() : "+perm.getName());
 		if (perm.getName().equals("commander.test1")) return true;
 		return false;
 	}
 
 	@Override public boolean hasPermission(String name) {
-		System.out.println("[TestPlayer] hasPermission() : "+name);
+		System.out.println("["+playerName+"] hasPermission() : "+name);
 		if (name.equals("commander.test1")) return true;
 		return false;
 	}
 
 	@Override public boolean hasPermission(Permission perm) {
-		System.out.println("[TestPlayer] hasPermission() : "+perm.getName());
+		System.out.println("["+playerName+"] hasPermission() : "+perm.getName());
 		if (perm.getName().equals("commander.test1")) return true;
 		return false;
 	}

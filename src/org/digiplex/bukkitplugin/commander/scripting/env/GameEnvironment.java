@@ -81,7 +81,7 @@ public class GameEnvironment {
 	 */
 	
 	public static Object getEnvironmentVariable(String varname, ScriptEnvironment env) {
-		String[] varpath = varname.split(".");
+		String[] varpath = varname.split("\\.");
 		
 		if (varpath[0].equalsIgnoreCase("command"))		return getFromCommandNamespace(varpath[1], env);
 		if (varpath[0].equalsIgnoreCase("server"))		return getFromServerNamespace(varpath[1], env);
