@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.digiplex.bukkitplugin.commander.CommanderEngine;
+import org.digiplex.bukkitplugin.commander.CommanderEngine.MatchingContext;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BreakScriptException;
@@ -29,6 +30,9 @@ public class PlayerCommandModule implements Module {
 	}
 	@Override public void addReplacementPair(ReplacementPair pair) {
 		pairs.add(pair);
+	}
+	@Override public void addReplacementPairs(List<ReplacementPair> pair) {
+		pairs.addAll(pair);
 	}
 	@Override public void clearReplacementPairs() {
 		pairs.clear();	

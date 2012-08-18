@@ -296,6 +296,7 @@ public class ScriptParser {
 			} else {
 				throw new BadScriptException("Run construct must have an script alias name!");
 			}
+			
 		} else {
 			throw new BadScriptException("Unknown construct: "+conname);
 		}

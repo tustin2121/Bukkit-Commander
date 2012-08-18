@@ -10,11 +10,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
+import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
+import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BreakScriptException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -27,7 +30,7 @@ import org.junit.rules.TestName;
 import commander.test.placeholders.TestPlayer;
 import commander.test.placeholders.TestServer;
 
-public class TestPlugin {
+public class TestAllScripting {
 	private static final Logger LOG = Logger.getLogger("TESTPLUGIN");
 	
 	public static CommanderPlugin plugin;
@@ -40,15 +43,20 @@ public class TestPlugin {
 	
 	@BeforeClass public static void setUpClass() throws Exception {
 		System.out.println(System.getProperty("user.dir"));
-		server = new TestServer();
-		Bukkit.setServer(server);
+		server = (TestServer) Bukkit.getServer();
+		if (server == null) {
+			server = new TestServer();
+			Bukkit.setServer(server);
 		
-		myplayer = new TestPlayer("TestPlayer", server);
-		//other players on the server
-		new TestPlayer("AAA", server);
-		new TestPlayer("BBB", server);
-		new TestPlayer("Notch", server);
-		new TestPlayer("Ben", server);
+			myplayer = new TestPlayer("TestPlayer", server);
+			//other players on the server
+			new TestPlayer("AAA", server);
+			new TestPlayer("BBB", server);
+			new TestPlayer("Notch", server);
+			new TestPlayer("Ben", server);
+		} else {
+			myplayer = (TestPlayer) server.getPlayer("TestPlayer");
+		}
 		
 		plugin = new CommanderPlugin();
 		server.getPluginManager().enablePlugin(plugin);
@@ -459,7 +467,7 @@ public class TestPlugin {
 		
 		String[] commands = new String[] {
 				"[while @i < 500] {", 
-				"    @i++", //this will hit the legal limit, 200, before it reaches the right tim
+				"    @i++", //this will hit the legal limit, 200, before it reaches the right time
 				"}",
 				"Test Line 42"
 		};
@@ -490,6 +498,63 @@ public class TestPlugin {
 			LOG.warning(ex.getMessage());
 			fail("Should not have gotten a bad script exception.");
 		}
+	}
+	
+	@Test public void breakConstruct() throws Exception {
+		environment.setVariableValue("i", "0");
+		
+		String[] commands = new String[] {
+				"[loop @i = 2 to 5] {",
+				"    [if @i = 4]",
+				"        [break]", //breaks out of the loop
+				"    Hello i = @i",
+				"}",
+				"[break]", //break out of script
+				"Test Line 195.3"
+		};
+		
+		try {
+			Executable sl = ScriptParser.parseScript(commands);
+			sl.execute(environment);
+		} catch (BreakScriptException ex) {}
+		
+		assertTrue("Commands don't match!", 
+				server.checkCommands("Hello i = 2", "Hello i = 3"));
+	}
+	
+	@Test public void runConstruct() throws Exception {
+		String[] commands = new String[] {
+				"Test Line 22",
+				"Test Line 23",
+				"Test Line 24",
+		};
+		ScriptBlock runblock = (ScriptBlock) ScriptParser.parseScript(commands);
+		CommanderEngine.getInstance().setScriptForAlias("TestExtScript", runblock);
+		
+		commands = new String[] {
+				"Test Line 192",
+				"[run TestExtScript]",
+				"Test Line 195.3",
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue("Commands don't match!", 
+				server.checkCommands("Test Line 192", "Test Line 22", "Test Line 23", "Test Line 24", "Test Line 195.3"));
+	}
+	
+	@Test public void environmentVariableFunctions() throws Exception {
+		String[] commands = new String[] {
+				"@var = $(function.random 5)", //random number in the range [0, 5)
+				"Test line @var",
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		//assertTrue("Commands don't match!", server.checkCommands("Test line "+environment.getVariableValue("var")));
+		// Cannot really test this, as it is random...
 	}
 	
 	/**
@@ -533,28 +598,4 @@ public class TestPlugin {
 		fail("Not yet implemented");
 	}
 	
-	
-	@Test public void advancedScripting1_giveCommand() throws Exception {
-		Matcher m = Pattern.compile("\\/give (\\S+) (\\S+) (\\S+)")
-				.matcher("/give everyone 320 cobblestone");
-		//assumeTrue(m.matches());
-		assertTrue("Cannot run test because prerequisite matching failed!", m.matches()); //this should be assumeTrue() but eclipse has a bug... 359944
-		environment.setMatch(m);
-		
-		String[] commands = new String[] {
-				"[if $1 = everyone] {",
-				"    [foreach @player in $(server.players)] {",
-				"        give @player $3 $2",
-				"    }",
-				"}",
-				"[else]",
-				"    give $1 $3 $2",
-		};
-		
-		Executable sl = ScriptParser.parseScript(commands);
-		sl.execute(environment);
-		
-		assertTrue("Commands don't match!", server.checkCommands(
-				"give TestPlayer cobblestone 320", "give AAA cobblestone 320", "give BBB cobblestone 320", "give Notch cobblestone 320", "give Ben cobblestone 320"));
-	}
 }

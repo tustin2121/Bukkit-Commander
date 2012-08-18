@@ -81,8 +81,10 @@ public class GameEnvironment {
 	 */
 	
 	public static Object getEnvironmentVariable(String varname, ScriptEnvironment env) {
-		String[] varpath = varname.split("\\.");
+		String[] args = varname.split("\\s+");
+		String[] varpath = args[0].split("\\.");
 		
+		if (varpath[0].matches("(?i)fn|function"))		return getFromFunctionNamespace(varpath[1], args, env);
 		if (varpath[0].equalsIgnoreCase("command"))		return getFromCommandNamespace(varpath[1], env);
 		if (varpath[0].equalsIgnoreCase("server"))		return getFromServerNamespace(varpath[1], env);
 		if (varpath[0].equalsIgnoreCase("world"))		return getFromWorldNamespace(varpath[1], env);
@@ -153,6 +155,36 @@ public class GameEnvironment {
 			LOG.log(Level.SEVERE, "Error getting third-party environment variable from plugin \""+plugin+"\"!", ex);
 			return null;
 		}
+	}
+	
+	//////////////////////////////// Function Namespace ////////////////////////////////////
+	private static Object getFromFunctionNamespace(String name, String[] args, ScriptEnvironment env) {
+		if (name.equalsIgnoreCase("random"))	return random(args);
+		if (name.equalsIgnoreCase("intmath")) {
+			StringBuilder sb = new StringBuilder();
+			for (int i = 1; i < args.length; i++)
+				sb.append(args[i]).append(' ');
+			return intmath(sb.toString());
+		}
+		return null;
+	}
+	
+	private static int random(String[] args) {
+		switch (args.length) {
+		case 3: {
+			int min = Integer.parseInt(args[1]);
+			int max = Integer.parseInt(args[2]);
+			return (int)(Math.random() * (max-min)) + min;
+		}
+		case 2:
+			return (int)(Math.random() * Integer.parseInt(args[1]));
+		default:
+			return (int)(Math.random() * 100);
+		}
+	}
+	
+	private static int intmath(String argument) {
+		return 0; //unsupported
 	}
 	
 }
