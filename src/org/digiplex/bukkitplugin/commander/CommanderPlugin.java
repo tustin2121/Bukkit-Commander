@@ -18,7 +18,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.digiplex.bukkitplugin.commander.CommanderEngine.EchoCommand;
-import org.digiplex.bukkitplugin.commander.api.CommanderEnvVarModule;
+import org.digiplex.bukkitplugin.commander.api.CmdrEnvVarModule;
 import org.digiplex.bukkitplugin.commander.module.ConsoleCommandModule;
 import org.digiplex.bukkitplugin.commander.module.Module;
 import org.digiplex.bukkitplugin.commander.module.PlayerChatModule;
@@ -100,7 +100,7 @@ public class CommanderPlugin extends JavaPlugin {
 		loadLists();
 	}
 	
-	public void addCommanderScriptHook(String namespace, CommanderEnvVarModule hook) {
+	public void addCommanderScriptHook(String namespace, CmdrEnvVarModule hook) {
 		GameEnvironment.registerCommanderPlugin(namespace, hook);
 	}
 	

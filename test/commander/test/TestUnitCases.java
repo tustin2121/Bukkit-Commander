@@ -30,56 +30,9 @@ import org.junit.rules.TestName;
 import commander.test.placeholders.TestPlayer;
 import commander.test.placeholders.TestServer;
 
-public class TestAllScripting {
-	private static final Logger LOG = Logger.getLogger("TESTPLUGIN");
+public class TestUnitCases extends TestCase {
 	
-	public static CommanderPlugin plugin;
-	public static TestServer server;
-	public static TestPlayer myplayer;
-	
-	public ScriptEnvironment environment;
-	
-	@Rule public TestName testname = new TestName();
-	
-	@BeforeClass public static void setUpClass() throws Exception {
-		System.out.println(System.getProperty("user.dir"));
-		server = (TestServer) Bukkit.getServer();
-		if (server == null) {
-			server = new TestServer();
-			Bukkit.setServer(server);
-		
-			myplayer = new TestPlayer("TestPlayer", server);
-			//other players on the server
-			new TestPlayer("AAA", server);
-			new TestPlayer("BBB", server);
-			new TestPlayer("Notch", server);
-			new TestPlayer("Ben", server);
-		} else {
-			myplayer = (TestPlayer) server.getPlayer("TestPlayer");
-		}
-		
-		plugin = new CommanderPlugin();
-		server.getPluginManager().enablePlugin(plugin);
-	}
-	
-	@Before public void setUp() throws Exception {
-		environment = new ScriptEnvironment(); {
-			environment.setServer(server);
-			environment.setCommandSender(myplayer);
-		}
-		LOG.info("------ Starting "+testname.getMethodName() +" ------");
-	}
-	
-	@After public void tearDown() throws Exception {
-		server.clearCommands();
-		LOG.info("----- Done "+testname.getMethodName()+" -----");
-	}
-	
-	@AfterClass public static void tearDownClass() throws Exception {
-		plugin.onDisable();
-	}
-	
-	//////////////////////////////////////////////////////////////////////////
+	///////////////////////////// Simple Scripting ////////////////////////////////
 	
 	@Test public void simpleLine() throws Exception {
 		String command = "Hello World!";
@@ -105,7 +58,8 @@ public class TestAllScripting {
 		assertTrue("Commands don't match!", server.checkCommands("Test Line 1", "Test Command 2", "ec bc daytime!", "Hello World!"));
 	}
 	
-	@Test public void detectUnevenParens() {
+	@Test(expected = BadScriptException.class) //this test WILL throw an exception. If it doesn't, fail it! :P
+	public void detectUnevenParens() throws Exception {
 		String[] commands = new String[] {
 				"Test Line 1",
 				"{", 
@@ -113,18 +67,15 @@ public class TestAllScripting {
 				"Test Line 3",
 				"Test Line 4",
 		};
-		Executable sl;
 		
-		try {
-			sl = ScriptParser.parseScript(commands);
-			sl.execute(environment);
-			fail("Did not detect uneven open paren!");
-		} catch (BadScriptException e) {
-			assertNotNull(e);
-			LOG.warning(e.getMessage());
-		}
 		
-		commands = new String[] {
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+	}
+	
+	@Test(expected = BadScriptException.class) 
+	public void detectUnevenParensClose() throws Exception {
+		String[] commands = new String[] {
 				"Test Line 1",
 				"Test Line 2",
 				"Test Line 3",
@@ -132,14 +83,8 @@ public class TestAllScripting {
 				"Test Line 4",
 		};
 		
-		try {
-			sl = ScriptParser.parseScript(commands);
-			sl.execute(environment);
-			fail("Did not detect uneven close paren!");
-		} catch (BadScriptException e) {
-			assertNotNull(e);
-			LOG.warning(e.getMessage());
-		}
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
 	}
 	
 	@Test public void innerBraceScript() throws Exception {
@@ -147,11 +92,11 @@ public class TestAllScripting {
 				"Test Line 1",
 				"Test Line 2",
 				"{",
-				"    Inner Block 1",
 				"    {",
 				"        Inner-inner Block 1",
 				"        Inner-inner Block 2",
 				"    }",
+				"    Inner Block 1",
 				"    Inner Block 2",
 				"}",
 				"Test Line 3",
@@ -161,20 +106,24 @@ public class TestAllScripting {
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue("Commands don't match!", server.checkCommands(commands[0], commands[1], 
-				commands[3].trim(), commands[5].trim(),
-				commands[6].trim(), commands[8].trim(),
-				commands[10], commands[11]));
+		assertTrue("Commands don't match!", server.checkCommands(
+				"Test Line 1", "Test Line 2", 
+				"Inner-inner Block 1", "Inner-inner Block 2",
+				"Inner Block 1", "Inner Block 2",
+				"Test Line 3", "Test Line 4"));
 	}
 	
 	@Test public void escapeCharacters() throws Exception {
 		String command = "Esc\\aping \\characters \\@odds with thing i\\$s f\\un!";
+		//note, Java requires escaping the escape character here, so escaping is done with one backslash (\)
 		
 		Executable sl = ScriptParser.parseScript(command);
 		sl.execute(environment);
 		
 		assertTrue("Commands don't match!", server.checkCommands("Escaping characters @odds with thing i$s fun!"));
 	}
+	
+	/////////////////////////// Variables ////////////////////////////////
 	
 	@Test public void variableReplacement() throws Exception {
 		environment.setVariableValue("t1", "hello world");
@@ -195,17 +144,50 @@ public class TestAllScripting {
 				"{",
 				"    @qu = world",
 				"    @vo = buddy",
+				"    @gl := ten", //globally set the variable
 				"    Testing Vars @qu @vo",
 				"}",
 				"Testing Vars @qu, @vo",
-				"Test Line 4",
+				"Test Line @gl",
 		};
 		
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue("Commands don't match!", server.checkCommands("Testing Var hello", "Testing Vars world buddy", "Testing Vars \u00D8, buddy", "Test Line 4"));
+		assertTrue("Commands don't match!", server.checkCommands(
+				"Testing Var hello", 
+				"Testing Vars world buddy", 
+				"Testing Vars \u00D8, buddy", //@qu is null, replaced with a o with slash through it 
+				"Test Line ten"));
 	}
+	
+	@Test public void legalVarAssignments() throws Exception {
+		String[] commands = new String[] {
+				"@x = hello", //string assignment
+				"@y = 123", //"int" assignment, though it is a string
+				"@z = @x", //assign variable to another variable, assigns value of var
+				"@1 = world", //variable name can be number
+				"@pnemoniamicroscopicsylivicaniconosis = 2", //no limit on length
+				"Testing @x @{y} @1, @z",
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue("Commands don't match!", server.checkCommands("Testing hello 123 world, hello"));
+	}
+	
+	@Test(expected = BadScriptException.class)
+	public void illegalVarAssignment() throws Exception {
+		String[] commands = new String[] {
+				"@ = hi", //bad variable assignment
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+	}
+	
+	////////////////////////// If Construct ///////////////////////////
 	
 	@Test public void ifConstruct() throws Exception {
 		environment.setVariableValue("hello", "world");
@@ -278,50 +260,6 @@ public class TestAllScripting {
 		assertTrue("Commands don't match!", server.checkCommands("But this command should run!", "But this line should", "As should this line", "Yes Run 1", "Test Line 196.2"));
 	}
 	
-	
-	@Test public void permissionConstruct() throws Exception {
-		String[] commands = new String[] {
-				"[if has commander.test1]", //hardcoded in TestPlayer to true
-				"{",
-				"    This command should run",
-				"}",
-				"",
-				"[has commander.test2]", //false, test shortcut 
-				"    This line does not run",
-				"[else if Player !has commander.test3]", //false, test not, other player, error handling
-				"    This command does not run either",
-				"[else if TestPlayer has commander.test1]", //true, test other player
-				"    But this line should",
-				"[else]",
-				"    One last no run",
-				"",
-				"Test Line 196.5"
-		};
-		
-		Executable sl = ScriptParser.parseScript(commands);
-		sl.execute(environment);
-		
-		assertTrue("Commands don't match!", server.checkCommands("This command should run", "But this line should", "Test Line 196.5"));
-	}
-	
-	@Test public void invalidPermissionFormat() {
-		String[] commands = new String[] {
-				"[TestPlayer has commander.test1]",
-				"    This construct is invalid, means nothing",
-		};
-		Executable sl;
-		
-		try {
-			sl = ScriptParser.parseScript(commands);
-			sl.execute(environment);
-			fail("Parser somehow parsed this!");
-		} catch (BadScriptException e) {
-			assertNotNull(e);
-			LOG.warning(e.getMessage());
-		}
-	}
-	
-	
 	@Test public void comparisonCondition() throws Exception {
 		environment.setVariableValue("x", 1);
 		
@@ -376,6 +314,47 @@ public class TestAllScripting {
 		assertTrue("Commands don't match!", server.checkCommands("True statement", "Object statement", "Not false", "Test Line 295"));
 	}
 	
+	//////////////////////// Permission (Ext of If) /////////////////////////
+	
+	@Test public void permissionConstruct() throws Exception {
+		String[] commands = new String[] {
+				"[if has commander.test1]", //hardcoded in TestPlayer to true
+				"{",
+				"    This command should run",
+				"}",
+				"",
+				"[has commander.test2]", //false, test has shortcut 
+				"    This line does not run",
+				"[else if Player !has commander.test3]", //false, test not, other player, error handling
+				"    This command does not run either",
+				"[else if TestPlayer has commander.test1]", //true, test other player
+				"    But this line should",
+				"[else]",
+				"    One last no run",
+				"",
+				"Test Line 196.5"
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue("Commands don't match!", server.checkCommands("This command should run", "But this line should", "Test Line 196.5"));
+	}
+	
+	@Test(expected = BadScriptException.class) 
+	public void invalidPermissionFormat() throws Exception {
+		String[] commands = new String[] {
+				"[TestPlayer has commander.test1]",
+				"    This construct is invalid, means nothing",
+		};
+		Executable sl;
+		
+		sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+	}
+	
+	/////////////////////// Loop Construct ////////////////////////////
+	
 	@Test public void forIntLoop() throws Exception {
 		environment.setVariableValue("e", 6);
 		
@@ -401,22 +380,19 @@ public class TestAllScripting {
 				"Test Line 42"));
 	}
 	
-	@Test public void invalidLoopFormat() {
+	@Test(expected = BadScriptException.class) 
+	public void invalidLoopFormat() throws Exception {
 		String[] commands = new String[] {
 				"[loop @hello = w to z]",
 				"    This loop is invalid",
 		};
 		Executable sl;
 		
-		try {
-			sl = ScriptParser.parseScript(commands);
-			sl.execute(environment);
-			fail("Parser somehow parsed this!");
-		} catch (BadScriptException e) {
-			assertNotNull(e);
-			LOG.warning(e.getMessage());
-		}
+		sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
 	}
+	
+	////////////////////// For Each Construct ////////////////////////
 	
 	@Test public void forEachLoop() throws Exception {
 		String id = environment.pushCollection(Arrays.asList("Hello", "World", "I Am", "And I shall", "Always", "Be"));
@@ -436,6 +412,19 @@ public class TestAllScripting {
 				server.checkCommands("say Hello", "say World", "say I Am", "say And I shall", "say Always", "say Be", 
 				"Test Line 21"));
 	}
+	
+	@Test (expected = BadScriptException.class)
+	public void illegalForEachLoop1() throws Exception {
+		String[] commands = new String[] {
+				"[for each @i in @coll]",
+				"    say @i",
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+	}
+	
+	////////////////////// While Construct /////////////////////////
 	
 	@Test public void whileLoop() throws Exception {
 		environment.setVariableValue("i", "0");
@@ -462,43 +451,37 @@ public class TestAllScripting {
 						"Test Line 42"));
 	}
 	
-	@Test public void whileLoopLoopLimit() throws Exception {
+	@Test(expected = BadScriptException.class) 
+	public void whileLoopLoopLimit1() throws Exception {
 		environment.setVariableValue("i", "0");
 		
 		String[] commands = new String[] {
 				"[while @i < 500] {", 
-				"    @i++", //this will hit the legal limit, 200, before it reaches the right time
+				"    @i++", //this will hit the default legal limit, 200, before it reaches the right time
 				"}",
 				"Test Line 42"
 		};
-		Executable sl;
 		
-		try {
-			sl = ScriptParser.parseScript(commands);
-			sl.execute(environment);
-			fail("Limit never triggered?!");
-		} catch (BadScriptException ex) {
-			assertNotNull(ex);
-			LOG.warning(ex.getMessage());
-		}
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+	}
+	@Test public void whileLoopLoopLimit2() throws Exception {
+		environment.setVariableValue("i", "0");
 		
-		commands = new String[] {
+		String[] commands = new String[] {
 				"?looplim 1000",
 				"[while @i < 500] {", 
 				"    @i++", //with directive above, this will not hit the limit
 				"}",
 				"Test Line 42"
 		};
-		try {
-			sl = ScriptParser.parseScript(commands);
-			sl.execute(environment);
-			
-			assertTrue("Commands don't match!", server.checkCommands("Test Line 42"));
-		} catch (BadScriptException ex) {
-			LOG.warning(ex.getMessage());
-			fail("Should not have gotten a bad script exception.");
-		}
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue("Commands don't match!", server.checkCommands("Test Line 42"));
 	}
+	
+	//////////////////// Break Pseudo-Construct ///////////////////////
 	
 	@Test public void breakConstruct() throws Exception {
 		environment.setVariableValue("i", "0");
@@ -516,11 +499,13 @@ public class TestAllScripting {
 		try {
 			Executable sl = ScriptParser.parseScript(commands);
 			sl.execute(environment);
-		} catch (BreakScriptException ex) {}
+		} catch (BreakScriptException ex) {} //must catch the break exception
 		
 		assertTrue("Commands don't match!", 
 				server.checkCommands("Hello i = 2", "Hello i = 3"));
 	}
+	
+	///////////////////// Run Pseudo-Construct //////////////////////
 	
 	@Test public void runConstruct() throws Exception {
 		String[] commands = new String[] {
@@ -544,18 +529,7 @@ public class TestAllScripting {
 				server.checkCommands("Test Line 192", "Test Line 22", "Test Line 23", "Test Line 24", "Test Line 195.3"));
 	}
 	
-	@Test public void environmentVariableFunctions() throws Exception {
-		String[] commands = new String[] {
-				"@var = $(function.random 5)", //random number in the range [0, 5)
-				"Test line @var",
-		};
-		
-		Executable sl = ScriptParser.parseScript(commands);
-		sl.execute(environment);
-		
-		//assertTrue("Commands don't match!", server.checkCommands("Test line "+environment.getVariableValue("var")));
-		// Cannot really test this, as it is random...
-	}
+	////////////////////////////// Others //////////////////////////
 	
 	/**
 	 * [switch @var]
@@ -593,7 +567,7 @@ public class TestAllScripting {
 	 * 
 	 * @throws Exception
 	 */
-	@Ignore
+	@Ignore(value = "Case statements are unimplemented")
 	@Test public void switchCase() throws Exception {
 		fail("Not yet implemented");
 	}

@@ -20,7 +20,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
-import org.digiplex.bukkitplugin.commander.api.CommanderEnvVarModule;
+import org.digiplex.bukkitplugin.commander.api.CmdrEnvVarModule;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementCommand;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementRandom;
@@ -93,6 +93,14 @@ public class CommanderEngine {
 		
 		aliasedScripts.clear();
 	}
+	
+	//Valid types for variables and collections
+	public static final Class<?>[] VALID_VAR_TYPES = new Class<?>[] {
+		String.class, Integer.class, Boolean.class, List.class,
+	};
+	public static final Class<?>[] VALID_COLL_TYPES = new Class<?>[] {
+		String.class,
+	};
 	
 	//////////////////////////////////////////////////////////////////////////////////////////
 	// Parser

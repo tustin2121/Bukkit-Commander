@@ -3,11 +3,12 @@ package org.digiplex.bukkitplugin.commander.api;
 import org.bukkit.command.CommandSender;
 
 /**
- * A module that provides environment variables to the Commander plugin, so that the game 
- * (and potentially other plugins) can give variables and states to scripts running in Commander. 
+ * <p>Full name: {@code CommanderEnvironmentVariableModule} (That's why I cut it down)</p>
+ * A module that provides environment variables to the Commander plugin, so that other plugins
+ * can provide variables and states to scripts running in Commander. 
  * @author tpittman
  */
-public abstract class CommanderEnvVarModule {
+public abstract class CmdrEnvVarModule {
 	
 	/**
 	 * Returns the sub-namespace this EVM should be registered under by default. This value will be
