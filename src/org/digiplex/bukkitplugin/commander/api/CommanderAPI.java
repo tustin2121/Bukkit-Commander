@@ -18,6 +18,7 @@ import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptExcepti
  * deal with the engine classes themselves, this is the CommanderAPI. This static class provides 
  * methods for accessing the Commander scripting engine opaquely.
  * @author Tim
+ * @since 2.0
  */
 public class CommanderAPI {
 	static {
@@ -35,6 +36,7 @@ public class CommanderAPI {
 	 * that allows him to edit the world, and return a Boolean true or false. Scripts can check this
 	 * variable in an if statement and do something accordingly.
 	 * @param evm This plugin's subclass of the CmdrEnvVarModule class
+	 * @since 2.0
 	 */
 	public static void registerEVM(CmdrEnvVarModule evm) {
 		GameEnvironment.registerCommanderPlugin(evm.getNamespace(), evm);
@@ -45,6 +47,7 @@ public class CommanderAPI {
 	 * run at any time via one of the {@code execute()} methods.
 	 * @param name Alias/Name of the script to retreive
 	 * @return A script object containing the desired script, or null if no script of that name was found.
+	 * @since 2.0
 	 */
 	public static CmdrScript getScript(String name) {
 		Executable exe = CommanderEngine.getInstance().getScript(name);
@@ -63,6 +66,7 @@ public class CommanderAPI {
 	 * @param alias The name of this script, or null.
 	 * @return A {@link CmdrScript} object with the parsed and prepared script.
 	 * @throws IllegalArgumentException Thrown if an error occurs while parsing the script.
+	 * @since 2.0
 	 */
 	public static CmdrScript parseScript(String[] lines, String alias) throws IllegalArgumentException {
 		try {
@@ -85,6 +89,7 @@ public class CommanderAPI {
 	 * text structure.
 	 * @param file A file to parse
 	 * @return A list of CmdrReplacement objects.
+	 * @since 2.0
 	 */
 	public static List<CmdrReplacement> parseCommandFile(File file) {
 		return parseReplacementFile(file, MatchingContext.Command);
@@ -96,6 +101,7 @@ public class CommanderAPI {
 	 * text structure.
 	 * @param file A file to parse
 	 * @return A list of CmdrReplacement objects.
+	 * @since 2.0
 	 */
 	public static List<CmdrReplacement> parseChatFile(File file) {
 		return parseReplacementFile(file, MatchingContext.Chat);
@@ -115,6 +121,7 @@ public class CommanderAPI {
 	 * the same function that the Commander standalone plugin uses, and therefore uses the same
 	 * text structure. Access to the parsed scripts can be done through the {@code getScript()} function.
 	 * @param file A file to parse
+	 * @since 2.0
 	 */
 	public static void parseScriptFile(File file) {
 		CommanderEngine.getInstance().loadScriptsFromFile(file);
