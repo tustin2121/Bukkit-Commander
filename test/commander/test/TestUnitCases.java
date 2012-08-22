@@ -1,34 +1,18 @@
 package commander.test;
 
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 import java.util.Arrays;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.bukkit.Bukkit;
 import org.digiplex.bukkitplugin.commander.CommanderEngine;
-import org.digiplex.bukkitplugin.commander.CommanderPlugin;
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
-import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BreakScriptException;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
-
-import commander.test.placeholders.TestPlayer;
-import commander.test.placeholders.TestServer;
 
 public class TestUnitCases extends TestCase {
 	
@@ -56,6 +40,23 @@ public class TestUnitCases extends TestCase {
 		sl.execute(environment);
 		
 		assertTrue("Commands don't match!", server.checkCommands("Test Line 1", "Test Command 2", "ec bc daytime!", "Hello World!"));
+	}
+	
+	@Test public void ignoreComments() throws Exception {
+		String[] commands = new String[] {
+				"Test Line 1",
+				"Hello World! #world is someplace on the server",
+				"# stuff!",
+				"    # More stuff!!",
+				"More stuff #Stuff #stuff!!",
+				"###############################",
+				" Test Line #42",
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue("Commands don't match!", server.checkCommands("Test Line 1", "Hello World!", "More stuff", "Test Line"));
 	}
 	
 	@Test(expected = BadScriptException.class) //this test WILL throw an exception. If it doesn't, fail it! :P

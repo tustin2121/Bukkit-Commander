@@ -106,7 +106,13 @@ public class ScriptParser {
 		
 		
 		for (int i = 0; i < script.length; i++, lineno++) {
-			curr = script[i].trim();
+			curr = script[i];
+			{ //remove any comments before parsing
+				int loc = curr.indexOf('#');
+				if (loc > -1)
+					curr = curr.substring(0, loc);
+			}
+			curr = curr.trim();
 			if (curr.isEmpty()) continue; //ignore blank lines
 			
 			switch (state) {

@@ -677,4 +677,18 @@ public class TestPlayer implements Player {
 
 	@Override public void setFlying(boolean value) {}
 
+	@Override public float getFlySpeed() {
+		return 0;
+	}
+
+	@Override public float getWalkSpeed() {
+		return 0;
+	}
+
+	@Override public void setFlySpeed(float arg0)
+			throws IllegalArgumentException {}
+
+	@Override public void setWalkSpeed(float arg0)
+			throws IllegalArgumentException {}
+
 }
