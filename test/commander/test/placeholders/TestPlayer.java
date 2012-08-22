@@ -106,6 +106,33 @@ public class TestPlayer implements Player {
 		return false;
 	}
 	
+	Location l = new Location(null, 0, 0, 0);
+	@Override public boolean teleport(Location location) {
+		l = location;
+		return true;
+	}
+
+	@Override public boolean teleport(Location location, TeleportCause cause) {
+		return teleport(location);
+	}
+	@Override public Location getEyeLocation() {
+		return l;
+	}
+	@Override public Location getLocation() {
+		return l;
+	}
+	
+	@Override public World getWorld() {
+		return server.getWorld("");
+	}
+	
+	
+	@Override public double getEyeHeight() {
+		return 2;
+	}
+	@Override public double getEyeHeight(boolean ignoreSneaking) {
+		return 2;
+	}
 	
 	
 	@Override public PlayerInventory getInventory() {
@@ -220,18 +247,6 @@ public class TestPlayer implements Player {
 		return 0;
 	}
 
-	@Override public double getEyeHeight() {
-		return 0;
-	}
-
-	@Override public double getEyeHeight(boolean ignoreSneaking) {
-		return 0;
-	}
-
-	@Override public Location getEyeLocation() {
-		return null;
-	}
-
 	@Override public List<Block> getLineOfSight(HashSet<Byte> transparent,
 			int maxDistance) {
 		return null;
@@ -328,26 +343,10 @@ public class TestPlayer implements Player {
 		return false;
 	}
 
-	@Override public Location getLocation() {
-		return null;
-	}
-
 	@Override public void setVelocity(Vector velocity) {}
 
 	@Override public Vector getVelocity() {
 		return null;
-	}
-
-	@Override public World getWorld() {
-		return null;
-	}
-
-	@Override public boolean teleport(Location location) {
-		return false;
-	}
-
-	@Override public boolean teleport(Location location, TeleportCause cause) {
-		return false;
 	}
 
 	@Override public boolean teleport(Entity destination) {

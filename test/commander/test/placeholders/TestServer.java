@@ -82,6 +82,8 @@ public class TestServer implements Server {
 		playerList.add(player);
 	}
 	
+	World world = new TestWorld(this);
+	
 	@Override public String toString() {
 		return "TestServer[]";
 	}
@@ -169,6 +171,14 @@ public class TestServer implements Server {
 	
 	@Override public OfflinePlayer[] getOfflinePlayers() {
 		return null;
+	}
+	
+	@Override public World getWorld(String name) {
+		return world;
+	}
+
+	@Override public World getWorld(UUID uid) {
+		return world;
 	}
 	
 	////////////////////////////////// Irrelevant Methods //////////////////////////////////////
@@ -285,14 +295,6 @@ public class TestServer implements Server {
 
 	@Override public boolean unloadWorld(World world, boolean save) {
 		return false;
-	}
-
-	@Override public World getWorld(String name) {
-		return null;
-	}
-
-	@Override public World getWorld(UUID uid) {
-		return null;
 	}
 
 	@Override public MapView getMap(short id) {

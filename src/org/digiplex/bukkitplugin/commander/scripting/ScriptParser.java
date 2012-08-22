@@ -17,8 +17,6 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfCh
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfCompareCondition;
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfEqualsCondition;
 import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfVarCheckCondition;
-import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfVarCompareCondition;
-import org.digiplex.bukkitplugin.commander.scripting.lines.conditions.ScriptIfVarEqualsCondition;
 import org.digiplex.bukkitplugin.commander.scripting.lines.construct.ScriptForEachConstruct;
 import org.digiplex.bukkitplugin.commander.scripting.lines.construct.ScriptIfConstruct;
 import org.digiplex.bukkitplugin.commander.scripting.lines.construct.ScriptLoopConstruct;
@@ -26,6 +24,7 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.construct.ScriptWhile
 import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDirectiveEchoLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDirectiveErrorLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDirectiveLoopLimLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDirectiveRunLimLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarAssignmentLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarIncrementLine;
 
@@ -330,21 +329,21 @@ public class ScriptParser {
 			if (ply == null || ply.isEmpty()) ply = null; //defaults to current player
 			l = new ScriptHasCondition(ply, perm);
 			notmode ^= !nt.isEmpty();
-		} else if ( (m = CON_VAR_EQUAL.matcher(params)).matches() ) {
-			String var = m.group(1);
-			String nt = m.group(2);
-			String eq = m.group(3).trim();
-			
-			l = new ScriptIfVarEqualsCondition(var, eq);
-			notmode ^= !nt.isEmpty();
-		} else if ( (m = CON_VAR_COMPARE.matcher(params)).matches() ) {
-			String var = m.group(1);
-			String op = m.group(2);
-			String eq = m.group(3).trim();
-			
-			boolean gtb = op.startsWith(">"); //> or >=
-			boolean eqb = op.endsWith("="); //>= or <=
-			l = new ScriptIfVarCompareCondition(var, eq, gtb, eqb);
+//		} else if ( (m = CON_VAR_EQUAL.matcher(params)).matches() ) {
+//			String var = m.group(1);
+//			String nt = m.group(2);
+//			String eq = m.group(3).trim();
+//			
+//			l = new ScriptIfVarEqualsCondition(var, eq);
+//			notmode ^= !nt.isEmpty();
+//		} else if ( (m = CON_VAR_COMPARE.matcher(params)).matches() ) {
+//			String var = m.group(1);
+//			String op = m.group(2);
+//			String eq = m.group(3).trim();
+//			
+//			boolean gtb = op.startsWith(">"); //> or >=
+//			boolean eqb = op.endsWith("="); //>= or <=
+//			l = new ScriptIfVarCompareCondition(var, eq, gtb, eqb);
 		} else if ( (m = CON_VAR_CHECK.matcher(params)).matches() ) {
 			String var = m.group(1);
 			
@@ -414,6 +413,7 @@ public class ScriptParser {
 	}
 	
 	private static final Pattern DIR_LOOPLIM = Pattern.compile("looplim (\\d+)");
+	private static final Pattern DIR_RUNLIM = Pattern.compile("runlim (\\d+)");
 	
 	private static ScriptLine parseDirective(String line) throws BadScriptException{
 		final Pattern p = Pattern.compile("\\?(.*)", Pattern.CASE_INSENSITIVE);
@@ -435,6 +435,15 @@ public class ScriptParser {
 			int num = Integer.parseInt(m.group(1));
 			
 			l = new ScriptDirectiveLoopLimLine(num);
+		} else if (dir.startsWith("runlim")) {
+			m = DIR_RUNLIM.matcher(dir);
+			if (!m.matches())
+				throw new BadScriptException("Run limit directive must have a number!");
+			int num = Integer.parseInt(m.group(1));
+			
+			l = new ScriptDirectiveRunLimLine(num);
+		} else {
+			throw new BadScriptException("Unrecognized directive!");
 		}
 		return l;
 	}

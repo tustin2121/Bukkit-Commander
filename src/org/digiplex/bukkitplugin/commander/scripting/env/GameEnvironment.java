@@ -200,6 +200,7 @@ public class GameEnvironment {
 			if (names[0].equalsIgnoreCase("players"))	return makePlayersIntoList(w.getPlayers());
 			if (names[0].equalsIgnoreCase("ispvp"))		return w.getPVP();
 			if (names[0].equalsIgnoreCase("storming"))	return w.isThundering();
+			if (names[0].equalsIgnoreCase("sealevel"))	return w.getSeaLevel();
 			break;
 		case 2:
 			if (names[0].equalsIgnoreCase("spawn")) {
@@ -233,7 +234,7 @@ public class GameEnvironment {
 			if (names[0].equalsIgnoreCase("ismoving")) return p.getVelocity().lengthSquared() != 0; //TODO test
 			break;
 		case 2:
-			if (names[0].equalsIgnoreCase("location")) {
+			if (names[0].matches("(?i)location|position|at")) {
 				if (names[1].equalsIgnoreCase("x")) return p.getLocation().getBlockX();
 				if (names[1].equalsIgnoreCase("y")) return p.getLocation().getBlockY();
 				if (names[1].equalsIgnoreCase("z")) return p.getLocation().getBlockZ();

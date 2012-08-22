@@ -5,6 +5,7 @@ import static junit.framework.Assert.assertTrue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Location;
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
 import org.junit.Test;
@@ -35,5 +36,32 @@ public class TestRealWorldApplications extends TestCase {
 		
 		assertTrue("Commands don't match!", server.checkCommands(
 				"give TestPlayer cobblestone 320", "give AAA cobblestone 320", "give BBB cobblestone 320", "give Notch cobblestone 320", "give Ben cobblestone 320"));
-	} 
+	}
+	
+	@Test public void seaLevelCommand() throws Exception {
+		String[] commands = new String[] {
+			    "@blockY = $(me.position.y)",
+			    "@sl = $(world.sealevel)",
+			    "[if @blockY > @sl] {",
+			    "    echo You are above sea level.",
+			    "}",
+			    "[else if @blockY < @sl]",
+			    "    echo You are below sea level.",
+			    "[else]",
+			    "    echo You are at sea level!",
+		};
+		Executable sl = ScriptParser.parseScript(commands);
+		
+		myplayer.teleport(new Location(myplayer.getWorld(), 0, 23, 0));
+		sl.execute(environment);
+		
+		myplayer.teleport(new Location(myplayer.getWorld(), 0, 122, 0));
+		sl.execute(environment);
+		
+		myplayer.teleport(new Location(myplayer.getWorld(), 0, 64, 0));
+		sl.execute(environment);
+		
+		assertTrue("Commands don't match!", server.checkCommands(
+				"echo You are below sea level.", "echo You are above sea level.", "echo You are at sea level!"));
+	}
 }

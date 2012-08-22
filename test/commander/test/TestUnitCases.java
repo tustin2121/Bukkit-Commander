@@ -530,6 +530,43 @@ public class TestUnitCases extends TestCase {
 				server.checkCommands("Test Line 192", "Test Line 22", "Test Line 23", "Test Line 24", "Test Line 195.3"));
 	}
 	
+	@Test(expected=BadScriptException.class)
+	public void runLimit1() throws Exception {
+		environment.setVariableGlobally("i", 0);
+		
+		String[] commands = new String[] {
+				"[if @i > 30]",
+				"   [break]",
+				"@i++",
+				"[run TestExtScript]",
+		};
+		ScriptBlock runblock = (ScriptBlock) ScriptParser.parseScript(commands);
+		CommanderEngine.getInstance().setScriptForAlias("TestExtScript", runblock);
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment); //should recuse to 10 before getting killed
+	}
+	
+	@Test public void runLimit2() throws Exception {
+		environment.setVariableGlobally("i", 0);
+		
+		String[] commands = new String[] {
+				"[if @i > 30]",
+				"   [break]",
+				"@i++",
+				"[run TestExtScript]",
+		};
+		ScriptBlock runblock = (ScriptBlock) ScriptParser.parseScript(commands);
+		CommanderEngine.getInstance().setScriptForAlias("TestExtScript", runblock);
+		
+		commands = new String[] {
+				"?runlim 40",
+				"[run TestExtScript]",
+		};
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment); //should recuse to 10 before getting killed
+	}
+	
 	////////////////////////////// Others //////////////////////////
 	
 	/**

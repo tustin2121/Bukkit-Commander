@@ -14,6 +14,9 @@ public class ScriptRunLine extends ScriptLine {
 	}
 	
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
+		if (env.incrementRunCount())
+			throw new BadScriptException("Recursive run call limit hit!");
+			
 		ScriptBlock block = CommanderEngine.getInstance().getScript(blockalias);
 		if (block == null)
 			throw new BadScriptException("No stored script has the alias \""+blockalias+"\"!");
@@ -21,6 +24,8 @@ public class ScriptRunLine extends ScriptLine {
 		try {
 			block.execute(env.getChild());
 		} catch (BreakScriptException ex) {} //catch break out here, continue merrily
+		
+		env.decrementRunCount();
 	}
 
 	@Override public void verify() throws BadScriptException {}

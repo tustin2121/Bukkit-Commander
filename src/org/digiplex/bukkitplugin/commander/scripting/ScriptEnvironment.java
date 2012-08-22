@@ -24,6 +24,7 @@ public class ScriptEnvironment {
 	private MatchResult match;
 	
 	private int looplim = 200;
+	private int runlim = 10, runcount = 0;
 	private boolean continueOnError = false;
 	private Object commandReturn;
 	private boolean commandFound;
@@ -138,6 +139,12 @@ public class ScriptEnvironment {
 	public int getLoopLimit() {return looplim;}
 	public void setLoopLimit(int looplim) {this.looplim = looplim;}
 	
+	public int getRunLimit() {return runlim;}
+	public void setRunLimit(int runlim) {this.runlim = runlim;}
+	public int getCurrentRunCount() {return runcount;}
+	public boolean incrementRunCount() { return ++runcount >= runlim;}
+	public boolean decrementRunCount() { return --runcount <= 0; }
+	
 	////////////////////////////////////////////////
 	
 	/**
@@ -155,6 +162,8 @@ public class ScriptEnvironment {
 		
 		child.continueOnError = this.continueOnError;
 		child.looplim = this.looplim;
+		child.runlim = this.runlim;
+		child.runcount = this.runcount;
 		
 		child.commandError = this.commandError;
 		child.commandFound = this.commandFound;
