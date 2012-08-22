@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
 <jardesc>
-    <jar path="C:/Users/Tim/Documents/bukkit-testbed/plugins/Commander.jar"/>
+    <jar path="C:/Users/tpittman/Documents/Commander_adv.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/Bukkit-Commander/CommanderRelease.jardesc" exportErrors="false" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
@@ -13,10 +13,11 @@
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
         <javaElement handleIdentifier="=Bukkit-Commander/src"/>
         <file path="/Bukkit-Commander/config.yml"/>
+        <file path="/Bukkit-Commander/scripts.txt"/>
         <file path="/Bukkit-Commander/Reference.txt"/>
         <file path="/Bukkit-Commander/consolecmd.txt"/>
         <file path="/Bukkit-Commander/plugin.yml"/>
-        <file path="/Bukkit-Commander/playerchat.txt"/>
         <file path="/Bukkit-Commander/playercmd.txt"/>
+        <file path="/Bukkit-Commander/playerchat.txt"/>
     </selectedElements>
 </jardesc>

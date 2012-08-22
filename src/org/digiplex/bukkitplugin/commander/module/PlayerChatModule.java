@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.CommanderEngine.MatchingContext;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
@@ -42,7 +42,7 @@ public class PlayerChatModule implements Module {
 	}
 	
 	@EventHandler(priority = EventPriority.NORMAL)
-	public void onPlayerChat(PlayerChatEvent e) {
+	public void onPlayerChat(AsyncPlayerChatEvent e) {
 		try {
 			ScriptEnvironment env = new ScriptEnvironment(); {
 				env.setCommandSender(e.getPlayer());

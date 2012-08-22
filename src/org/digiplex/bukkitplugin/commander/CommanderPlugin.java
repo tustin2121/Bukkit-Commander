@@ -1,18 +1,12 @@
 package org.digiplex.bukkitplugin.commander;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
@@ -20,18 +14,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.digiplex.bukkitplugin.commander.CommanderEngine.EchoCommand;
 import org.digiplex.bukkitplugin.commander.api.CmdrEnvVarModule;
 import org.digiplex.bukkitplugin.commander.module.ConsoleCommandModule;
-import org.digiplex.bukkitplugin.commander.module.Module;
 import org.digiplex.bukkitplugin.commander.module.PlayerChatModule;
 import org.digiplex.bukkitplugin.commander.module.PlayerCommandModule;
-import org.digiplex.bukkitplugin.commander.replacement.ReplacementCommand;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
-import org.digiplex.bukkitplugin.commander.replacement.ReplacementRandom;
-import org.digiplex.bukkitplugin.commander.replacement.ReplacementScript;
-import org.digiplex.bukkitplugin.commander.replacement.ReplacementString;
-import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
-import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
 import org.digiplex.bukkitplugin.commander.scripting.env.GameEnvironment;
-import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 
 public class CommanderPlugin extends JavaPlugin {
 	public static final Logger Log = Logger.getLogger("Minecraft");

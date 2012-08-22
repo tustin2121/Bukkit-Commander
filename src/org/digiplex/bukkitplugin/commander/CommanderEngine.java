@@ -20,7 +20,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
-import org.digiplex.bukkitplugin.commander.api.CmdrEnvVarModule;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementCommand;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementRandom;
@@ -30,7 +29,6 @@ import org.digiplex.bukkitplugin.commander.scripting.EchoControl;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
-import org.digiplex.bukkitplugin.commander.scripting.env.GameEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 
 public class CommanderEngine {
