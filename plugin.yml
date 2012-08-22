@@ -1,5 +1,5 @@
 name: Commander
-version: 1.2 
+version: 1.3_ALPHA
 description: |
       Using a given set of regexes, this plugin allows command aliases and chat censoring.
 author: Tustin2121
