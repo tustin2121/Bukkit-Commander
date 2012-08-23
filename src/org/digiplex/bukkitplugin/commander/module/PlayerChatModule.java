@@ -49,33 +49,37 @@ public class PlayerChatModule implements Module {
 				env.setServer(e.getPlayer().getServer());
 			}
 			
-			ArrayList<ReplacementPair> preparedEffects = new ArrayList<ReplacementPair>(); //holds all effects until all replacements done
-			ArrayList<MatchResult> matchResults = new ArrayList<MatchResult>(); //holds all match instances for the same
-			
 			for (ReplacementPair rp : pairs) {
 				StringBuffer sb = new StringBuffer();
 				Matcher m = rp.getRegex().matcher(e.getMessage());
 				
 				if (!m.find()) continue;
 				env.setMatch(m.toMatchResult());
+				//special variables for replacement and cutoff
+				env.setVariableGlobally("__repl__", "$0");
+				env.setVariableGlobally("__endparse__", false);
 				
 				if (echoCmds)
 					Log.info("[PLAYERCHAT] "+e.getPlayer().getName()+": "+ m.group(0) +rp.predicateString());
 				
-				if (rp.playerWillVanish()) { //the player will vanish as a result of this, special handling
-					int cutlen = rp.getIntOption("cutoff");
-					String cuttext = CommanderEngine.getConfig().getString("options.cutoff.indicator", "--*");
-					
-					String rep = m.group().substring(0, cutlen).concat(cuttext);
-					m.appendReplacement(sb, rep);
-					e.setMessage(sb.toString());
-					//e.setCancelled(true);
-					//e.getPlayer().chat(sb.toString()); //chat first
-					try {
-						rp.executeEffects(env); //then execute the replacement
-					} catch (BreakScriptException ex) {} //catch any break statements
-					return;
-				}
+				try {
+					rp.executeEffects(env);
+				} catch (BreakScriptException ex) {}
+				
+				{ //test if we are cutting off
+					Object o = env.getVariableValue("__endparse__");
+					if (o instanceof Boolean && ((Boolean) o).booleanValue()) {
+						//if we are here, that means that the endparse variable is true, and we should cutoff
+						String repl = "--*";
+						o = env.getVariableValue("__repl__");
+						if (o instanceof String)
+							repl = o.toString();
+						 
+						m.appendReplacement(sb, repl);
+						e.setMessage(sb.toString());
+						return;
+					}
+				} //else, do normally
 				
 				//loop through with find/replace
 				do { //use do while, due to the find() invocation above
@@ -88,26 +92,9 @@ public class PlayerChatModule implements Module {
 				} while (m.find());
 				m.appendTail(sb);
 				
-				if (!preparedEffects.contains(rp)) {
-					preparedEffects.add(rp);
-					matchResults.add(m.toMatchResult());
-				}
-				
 				e.setMessage(sb.toString());
 			}
 			
-			//after all replacements are in: execute the effects
-			if (!preparedEffects.isEmpty()) {
-				//e.setCancelled(true);
-				//e.getPlayer().chat(sb.toString()); //chat first
-				
-				//env.setMatcher(null);
-				for (int i = 0; i < preparedEffects.size(); i++){
-				//for (ReplacementPair rp : preparedEffects){
-					env.setMatch(matchResults.get(i));
-					preparedEffects.get(i).executeEffects(env);
-				}
-			}
 		} catch (BadScriptException ex) {
 			CommanderEngine.Log.severe("[Commander] Script Error: "+ex.getMessage());
 			e.getPlayer().sendMessage("[Commander] An error occurred while processing the script.");

@@ -29,7 +29,10 @@ public class ReplacementScript extends ReplacementPair {
 	}
 	
 	@Override public String executeString(ScriptEnvironment e) {
-		return "";
+		Object o = e.getVariableValue("__repl__");
+		if (o instanceof String)
+			return o.toString();
+		return "$0"; //default
 	}
 
 }

@@ -84,6 +84,7 @@ public class CommanderPlugin extends JavaPlugin {
 		CommanderEngine.getInstance().reload(); //probably not good if being used by more than 1 plugin
 		
 		loadLists();
+		Log.info("Reload Complete!");
 	}
 	
 	public void addCommanderScriptHook(String namespace, CmdrEnvVarModule hook) {

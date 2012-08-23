@@ -49,7 +49,6 @@ public abstract class ReplacementPair {
 	 * Execute in a chat or string replacement context. */
 	public abstract String executeString(ScriptEnvironment e);
 	
-	public boolean playerWillVanish() { return false; }
 	public String predicateString() { return "==> "+replacement; }
 	
 	@Override public String toString() {

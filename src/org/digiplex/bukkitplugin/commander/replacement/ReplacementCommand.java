@@ -1,9 +1,7 @@
 package org.digiplex.bukkitplugin.commander.replacement;
 
-import java.util.Properties;
 import java.util.regex.PatternSyntaxException;
 
-import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
@@ -19,23 +17,9 @@ public class ReplacementCommand extends ReplacementPair {
 	Executable script;
 	int cutoff = -1;
 
-	public ReplacementCommand(String regex, String replacement, String options) throws PatternSyntaxException, BadScriptException {
+	public ReplacementCommand(String regex, String replacement) throws PatternSyntaxException, BadScriptException {
 		super(regex);
 		script = ScriptParser.parseScript(replacement); //new ScriptLine(replacement);
-		if (options != null && !options.isEmpty()){
-			Properties p = parseOpts(options);
-			{
-				String s = p.getProperty("cutoff", "false");
-				if (s.matches("\\d")) cutoff = Integer.parseInt(s);
-				else if (s.matches("true")) cutoff = CommanderEngine.getConfig().getInt("options.cutoff.length", 1);
-				else cutoff = -1;
-			}
-		//	CommanderPlugin.Log.info("["+options+"] cutoff = "+cutoff);
-		}
-	}
-	
-	public ReplacementCommand(String regex, String replacement) throws PatternSyntaxException, BadScriptException {
-		this(regex, replacement, null);
 	}
 	
 	public String predicateString() { return "==[cmd]==> "+replacement; }
@@ -45,16 +29,15 @@ public class ReplacementCommand extends ReplacementPair {
 		return super.getIntOption(optionName);
 	}
 	
-	@Override public boolean playerWillVanish() {
-		return cutoff > -1;
-	}
-
 	@Override public void executeEffects(ScriptEnvironment e) throws BadScriptException {
 		script.execute(e);
 	}
 
 	@Override public String executeString(ScriptEnvironment e) {
-		return "$0";
+		Object o = e.getVariableValue("__repl__");
+		if (o instanceof String)
+			return o.toString();
+		return "$0"; //default
 	}
 
 }

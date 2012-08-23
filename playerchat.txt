@@ -1,6 +1,10 @@
 /\bgod/ ==> Notch
 /\bhell\b/ ==> nether
 /fuck/ =r=> funking wagnal;fuzzy pickles 
-/\bnigger/ =c=> [cutoff] sudo kick $p
+/\bnigger/ =={
+	@__repl__ = ni--*
+	@__endparse__ = true 
+	sudo kick $p
+}
 /\*clap clap\*/ =c=> time set night
 /\blet there be light/ =c=> time set day

@@ -85,6 +85,7 @@ public class ScriptParser {
 	}
 	
 	public static Executable parseScript(String script) throws BadScriptException {
+		if (script.isEmpty()) throw new BadScriptException("Script is empty!");
 		ScriptLine sl = parseScriptLine(script);
 		if (sl.isConstruct()) throw new BadScriptException("Statement cannot stand alone, requires block.");
 		if (sl.isDirective()) throw new BadScriptException("Directive cannot stand alone.");
@@ -379,10 +380,10 @@ public class ScriptParser {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	private static final Pattern ASSIGN_LOCAL = Pattern.compile("\\@([a-zA-Z0-9]+)\\s*=\\s*(.*)");
-	private static final Pattern ASSIGN_GLOBAL = Pattern.compile("\\@([a-zA-Z0-9]+)\\s*\\:=\\s*(.*)");
-	private static final Pattern ASSIGN_INCREMENT = Pattern.compile("\\@([a-zA-Z0-9]+)\\s*\\+\\+");
-	private static final Pattern ASSIGN_DECREMENT = Pattern.compile("\\@([a-zA-Z0-9]+)\\s*\\-\\-");
+	private static final Pattern ASSIGN_LOCAL = Pattern.compile("\\@(\\w+)\\s*=\\s*(.*)");
+	private static final Pattern ASSIGN_GLOBAL = Pattern.compile("\\@(\\w+)\\s*\\:=\\s*(.*)");
+	private static final Pattern ASSIGN_INCREMENT = Pattern.compile("\\@(\\w+)\\s*\\+\\+");
+	private static final Pattern ASSIGN_DECREMENT = Pattern.compile("\\@(\\w+)\\s*\\-\\-");
 	
 	private static ScriptLine parseVariable(String line) throws BadScriptException{
 		Matcher m;

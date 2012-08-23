@@ -14,12 +14,14 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementCommand;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementRandom;
@@ -114,16 +116,15 @@ public class CommanderEngine {
 			br = new BufferedReader(new FileReader(listfile));
 			/* Explination of Regex:
 			 *  /hello/o =m=> [opt,opt2] world
-			 * \/(.+)\/(\w*)\s*=(\w?)=([>{])\s*(?:\[([^\])]+\])?\s*(.*)
-			 *   \--/   \-/      \-/   \--/         \----/     \-/
-			 *     |     |        |      |            |       Replacement String/Script Alias
-			 *     |     |        |      |        Replacement Options
+			 * \/(.+)\/(\w*)\s*=(\w?)=([>{])\s*(.*)
+			 *   \--/   \-/      \-/   \--/     \-/
+			 *     |     |        |      |      Replacement String/Script Alias
 			 *     |     |        |    Script or Single Mode
 			 *     |     |      Method Character
 			 *     |   Regex Option Chatacters
 			 *   Regex
 			 */
-			Pattern p = Pattern.compile("\\/(.+)\\/(\\w*)\\s*=(\\w?)=([>{])\\s*(?:\\[([^\\]]+)\\])?\\s*(.*)");
+			Pattern p = Pattern.compile("\\/(.+)\\/(\\w*)\\s*=(\\w?)=([>{])\\s*(.*)");
 			String line;
 			
 			int success = 0, lineno = 0;
@@ -138,8 +139,7 @@ public class CommanderEngine {
 					String opts = m.group(2);
 					String methodstr = m.group(3);
 					String scriptmode = m.group(4);
-					String replopts = m.group(5); 
-					String repl = m.group(6);
+					String repl = m.group(5);
 					//Log.info("line: "+line+" > "+regex+" ==> "+repl);
 					
 					ReplacementPair rp = null;
@@ -148,7 +148,7 @@ public class CommanderEngine {
 						if (!methodstr.isEmpty()) method = methodstr.charAt(0);
 						switch (method){
 						case 'c': //command method - to force command instead of chat replacement
-							rp = new ReplacementCommand(regex, repl, replopts); break;
+							rp = new ReplacementCommand(regex, repl); break;
 						case 'r': //random method - choose from one of the ; seperated list
 							if (context != MatchingContext.Chat) {
 								Log.warning("Random method replacements are not allowed anywhere but chat-matching contexts! Ignoring. Line "+lineno);
@@ -159,7 +159,7 @@ public class CommanderEngine {
 						default:
 							switch (context){
 							case Command:
-								rp = new ReplacementCommand(regex, repl, replopts); break;
+								rp = new ReplacementCommand(regex, repl); break;
 							case Chat: //only use ReplacementString for chat
 								rp = new ReplacementString(regex, repl); break;
 							}
@@ -302,7 +302,7 @@ public class CommanderEngine {
 	public AdminCommand getAdminCommandExecutor() { return new AdminCommand(); }
 	public class AdminCommand implements CommandExecutor {
 		@Override public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-			if (args[0].equals("null")){ //undocumented command that does nothing, used internally
+			if (args.length == 1 && args[0].equals("null")){ //undocumented command that does nothing, used internally
 				return true;
 			}
 			
@@ -310,13 +310,21 @@ public class CommanderEngine {
 				sender.sendMessage("Commander commands can only be executed from the console.");
 				return true;
 			}
+			if (args.length < 1) return false;
+			
 			if (args[0].equalsIgnoreCase("reload")){
-				reload();
+				Plugin p = Bukkit.getPluginManager().getPlugin("Commander");
+				if (p instanceof CommanderPlugin)
+					((CommanderPlugin) p).reload();
+				else
+					Log.info("Commander is running in library mode. Please reload from the host plugin.");
 				return true;
+				
 			} else if (args[0].equalsIgnoreCase("debug")){
 				scriptDebugMode = !scriptDebugMode;
 				Log.info("Script debugging "+((scriptDebugMode)?"enabled":"disabled"));
 				return true;
+				
 			} else if (args[0].equalsIgnoreCase("runscript")){
 				try {
 					if (args.length < 2) return false;
@@ -326,7 +334,7 @@ public class CommanderEngine {
 					if (scriptDebugMode) Log.info("[Commander:DEBUG:run] "+scriptname+" == "+sb);
 					
 					if (sb == null){
-						Log.info("[Commander] No script for registered for the alias \""+scriptname+"\"");
+						Log.info("[Commander] No script registered for the alias \""+scriptname+"\"");
 					} else {
 						ScriptEnvironment env = new ScriptEnvironment(); {
 							env.setCommandSender(sender);
@@ -335,7 +343,7 @@ public class CommanderEngine {
 						sb.execute(env);
 					}
 				} catch (BadScriptException ex) {
-					Log.info("");
+					Log.info("Error executing script: "+ex.getMessage());
 				}
 				return true;
 			}
@@ -351,8 +359,10 @@ public class CommanderEngine {
 			for (int i = 1; i < args.length; i++){
 				sb.append(' ').append(args[i]);
 			}
-			((EchoControl)sender).getWrappedSender().sendMessage(sb.toString());
-			//sender.sendMessage(sb.toString());
+			if (sender instanceof EchoControl)
+				((EchoControl)sender).getWrappedSender().sendMessage(sb.toString());
+			else
+				sender.sendMessage(sb.toString());
 			return true;
 		}
 	}
