@@ -19,7 +19,7 @@ public class ScriptVarAssignmentLine extends ScriptLine {
 		this.doGlobal = global;
 	}
 	
-	@Override public void execute(ScriptEnvironment env) {
+	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
 		String command = env.substituteTokens(literal);
 		
 		if (doGlobal) {

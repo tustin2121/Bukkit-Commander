@@ -8,6 +8,7 @@ import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.digiplex.bukkitplugin.commander.scripting.env.GameEnvironment;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 
 /**
  * This object holds the environment that scripts are executed in. Scripts use the objects
@@ -175,7 +176,10 @@ public class ScriptEnvironment {
 	
 	////////////////////////////////////////////////
 	
-	public String substituteTokens(String str){
+	public String substituteTokens(String str) throws BadScriptException {
+		return substituteTokens(str, false);
+	}
+	private String substituteTokens(String str, boolean forEV) throws BadScriptException {
 		/* Note: the regex "(?<!a)b" tests to see if there is a 'b' that is not
 		 * preceeded by an 'a'. This is called a negative look-back. There are also
 		 * look-aheads in the form "(?=positive lookahead)", "(?!negative lookahead)"
@@ -209,7 +213,14 @@ public class ScriptEnvironment {
 					}
 					sb.append(commandSender.getName());
 					break;
+				case 'w': case 'W':
+					if (!(commandSender instanceof Player)) {
+						sb.append('$').append(c); break;
+					}
+					sb.append(((Player)commandSender).getWorld().getName());
+					break;
 				case '(': { //environment properties
+					if (forEV) throw new BadScriptException("Nested environment variable names not allowed!");
 					i++; //skip over brace
 					StringBuffer varb = new StringBuffer();
 					c = str.charAt(i);
@@ -219,7 +230,8 @@ public class ScriptEnvironment {
 						if (c == ')') break;
 						varb.append(c);
 					}
-					Object varval = GameEnvironment.getEnvironmentVariable(varb.toString(), this);
+					String finalev = this.substituteTokens(varb.toString(), true);
+					Object varval = GameEnvironment.getEnvironmentVariable(finalev, this); //parse out any variables in the name
 					if (varval == null) sb.append("\u00D8"); //special "empty set" character for null values
 					else if (varval instanceof List) {
 						@SuppressWarnings("unchecked") 

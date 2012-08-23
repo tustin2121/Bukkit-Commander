@@ -1,0 +1,4 @@
+/cmode/ ==> gamemode $p 1
+/smode/ ==> gamemode $p 0
+/promote (.*)/ ==> pex promote $1
+/demote (.*)/ ==> pex demote $1

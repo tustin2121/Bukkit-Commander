@@ -6,5 +6,11 @@
 	@__endparse__ = true 
 	sudo kick $p
 }
-/\*clap clap\*/ =c=> time set night
+/\*clap clap\*/ =={
+	@time = $(world.time)
+	[if @time < 12000] #time is dusk
+		set time night
+	[else]
+		set time day
+}
 /\blet there be light/ =c=> time set day

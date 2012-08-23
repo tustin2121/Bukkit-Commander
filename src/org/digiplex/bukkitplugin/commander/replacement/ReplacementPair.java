@@ -46,8 +46,9 @@ public abstract class ReplacementPair {
 	 * @throws BadScriptException */
 	public abstract void executeEffects(ScriptEnvironment e) throws BadScriptException;
 	/** Retrieves a replacement string for insertion into chat. 
-	 * Execute in a chat or string replacement context. */
-	public abstract String executeString(ScriptEnvironment e);
+	 * Execute in a chat or string replacement context. 
+	 * @throws BadScriptException */
+	public abstract String executeString(ScriptEnvironment e) throws BadScriptException;
 	
 	public String predicateString() { return "==> "+replacement; }
 	

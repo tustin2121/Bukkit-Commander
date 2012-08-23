@@ -129,7 +129,7 @@ public class CommanderPlugin extends JavaPlugin {
 		if (!listfile.exists()){
 			Log.info("[Commander] Could not find "+listfile.getName()+", creating default file.");
 			try {
-				InputStream in = getResource(defresource);
+				InputStream in = getResource("cfgdef/"+defresource);
 				FileOutputStream out = new FileOutputStream(listfile);
 				
 				// Transfer bytes from in to out

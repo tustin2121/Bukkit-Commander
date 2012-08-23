@@ -23,7 +23,7 @@ public class ScriptCommandLine extends ScriptLine {
 		this.cmd = this.cmd.trim();
 	}
 	
-	@Override public void execute(ScriptEnvironment env) {
+	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
 		String command = env.substituteTokens(cmd);
 //		if (env.getMatch() != null)
 //			command = env.getMatch().replaceFirst(command);

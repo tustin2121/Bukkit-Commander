@@ -55,7 +55,7 @@ public class CmdrReplacement {
 		}
 	}
 	
-	public String executeString(CommandSender sender, MatchResult matcher) {
+	public String executeString(CommandSender sender, MatchResult matcher) throws BadScriptException {
 		ScriptEnvironment env = new ScriptEnvironment(); {
 			env.setCommandSender(sender);
 			env.setServer(sender.getServer());

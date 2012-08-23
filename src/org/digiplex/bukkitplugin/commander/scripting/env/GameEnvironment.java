@@ -271,12 +271,8 @@ public class GameEnvironment {
 	//////////////////////////////// Function Namespace ////////////////////////////////////
 	private static Object getFromFunctionNamespace(String name, String[] args, ScriptEnvironment env) {
 		if (name.equalsIgnoreCase("random"))	return random(args);
-		if (name.equalsIgnoreCase("intmath")) {
-			StringBuilder sb = new StringBuilder();
-			for (int i = 1; i < args.length; i++)
-				sb.append(args[i]).append(' ');
-			return intmath(sb.toString());
-		}
+		if (name.equalsIgnoreCase("intmath"))	return intmath(args);
+		if (name.equalsIgnoreCase("substr"))	return substr(args);
 		return evError("No function with name '"+name+"' in function namespace!");
 	}
 	
@@ -294,8 +290,28 @@ public class GameEnvironment {
 		}
 	}
 	
-	private static int intmath(String argument) {
+	private static int intmath(String[] args) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 1; i < args.length; i++)
+			sb.append(args[i]).append(' ');
+		
 		return 0; //unsupported
+	}
+	
+	private static String substr(String[] args) {
+		if (args.length < 3)
+			return (String) evError("Must have at least 3 arguments for substr function!");
+		try {
+			int start = Integer.parseInt(args[0]);
+			int end = Integer.parseInt(args[1]);
+			StringBuffer sb = new StringBuffer(args[2]);
+			for (int i = 3; i < args.length; i++)
+				sb.append(' ').append(args[i]);
+			
+			return sb.toString().substring(start, end);
+		} catch (NumberFormatException ex) {
+			return (String) evError("Error parsing arguments to substr function!");
+		}
 	}
 	
 }
