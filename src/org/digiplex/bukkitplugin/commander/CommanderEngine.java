@@ -220,7 +220,7 @@ public class CommanderEngine {
 			if (!listfile.canRead()){ throw new FileNotFoundException(); }
 			
 			br = new BufferedReader(new FileReader(listfile));
-			Pattern p = Pattern.compile("{\\s*(.*)");
+			Pattern p = Pattern.compile("\\{\\s*(.*)");
 			String line;
 			
 			int success = 0, lineno = 0; int err = 0;

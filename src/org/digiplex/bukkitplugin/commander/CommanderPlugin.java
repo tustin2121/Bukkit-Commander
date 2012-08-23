@@ -118,7 +118,7 @@ public class CommanderPlugin extends JavaPlugin {
 					Log.warning("Script file \""+filename+"\" does not exist!");
 					continue;
 				} else {
-					//TODO
+					CommanderEngine.getInstance().loadScriptsFromFile(scriptfile);
 				}
 			}
 			
