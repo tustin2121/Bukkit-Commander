@@ -4,7 +4,8 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 import java.util.Arrays;
-
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandException;
 import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
@@ -566,6 +567,45 @@ public class TestUnitCases extends TestCase {
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment); //should recuse to 10 before getting killed
 	}
+	
+	////////////////////////// Error Handling //////////////////////////
+	
+	@Test(expected = CommandException.class)
+	public void unhandledExceptionFromBukkit() throws Exception {
+		String[] commands = new String[] {
+				"throw Line 42"
+		};
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+	}
+	
+	@Test public void handlingExceptionFromBukkit() throws Exception {
+		String[] commands = new String[] {
+				"?errorignore on", //the exception thrown on the next line is handled and ignored
+				"throw Line 53"
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue("Commands don't match!", server.checkCommands("throw Line 53"));
+	}
+	
+	@Test public void errorCheckingFunctions() throws Exception {
+		String[] commands = new String[] {
+				"?errorignore on",
+				"throw Line 97",
+				"[if $(command.error)]",
+				"    Command Errored!",
+				"[else]",
+				"    Command did not error!",
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue("Commands don't match!", server.checkCommands("throw Line 97", "Command Errored!"));
+	} 
 	
 	////////////////////////////// Others //////////////////////////
 	

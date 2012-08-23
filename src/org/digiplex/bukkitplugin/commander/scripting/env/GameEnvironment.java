@@ -84,7 +84,7 @@ public class GameEnvironment {
 	
 	private static Object evError(String msg) {
 		if (CommanderEngine.getInstance().scriptDebugMode)
-			CommanderEngine.Log.warning("[Commander:DEBUG] Error getting EV: "+msg);
+			CommanderEngine.Log.warning("[Commander:DEBUG:envVar] Error getting EV: "+msg);
 		return null; //always return null
 	}
 	

@@ -97,6 +97,8 @@ public class TestServer implements Server {
 			sender.sendMessage("Echo from '"+commandLine+"'");
 		if (commandLine.contains("bc"))
 			broadcastMessage("Broadcast from '"+commandLine+"'");
+		if (commandLine.contains("throw"))
+			throw new CommandException("Thrown "+commandLine);
 		return true;
 	}
 	

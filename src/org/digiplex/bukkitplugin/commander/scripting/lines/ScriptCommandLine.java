@@ -40,7 +40,7 @@ public class ScriptCommandLine extends ScriptLine {
 			
 			env.setCommandResults(found);
 		} catch (CommandException ex) {
-			env.setCommandError(ex);
+			env.setCommandResultsError(ex);
 			if (!env.shouldContinueOnError()) throw ex;
 			CommanderEngine.Log.log(Level.SEVERE, "Error from command while processing script! Command=\""+command+"\"\n", ex);
 		}

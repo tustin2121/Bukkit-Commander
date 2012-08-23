@@ -21,7 +21,7 @@ public class ScriptEnvironment {
 	private Server server;
 	private CommandSender commandSender;
 	private EchoControl wrappedSender;
-	private MatchResult match;
+	private MatchResult match = null;
 	
 	private int looplim = 200;
 	private int runlim = 10, runcount = 0;
