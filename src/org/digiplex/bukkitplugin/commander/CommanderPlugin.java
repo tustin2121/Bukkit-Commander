@@ -150,7 +150,8 @@ public class CommanderPlugin extends JavaPlugin {
 		String source = "Reference.txt";
 		File refFile = new File(this.getDataFolder(), source);
 		try {
-			InputStream in = getResource(source);
+			InputStream in = getResource("cfgdef/"+source);
+			if (in == null) return;
 			FileOutputStream out = new FileOutputStream(refFile);
 			
 			// Transfer bytes from in to out

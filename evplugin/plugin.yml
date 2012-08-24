@@ -1,0 +1,6 @@
+name: EVTest
+version: NONE
+description: Hi
+author: Tustin2121
+main: evplugin.EVTestPlugin
+depend: [Commander]

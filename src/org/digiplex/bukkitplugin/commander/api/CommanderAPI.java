@@ -17,6 +17,10 @@ import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptExcepti
  * For plugins that want the features of Commander's scripting engine without having to setup and
  * deal with the engine classes themselves, this is the CommanderAPI. This static class provides 
  * methods for accessing the Commander scripting engine opaquely.
+ * 
+ * <p><b>Reminder</b>: Be sure to list Commander as a dependency in your plugin.yml, or bukkit may load
+ * your plugin before Commander and cause issues finding the class:<pre>
+ *  depend: [Commander]</pre>
  * @author Tim
  * @since 2.0
  */
@@ -40,6 +44,16 @@ public class CommanderAPI {
 	 */
 	public static void registerEVM(CmdrEnvVarModule evm) {
 		GameEnvironment.registerCommanderPlugin(evm.getNamespace(), evm);
+	}
+	
+	/**
+	 * This method allows plugins to unregister their previously registered EVM. This should probably
+	 * happen in the {@code onDisable()} function.
+	 * @param evm This plugin's subclass of the CmdrEnvVarModule class
+	 * @since 2.0
+	 */
+	public static void unregisterEVM(CmdrEnvVarModule evm) {
+		GameEnvironment.unregisterCommanderPlugin(evm.getNamespace());
 	}
 	
 	/**

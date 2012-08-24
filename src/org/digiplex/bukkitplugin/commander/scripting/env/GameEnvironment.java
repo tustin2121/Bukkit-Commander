@@ -59,6 +59,10 @@ public class GameEnvironment {
 		pluginModules.put(name, evm);
 	}
 	
+	public static void unregisterCommanderPlugin(String namespace) {
+		pluginModules.remove(namespace);
+	}
+	
 	//////////////////////////////////////////////////////////////////////////////////
 	
 	private static List<String> makePlayersIntoList(OfflinePlayer[] playerList) {

@@ -67,7 +67,10 @@ public class PlayerChatModule implements Module {
 				
 				{ //test if we are cutting off
 					Object o = env.getVariableValue("__endparse__");
-					if (o instanceof Boolean && ((Boolean) o).booleanValue()) {
+					
+					if (o instanceof Boolean && ((Boolean)o).booleanValue() 
+					 || o instanceof String && ((String)o).matches("(?i)true|yes|1|on"))
+					{
 						//if we are here, that means that the endparse variable is true, and we should cutoff
 						String repl = "--*";
 						o = env.getVariableValue("__repl__");
