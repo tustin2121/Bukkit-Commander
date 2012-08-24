@@ -71,7 +71,7 @@ public class GameEnvironment {
 			arr.add(op.getName());
 		return arr;
 	}
-	private static List<String> makePlayersIntoList(List<Player> playerList) {
+	private static List<String> makePlayersIntoList(Collection<? extends OfflinePlayer> playerList) {
 		ArrayList<String> arr = new ArrayList<String>(playerList.size());
 		for (OfflinePlayer op : playerList)
 			arr.add(op.getName());
@@ -137,18 +137,21 @@ public class GameEnvironment {
 	public static Object getEnvironmentVariable(String varname, ScriptEnvironment env) {
 		String[] args = varname.split("\\s+");
 		String[] varpath = args[0].split("\\.");
+		String[] varpath1 = Arrays.copyOfRange(varpath, 1, varpath.length);
 		
 		if (varpath[0].matches("(?i)fn|function"))		return getFromFunctionNamespace(varpath[1], args, env);
 		if (varpath[0].equalsIgnoreCase("command"))		return getFromCommandNamespace(varpath[1], env);
-		if (varpath[0].equalsIgnoreCase("server"))		return getFromServerNamespace(varpath[1], env);
-		if (varpath[0].equalsIgnoreCase("world"))		return getFromWorldNamespace(Arrays.copyOfRange(varpath, 1, varpath.length), env);
+		if (varpath[0].equalsIgnoreCase("server"))		return getFromServerNamespace(varpath1, env);
+		if (varpath[0].equalsIgnoreCase("world"))		return getFromWorldNamespace(varpath1, env);
+		
+		String[] varpath2 = Arrays.copyOfRange(varpath, 2, varpath.length);
 		
 		if (varpath[0].equalsIgnoreCase("me"))
-			return getFromPlayerNamespace(env.getCommandSender(), Arrays.copyOfRange(varpath, 1, varpath.length), env);
+			return getFromPlayerNamespace(env.getCommandSender(), varpath2, env);
 		if (varpath[0].equalsIgnoreCase("player")) {
 			Player p = env.getServer().getPlayer(varpath[1]);
 			if (p == null) return evError("Cannot get Player with name \""+varpath[1]+"\"");
-			return getFromPlayerNamespace(p, Arrays.copyOfRange(varpath, 1, varpath.length), env);
+			return getFromPlayerNamespace(p, varpath2, env);
 		}
 		
 		if (varpath[0].equalsIgnoreCase("plugin")) {
@@ -179,12 +182,29 @@ public class GameEnvironment {
 	 *    server.players = collection of all currently online players
 	 *    server.motd = gets the message of the day. because, why not?
 	 */
-	private static Object getFromServerNamespace(String name, ScriptEnvironment env) {
-		if (name.equalsIgnoreCase("offline"))	return makePlayersIntoList(env.getServer().getOfflinePlayers());
-		if (name.equalsIgnoreCase("players"))	return makePlayersIntoList(env.getServer().getOnlinePlayers());
-		
-		if (name.equalsIgnoreCase("motd"))		return env.getServer().getMotd();
-		return evError("No variable '"+name+"' in server namespace!");
+	private static Object getFromServerNamespace(String[] names, ScriptEnvironment env) {
+		switch (names.length) {
+		case 1:
+			if (names[0].equalsIgnoreCase("players"))	return makePlayersIntoList(env.getServer().getOnlinePlayers());
+			if (names[0].equalsIgnoreCase("name"))		return env.getServer().getName();
+			if (names[0].equalsIgnoreCase("version"))	return env.getServer().getVersion();
+			if (names[0].equalsIgnoreCase("gamemode"))	return env.getServer().getDefaultGameMode().toString().toLowerCase();
+			if (names[0].equalsIgnoreCase("motd"))		return env.getServer().getMotd();
+			if (names[0].equalsIgnoreCase("ip"))		return env.getServer().getIp();
+			if (names[0].equalsIgnoreCase("port"))		return env.getServer().getPort();
+			break;
+		case 2:
+			if (names[0].equalsIgnoreCase("players")) { //players has sub-variables as well as top level
+				if (names[1].equalsIgnoreCase("offline"))		return makePlayersIntoList(env.getServer().getOfflinePlayers());
+				if (names[1].equalsIgnoreCase("online"))		return makePlayersIntoList(env.getServer().getOnlinePlayers());
+				if (names[1].equalsIgnoreCase("banned"))		return makePlayersIntoList(env.getServer().getBannedPlayers());
+				if (names[1].equalsIgnoreCase("whitelisted"))	return makePlayersIntoList(env.getServer().getWhitelistedPlayers());
+				if (names[1].equalsIgnoreCase("ops"))			return makePlayersIntoList(env.getServer().getOperators());
+			}
+			
+			break;
+		}
+		return evError("No variable '"+implode(names, ".")+"' in server namespace!");
 	}
 	
 	
@@ -199,18 +219,27 @@ public class GameEnvironment {
 		
 		switch (names.length) {
 		case 1:
-			if (names[0].equalsIgnoreCase("time"))		return w.getTime();
-			if (names[0].equalsIgnoreCase("name"))		return w.getName();
-			if (names[0].equalsIgnoreCase("players"))	return makePlayersIntoList(w.getPlayers());
-			if (names[0].equalsIgnoreCase("ispvp"))		return w.getPVP();
-			if (names[0].equalsIgnoreCase("storming"))	return w.isThundering();
-			if (names[0].equalsIgnoreCase("sealevel"))	return w.getSeaLevel();
+			if (names[0].equalsIgnoreCase("time"))			return w.getTime();
+			if (names[0].equalsIgnoreCase("name"))			return w.getName();
+			if (names[0].equalsIgnoreCase("difficulty"))	return w.getDifficulty().toString().toLowerCase();
+			if (names[0].equalsIgnoreCase("players"))		return makePlayersIntoList(w.getPlayers());
+			if (names[0].equalsIgnoreCase("worldtype"))		return w.getWorldType().toString().toLowerCase();
+			if (names[0].equalsIgnoreCase("sealevel"))		return w.getSeaLevel();
+			if (names[0].equalsIgnoreCase("maxheight"))		return w.getMaxHeight();
+			if (names[0].equalsIgnoreCase("seed"))			return w.getSeed();
+			if (names[0].equalsIgnoreCase("ispvp"))			return w.getPVP();
 			break;
 		case 2:
 			if (names[0].equalsIgnoreCase("spawn")) {
 				if (names[1].equalsIgnoreCase("x")) return w.getSpawnLocation().getBlockX();
 				if (names[1].equalsIgnoreCase("y")) return w.getSpawnLocation().getBlockY();
 				if (names[1].equalsIgnoreCase("z")) return w.getSpawnLocation().getBlockZ();
+			}
+			if (names[0].equalsIgnoreCase("weather")) {
+				if (names[1].equalsIgnoreCase("storm"))			return w.hasStorm();
+				if (names[0].equalsIgnoreCase("ticksleft"))		return w.getWeatherDuration();
+				if (names[0].equalsIgnoreCase("thunder"))		return w.isThundering();
+				if (names[0].equalsIgnoreCase("thunderleft"))	return w.getThunderDuration();
 			}
 			break;
 		}
