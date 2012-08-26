@@ -27,6 +27,7 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDire
 import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDirectiveRunLimLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarAssignmentLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarIncrementLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarUnsetLine;
 
 /**
  * TODO: make script lines abstract, and have a method that will make the line based on what it parses:
@@ -384,6 +385,7 @@ public class ScriptParser {
 	private static final Pattern ASSIGN_GLOBAL = Pattern.compile("\\@(\\w+)\\s*\\:=\\s*(.*)");
 	private static final Pattern ASSIGN_INCREMENT = Pattern.compile("\\@(\\w+)\\s*\\+\\+");
 	private static final Pattern ASSIGN_DECREMENT = Pattern.compile("\\@(\\w+)\\s*\\-\\-");
+	private static final Pattern ASSIGN_UNSET = Pattern.compile("\\@(\\w+)\\s+unset");
 	
 	private static ScriptLine parseVariable(String line) throws BadScriptException{
 		Matcher m;
@@ -407,6 +409,10 @@ public class ScriptParser {
 			String variable = m.group(1);
 			
 			l = new ScriptVarIncrementLine(variable, true); //decrement
+		} else if ( (m = ASSIGN_UNSET.matcher(line)).matches() ) {
+			String variable = m.group(1);
+			
+			l = new ScriptVarUnsetLine(variable); //decrement
 		} else {
 			throw new BadScriptException("Variable assignment not properly formatted");
 		}

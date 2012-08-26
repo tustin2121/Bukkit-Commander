@@ -147,7 +147,7 @@ public class GameEnvironment {
 		String[] varpath2 = Arrays.copyOfRange(varpath, 2, varpath.length);
 		
 		if (varpath[0].equalsIgnoreCase("me"))
-			return getFromPlayerNamespace(env.getCommandSender(), varpath2, env);
+			return getFromPlayerNamespace(env.getCommandSender(), varpath1, env);
 		if (varpath[0].equalsIgnoreCase("player")) {
 			Player p = env.getServer().getPlayer(varpath[1]);
 			if (p == null) return evError("Cannot get Player with name \""+varpath[1]+"\"");

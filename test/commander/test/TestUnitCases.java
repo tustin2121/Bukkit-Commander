@@ -169,14 +169,15 @@ public class TestUnitCases extends TestCase {
 				"@y = 123", //"int" assignment, though it is a string
 				"@z = @x", //assign variable to another variable, assigns value of var
 				"@1 = world", //variable name can be number
+				"@_hello_ = ", //assign nothing
 				"@pnemoniamicroscopicsylivicaniconosis = 2", //no limit on length
-				"Testing @x @{y} @1, @z",
+				"Testing @x @{y} @1, @z @_hello_",
 		};
 		
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue("Commands don't match!", server.checkCommands("Testing hello 123 world, hello"));
+		assertTrue("Commands don't match!", server.checkCommands("Testing hello 123 world, hello "));
 	}
 	
 	@Test(expected = BadScriptException.class)

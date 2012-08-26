@@ -60,6 +60,12 @@ public class ScriptEnvironment {
 		}
 	}
 	
+	public void unsetVariable(String name, boolean global) {
+		vars.remove(name);
+		if (global && parent != null)
+			parent.unsetVariable(name, global);
+	}
+	
 	private boolean setVarFromChild(String name, Object obj){
 		//special function that sets variables only if they already exist
 		if (vars.containsKey(name)) {
@@ -254,7 +260,7 @@ public class ScriptEnvironment {
 					if (inBrace) {
 						if (c == '}') break;
 					} else {
-						if (!Character.isLetterOrDigit(c)) break;
+						if (!Character.isJavaIdentifierPart(c)) break;
 					}
 					varb.append(c);
 				}

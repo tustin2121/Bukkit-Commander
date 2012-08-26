@@ -57,6 +57,7 @@ public class PlayerChatModule implements Module {
 				//special variables for replacement and cutoff
 				env.setVariableGlobally("__repl__", "$0");
 				env.setVariableGlobally("__endparse__", false);
+				env.setVariableGlobally("__cancel__", false);
 				
 				if (echoCmds)
 					Log.info("[PLAYERCHAT] "+e.getPlayer().getName()+": "+ m.group(0) +rp.predicateString());
@@ -65,8 +66,17 @@ public class PlayerChatModule implements Module {
 					rp.executeEffects(env);
 				} catch (BreakScriptException ex) {}
 				
-				{ //test if we are cutting off
-					Object o = env.getVariableValue("__endparse__");
+				{ //test if we are cutting off or canceling
+					Object o = env.getVariableValue("__cancel__");
+					
+					if (o instanceof Boolean && ((Boolean)o).booleanValue() 
+					 || o instanceof String && ((String)o).matches("(?i)true|yes|1|on"))
+					{
+						e.setCancelled(true);
+						return; //cancel the chat message outright
+					}
+					
+					o = env.getVariableValue("__endparse__");
 					
 					if (o instanceof Boolean && ((Boolean)o).booleanValue() 
 					 || o instanceof String && ((String)o).matches("(?i)true|yes|1|on"))
@@ -79,7 +89,7 @@ public class PlayerChatModule implements Module {
 						 
 						m.appendReplacement(sb, repl);
 						e.setMessage(sb.toString());
-						return;
+						return; //cut off the message
 					}
 				} //else, do normally
 				
