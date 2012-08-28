@@ -310,10 +310,10 @@ public class ScriptParser {
 	}
 	
 	private static final Pattern CON_HAS = Pattern.compile("(\\S*)\\s?(\\!?)has\\s+(.+)");
-	private static final Pattern CON_VAR_EQUAL = Pattern.compile("\\@(\\w+)\\s+(\\!?)\\=\\s+(.+)");
+	private static final Pattern CON_VAR_EQUAL = Pattern.compile("\\@(\\w+)\\s+(\\!?)\\==?\\s+(.+)");
 	private static final Pattern CON_VAR_COMPARE = Pattern.compile("\\@(\\w+)\\s+(<|>|<=|>=)\\s+(.+)");
 	private static final Pattern CON_VAR_CHECK = Pattern.compile("\\@(\\w+)");
-	private static final Pattern CON_EQUAL = Pattern.compile("([^!<>=]+)(\\!?)\\=\\s+(.+)");
+	private static final Pattern CON_EQUAL = Pattern.compile("([^!<>=]+)(\\!?)\\==?\\s+(.+)");
 	private static final Pattern CON_COMPARE = Pattern.compile("([^!<>=]+)(<|>|<=|>=)\\s+(.+)");
 	private static final Pattern CON_CHECK = Pattern.compile("(.+)");
 	
