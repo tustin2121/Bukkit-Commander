@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines.directives;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
@@ -12,6 +14,8 @@ public class ScriptDirectiveErrorLine extends ScriptLine {
 	}
 
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
+		printDebug("directive", "continue on error %b", enable);
+		
 		env.setContinueOnError(enable);
 	}
 

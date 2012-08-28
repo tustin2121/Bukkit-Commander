@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines.construct;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
@@ -21,7 +23,12 @@ public class ScriptWhileLoop extends ScriptLine {
 		int loopnum = 0;
 		int looplimit = env.getLoopLimit();
 		
+		printDebug("construct", "while start");
+		
 		while (condition.testCondition(env)) {
+			
+			printDebug("construct", "while next => loop number %d", loopnum);
+			
 			try {
 				loopline.execute(env);
 			} catch (BreakScriptException ex) {
@@ -33,6 +40,7 @@ public class ScriptWhileLoop extends ScriptLine {
 				throw new BadScriptException("Loop has reached its legal limit without breaking!");
 		}
 		
+		printDebug("construct", "while end");
 	}
 
 	@Override public void verify() throws BadScriptException {

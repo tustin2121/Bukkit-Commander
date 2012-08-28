@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines.directives;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import org.digiplex.bukkitplugin.commander.scripting.EchoControl;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
@@ -13,6 +15,8 @@ public class ScriptDirectiveEchoLine extends ScriptLine {
 	}
 
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
+		printDebug("directive", "echo %b", enable);
+		
 		((EchoControl)env.getCommandSender()).setEchoingEnabled(enable);
 	}
 	

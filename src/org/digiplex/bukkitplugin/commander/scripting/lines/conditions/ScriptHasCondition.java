@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines.conditions;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import org.bukkit.entity.Player;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
@@ -16,6 +18,8 @@ public class ScriptHasCondition extends ScriptCondition {
 	}
 	
 	@Override public boolean executeCondition(ScriptEnvironment env) throws BadScriptException {
+		printDebug("condition", "%s has permission %s", (player!=null)?player:"<Myself>", permission);
+		
 		if (player == null)
 			return env.getCommandSender().hasPermission(permission);
 		else {

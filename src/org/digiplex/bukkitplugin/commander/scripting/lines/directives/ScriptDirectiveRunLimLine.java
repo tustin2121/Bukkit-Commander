@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines.directives;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
@@ -15,6 +17,8 @@ public class ScriptDirectiveRunLimLine extends ScriptLine {
 	}	
 	
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
+		printDebug("directive", "run limit %d", runlim);
+		
 		env.setRunLimit(runlim);
 	}
 

@@ -289,6 +289,11 @@ public class CommanderEngine {
 	
 	public boolean scriptDebugMode = false;
 	
+	public static void printDebug(String type, String msg, Object...args) {
+		if (!CommanderEngine.instance.scriptDebugMode) return;
+		Log.info("[Commander:DEBUG:"+type+"] "+String.format(msg, args));
+	}
+	
 	public void setScriptForAlias(String alias, ScriptBlock script){
 		if (alias == null || alias.isEmpty()) return;
 		aliasedScripts.put(alias, script);

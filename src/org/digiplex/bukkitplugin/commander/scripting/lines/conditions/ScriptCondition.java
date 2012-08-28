@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines.conditions;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 
@@ -16,6 +18,7 @@ public abstract class ScriptCondition {
 	
 	public boolean testCondition(ScriptEnvironment env) throws BadScriptException {
 		boolean condres = this.executeCondition(env);
+		printDebug("condition", "result = %s%s", (not?"not ":""), condres);
 		if (not) condres = !condres;
 		return condres;
 	}

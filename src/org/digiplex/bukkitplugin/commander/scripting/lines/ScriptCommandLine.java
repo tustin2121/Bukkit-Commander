@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import java.util.logging.Level;
 
 import org.bukkit.command.CommandException;
@@ -28,8 +30,7 @@ public class ScriptCommandLine extends ScriptLine {
 //		if (env.getMatch() != null)
 //			command = env.getMatch().replaceFirst(command);
 		
-		if (CommanderEngine.getInstance().scriptDebugMode)
-			CommanderEngine.Log.info("[Commander:DEBUG:line] "+command);
+		printDebug("command", "%s", command);
 		
 		try {
 			boolean found;

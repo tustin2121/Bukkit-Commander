@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines.variables;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
@@ -18,6 +20,8 @@ public class ScriptVarUnsetLine extends ScriptLine {
 	}
 	
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
+		printDebug("variable", "unset %s", varname);
+		
 		env.unsetVariable(varname, doGlobal);
 	}
 	

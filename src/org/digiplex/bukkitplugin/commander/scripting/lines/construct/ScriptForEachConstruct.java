@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines.construct;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import java.util.List;
 
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
@@ -20,6 +22,9 @@ public class ScriptForEachConstruct extends ScriptLine {
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
 		List<String> collection;
 		String cmd = env.substituteTokens(rhs);
+		
+		printDebug("construct", "for each start => %s (%s)", rhs, cmd);
+		
 		if (cmd.matches("\\{s([0-9a-fA-F]+)\\}")) { //there is a collection id there and there alone
 			collection = env.getCollection(cmd);
 			if (collection == null)
@@ -28,8 +33,10 @@ public class ScriptForEachConstruct extends ScriptLine {
 			throw new BadScriptException("Given something not a collection! Cannot iterate!");
 		}
 		
-		env = env.getChild();
+		env = env.getChild(); //entering new scope
 		for (String s : collection) {
+			printDebug("construct", "for each next => @%s set to %s", varname, s);
+			
 			env.setVariableValue(varname, s);
 			try {
 				body.execute(env);
@@ -38,6 +45,7 @@ public class ScriptForEachConstruct extends ScriptLine {
 			}
 		}
 		
+		printDebug("construct", "for each end");
 	}
 
 	@Override public void verify() throws BadScriptException {

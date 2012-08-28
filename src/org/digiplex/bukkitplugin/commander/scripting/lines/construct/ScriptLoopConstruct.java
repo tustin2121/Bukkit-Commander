@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines.construct;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
@@ -46,10 +48,14 @@ public class ScriptLoopConstruct extends ScriptLine {
 				throw new BadScriptException("End variable is not an integer!");
 		}
 		
+		printDebug("construct", "loop start => %d to %d step %d", start, end, step);
+		
 		for (int i = start; i <= end; i += step) {
 //			Object o = env.getVariableValue(varname);
 //			if (!(o instanceof Integer))
 //				throw new BadScriptException("Looping variable is not (or is no longer) an integer!", lineno);
+			
+			printDebug("construct", "loop next => @%s set to %d", varname, i);
 			
 			env.setVariableValue(varname, i);
 			//The Int Loop doesn't care if you step on its variable, it will overwrite on the next loop
@@ -60,6 +66,8 @@ public class ScriptLoopConstruct extends ScriptLine {
 				break; //break the loop and continue execution
 			}
 		}
+		
+		printDebug("construct", "loop end");
 	}
 
 	@Override public void verify() throws BadScriptException {

@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines.variables;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.lines.ScriptLine;
@@ -19,6 +21,9 @@ public class ScriptVarIncrementLine extends ScriptLine {
 	
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
 		Object o = env.getVariableValue(varname);
+		
+		printDebug("variable", "%screment %s", increment?"in":"de", varname);
+		
 		int vi = 0;
 		if (!(o instanceof Integer)) {
 			if (o instanceof String) {

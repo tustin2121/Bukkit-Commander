@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BreakScriptException;
@@ -7,6 +9,8 @@ import org.digiplex.bukkitplugin.commander.scripting.exceptions.BreakScriptExcep
 public class ScriptBreakLine extends ScriptLine {
 
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
+		printDebug("construct", "break");
+		
 		throw new BreakScriptException();
 	}
 

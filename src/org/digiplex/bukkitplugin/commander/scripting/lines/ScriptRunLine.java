@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
@@ -16,6 +18,8 @@ public class ScriptRunLine extends ScriptLine {
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
 		if (env.incrementRunCount())
 			throw new BadScriptException("Recursive run call limit hit!");
+		
+		printDebug("construct", "run %s", blockalias);
 			
 		ScriptBlock block = CommanderEngine.getInstance().getScript(blockalias);
 		if (block == null)

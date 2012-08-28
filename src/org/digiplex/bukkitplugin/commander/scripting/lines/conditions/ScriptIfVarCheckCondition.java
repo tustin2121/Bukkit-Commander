@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines.conditions;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 
@@ -15,6 +17,9 @@ public class ScriptIfVarCheckCondition extends ScriptCondition {
 
 	@Override public boolean executeCondition(ScriptEnvironment env) throws BadScriptException {
 		Object val = env.getVariableValue(var);
+		
+		printDebug("condition", "check var %s (%s)", var, val);
+		
 		if (val instanceof Boolean) {
 			return ((Boolean) val).booleanValue();
 		} else if (val instanceof String) {

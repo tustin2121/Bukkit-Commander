@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines.variables;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -30,6 +32,9 @@ public class ScriptVarCollectionAssignment extends ScriptLine {
 	
 	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
 		String c = env.pushCollection(collectionToAssign);
+		
+		printDebug("variable", "assign collection%s %s = %s", doGlobal?" globally":"", var, c);
+		
 		if (doGlobal)
 			env.setVariableGlobally(var, c);
 		else

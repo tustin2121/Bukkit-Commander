@@ -17,10 +17,7 @@ public class ScriptIfConstruct extends ScriptLine {
 		this.condition = condition;
 	}
 
-	@Override public void execute(ScriptEnvironment env) throws BadScriptException {
-		if (trueBlock == null)
-			throw new BadScriptException("If statement does not have a true block!");
-		
+	@Override public void execute(ScriptEnvironment env) throws BadScriptException {		
 		boolean condres = condition.testCondition(env);
 		
 		/* how this works:

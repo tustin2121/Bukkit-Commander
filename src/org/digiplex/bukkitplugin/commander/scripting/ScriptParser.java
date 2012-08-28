@@ -52,7 +52,10 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarUn
  *        [random # to #] and [case #], [case #-#], [case <#], [case >#] = same as switch, but with a random number
  *     statement constructs: (Not actually a construct, just using the brackets to stand out)
  *        [break] = break line, causes a loop or script to break out
- *        [run scriptname] = calls a aliased script from the Commander hash table of stored scripts (read: "function call") 
+ *        [run scriptname] = calls a aliased script from the Commander hash table of stored scripts (read: "function call")
+ *        
+ *        [link @var to playername.varname] = links a variable to a player-persistent variable ?
+ *        	 points to a special LinkedVariable type, which holds a player and the var name
  *   
  *  if the line begins with a @ then it is a variable method:
  *     @var = a number, string, or supported object with a name : assignment

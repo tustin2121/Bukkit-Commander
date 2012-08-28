@@ -1,5 +1,7 @@
 package org.digiplex.bukkitplugin.commander.scripting.lines.conditions;
 
+import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
+
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 
@@ -20,6 +22,8 @@ public class ScriptIfCompareCondition extends ScriptCondition {
 	@Override public boolean executeCondition(ScriptEnvironment env) throws BadScriptException {
 		String l = env.substituteTokens(lhs);
 		String r = env.substituteTokens(rhs);
+		
+		printDebug("condition", "compare %s (%s) %s%s %s (%s)", lhs, l, gt?">":"<", eq?"=":"", rhs, r);
 		
 		int li, ri;
 		
