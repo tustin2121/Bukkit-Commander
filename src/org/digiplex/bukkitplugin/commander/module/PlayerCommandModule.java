@@ -36,6 +36,7 @@ public class PlayerCommandModule implements Module {
 	
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent e) {
+		if (e.isCancelled()) return; //ignore canceled events
 		try {
 			ScriptEnvironment env = new ScriptEnvironment(); {
 				env.setCommandSender(e.getPlayer());

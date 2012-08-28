@@ -36,6 +36,7 @@ public class PlayerChatModule implements Module {
 	
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPlayerChat(AsyncPlayerChatEvent e) {
+		if (e.isCancelled()) return; //ignore canceled events
 		try {
 			ScriptEnvironment env = new ScriptEnvironment(); {
 				env.setCommandSender(e.getPlayer());
