@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
  * A module that provides environment variables to the Commander plugin, so that other plugins
  * can provide variables and states to scripts running in Commander. 
  * @author tpittman
- * @since 2.0
+ * @since 2.0.1
  */
 public interface CmdrEnvVarModule {
 	
@@ -32,7 +32,7 @@ public interface CmdrEnvVarModule {
 	 * 			From this sender, you can get things like the server or world the sender is in.  
 	 * @return
 	 * 		An {@code Integer}, {@code Boolean}, {@code String}, {@code List<String>}, or null.
-	 * @since 2.0 
+	 * @since 2.0.1
 	 */
 	public Object getEVValue(String varname, CommandSender sender) throws BadEVPathException;
 	

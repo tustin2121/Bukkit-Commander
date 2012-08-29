@@ -5,7 +5,7 @@ package org.digiplex.bukkitplugin.commander.api;
  * Commander will take the message and print it to the console before returning null,
  * which is standard handling procedure. 
  * @author tpittman
- * @since 2.0
+ * @since 2.0.1
  */
 public class BadEVPathException extends Exception {
 	private static final long serialVersionUID = -8086988428281161944L;

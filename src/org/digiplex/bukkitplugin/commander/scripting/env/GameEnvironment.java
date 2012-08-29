@@ -21,6 +21,7 @@ import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
 import org.digiplex.bukkitplugin.commander.api.BadEVPathException;
 import org.digiplex.bukkitplugin.commander.api.CmdrEnvVarModule;
+import org.digiplex.bukkitplugin.commander.api.CommanderAPI;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 
 /**
@@ -295,7 +296,9 @@ public class GameEnvironment {
 				LOG.severe("Script requested value from plugin \""+plugin+"\", but no such module is registered! Please check spelling; uppercase counts!");
 				return null;
 			}
-			return m.getEVValue(passed, env.getCommandSender());
+			Object o = m.getEVValue(passed, env.getCommandSender());
+			if (!CommanderAPI.isValidType(o)) throw new IllegalArgumentException("Invalid type returned from EVM! Contact EVM developer!");
+			return o;
 		} catch (BadEVPathException ex) {
 			return evError(ex.getMessage());
 		} catch (Exception ex) {

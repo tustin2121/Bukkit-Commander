@@ -62,7 +62,7 @@ public class CommanderAPI {
 	 * @param namespace 
 	 * 		The name of this plugin's namespace, returned by the function {@code evm.getNamespace()}. This should
 	 * 		be the same as the name of your plugin.
-	 * @since 2.0
+	 * @since 2.0.1
 	 */
 	public static void unregisterEVM(String namespace) {
 		GameEnvironment.unregisterCommanderPlugin(namespace);
@@ -151,5 +151,31 @@ public class CommanderAPI {
 	 */
 	public static void parseScriptFile(File file) {
 		CommanderEngine.getInstance().loadScriptsFromFile(file);
+	}
+	
+	/**
+	 * Checks if the given value is a valid type to be used as a variable in a Commander Script.
+	 * @param val The object to check.
+	 * @return true if {@code val} is a String, Integer, Boolean, or List&lt;String&gt;. Else, false.
+	 * @since 2.0.1 
+	 */
+	public static boolean isValidType(Object val) {
+		boolean valid = false;
+		for (int i = 0; i < CommanderEngine.VALID_VAR_TYPES.length; i++) {
+			valid |= CommanderEngine.VALID_VAR_TYPES[i] == val.getClass();
+		}
+		if (!valid) return false;
+		
+		if (val.getClass() == List.class) { 
+			//if it's a list, and due to Java's erasure of what type of list, we now must check!
+			for (Object o : (List<?>)val) {
+				valid = false;
+				for (int i = 0; i < CommanderEngine.VALID_COLL_TYPES.length; i++) {
+					valid |= CommanderEngine.VALID_COLL_TYPES[i] == o.getClass();
+				}
+				if (!valid) return false;
+			}
+		}
+		return true;
 	}
 }
