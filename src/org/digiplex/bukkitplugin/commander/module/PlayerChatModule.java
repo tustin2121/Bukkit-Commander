@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 
+import org.bukkit.command.CommandException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -65,7 +66,13 @@ public class PlayerChatModule implements Module {
 				
 				try {
 					rp.executeEffects(env);
-				} catch (BreakScriptException ex) {}
+				} catch (BreakScriptException ex) {
+					//This catch intentionally left empty
+				} catch (CommandException ex) {
+					CommanderEngine.reportCommandException(ex);
+					//if a command exception is thrown to here, then we will ignore the results of the script
+					continue;
+				}
 				
 				{ //test if we are cutting off or canceling
 					Object o = env.getVariableValue("__cancel__");

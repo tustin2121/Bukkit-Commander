@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 
+import org.bukkit.command.CommandException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -59,14 +60,20 @@ public class PlayerCommandModule implements Module {
 					
 					try {
 						rp.executeEffects(env);
-					} catch (BreakScriptException ex) {}
+					} catch (BreakScriptException ex) { 
+						//this block intentionally left empty
+					} catch (CommandException ex) {
+						CommanderEngine.reportCommandException(ex);
+					}
 					e.setCancelled(true);
 					
 					return;
 				}
 			}
-		} catch (Exception ex){
-			CommanderEngine.Log.log(Level.SEVERE, "[Commander] An exception was caught during player command replacement processing! Command passed through.", ex);
+			
+		} catch (Exception ex) {
+			CommanderEngine.Log.log(Level.SEVERE, 
+					"[Commander] An exception was caught during player command replacement processing! Command passed through.", ex);
 		}
 		if (echoCmds) {
 			Log.info("[PLAYERCMD] "+e.getPlayer().getName()+": "+e.getMessage());

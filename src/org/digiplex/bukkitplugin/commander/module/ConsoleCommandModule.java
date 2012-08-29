@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 
+import org.bukkit.command.CommandException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.server.ServerCommandEvent;
@@ -49,7 +50,11 @@ public class ConsoleCommandModule implements Module {
 					
 					try {
 						rp.executeEffects(env);
-					} catch (BreakScriptException ex){}
+					} catch (BreakScriptException ex){
+						//this space intentionally left blank
+					} catch (CommandException ex) {
+						CommanderEngine.reportCommandException(ex);
+					}
 					e.setCommand(CommanderEngine.getConfig().getString("options.commands.null")); //does nothing, prints nothing
 					//e.setCommand(m.replaceFirst(rp.executeString(env)));
 					

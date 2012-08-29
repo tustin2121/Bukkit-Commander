@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
@@ -300,6 +301,22 @@ public class CommanderEngine {
 	}
 	public ScriptBlock getScript(String alias){
 		return aliasedScripts.get(alias);
+	}
+	
+	/**
+	 * Call this method from a catch block when a command called from a script throws an exception.
+	 * This method will properly report the exception to the console log.
+	 * @param ex The command exception thrown
+	 */
+	public static void reportCommandException(CommandException ex) {
+		//pull out the inner exception of a CommandException to get to the root of the problem
+		Throwable inner = ex.getCause(); 
+		if (inner == null) inner = ex; //if no inner exception (should not happen) use the CommandException
+		
+		CommanderEngine.Log.log(
+				Level.SEVERE, 
+				"[Commander] An exception was thrown from an executed command:\n" +ex.getLocalizedMessage()+"\n Caused by:",
+				inner);
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////////////////

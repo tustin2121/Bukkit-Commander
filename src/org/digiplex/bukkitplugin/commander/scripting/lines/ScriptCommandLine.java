@@ -2,8 +2,6 @@ package org.digiplex.bukkitplugin.commander.scripting.lines;
 
 import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
 
-import java.util.logging.Level;
-
 import org.bukkit.command.CommandException;
 import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
@@ -41,9 +39,12 @@ public class ScriptCommandLine extends ScriptLine {
 			
 			env.setCommandResults(found);
 		} catch (CommandException ex) {
+			printDebug("command", "Command has thrown exception. I am set to %s on error.", env.shouldContinueOnError()?"CONTINUE":"THROW");
+			
 			env.setCommandResultsError(ex);
 			if (!env.shouldContinueOnError()) throw ex;
-			CommanderEngine.Log.log(Level.SEVERE, "Error from command while processing script! Command=\""+command+"\"\n", ex);
+			//CommanderEngine.Log.log(Level.SEVERE, "Error from command while processing script! Command=\""+command+"\"\n", ex);
+			CommanderEngine.reportCommandException(ex); //report it despite continuing
 		}
 	}
 	
