@@ -1,5 +1,10 @@
 package org.digiplex.bukkitplugin.commander.api;
 
+/**
+ * Represents a runtime exception thrown while executing a script.
+ * @author tpittman
+ * @since 2.0
+ */
 public class ScriptExecutionException extends Exception {
 	private static final long serialVersionUID = -3356952384739680150L;
 	public ScriptExecutionException() {}

@@ -3,7 +3,7 @@ package evplugin;
 import org.bukkit.command.CommandSender;
 import org.digiplex.bukkitplugin.commander.api.CmdrEnvVarModule;
 
-public class EVTestEVM extends CmdrEnvVarModule {
+public class EVTestEVM implements CmdrEnvVarModule {
 
 	@Override public String getNamespace() {
 		return "EVTest";

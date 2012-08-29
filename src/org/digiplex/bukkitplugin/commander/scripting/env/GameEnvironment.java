@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.CommanderPlugin;
+import org.digiplex.bukkitplugin.commander.api.BadEVPathException;
 import org.digiplex.bukkitplugin.commander.api.CmdrEnvVarModule;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 
@@ -295,6 +296,8 @@ public class GameEnvironment {
 				return null;
 			}
 			return m.getEVValue(passed, env.getCommandSender());
+		} catch (BadEVPathException ex) {
+			return evError(ex.getMessage());
 		} catch (Exception ex) {
 			LOG.log(Level.SEVERE, "Error getting third-party environment variable from plugin \""+plugin+"\"!", ex);
 			return null;

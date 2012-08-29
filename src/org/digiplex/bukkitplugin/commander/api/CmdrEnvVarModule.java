@@ -7,15 +7,17 @@ import org.bukkit.command.CommandSender;
  * A module that provides environment variables to the Commander plugin, so that other plugins
  * can provide variables and states to scripts running in Commander. 
  * @author tpittman
+ * @since 2.0
  */
-public abstract class CmdrEnvVarModule {
+public interface CmdrEnvVarModule {
 	
 	/**
 	 * Returns the sub-namespace this EVM should be registered under by default. This value will be
 	 * prepended by "plugin." by the registrar. This should be the name of your plugin.
 	 * @return case sensitive name of the plugin.
+	 * @since 2.0
 	 */
-	public abstract String getNamespace();
+	public String getNamespace();
 	
 	/**
 	 * Called by the Commander Scripting Engine when a script requests an environment variable
@@ -29,8 +31,9 @@ public abstract class CmdrEnvVarModule {
 	 * 			the {@code sender} will be an instance of the {@link org.bukkit.entity.Player Player} interface. 
 	 * 			From this sender, you can get things like the server or world the sender is in.  
 	 * @return
-	 * 		An {@code Integer}, {@code Boolean}, {@code String}, {@code List<String>}, or null. 
+	 * 		An {@code Integer}, {@code Boolean}, {@code String}, {@code List<String>}, or null.
+	 * @since 2.0 
 	 */
-	public abstract Object getEVValue(String varname, CommandSender sender);
+	public Object getEVValue(String varname, CommandSender sender) throws BadEVPathException;
 	
 }

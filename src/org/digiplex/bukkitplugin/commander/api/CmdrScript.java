@@ -18,6 +18,7 @@ import org.digiplex.bukkitplugin.commander.scripting.exceptions.BreakScriptExcep
  * getLastRunVariable() function will allow access to any global variables that were set in the last
  * run of the script.
  * @author tpittman
+ * @since 2.0
  */
 public class CmdrScript {
 	Executable block;
@@ -34,6 +35,7 @@ public class CmdrScript {
 	 * @param cmdMatcher The Matcher object (obtainable via the java.util.regex.Pattern class)
 	 * @param args A Map of String to valid Objects.
 	 * @throws ScriptExecutionException Thrown if an error occurs while executing the script
+	 * @since 2.0
 	 */
 	public void execute(CommandSender sender, MatchResult cmdMatcher, Map<String, Object> args) throws ScriptExecutionException {
 		if (sender == null) throw new IllegalArgumentException("Sender cannot be null!");
@@ -94,6 +96,7 @@ public class CmdrScript {
 	 * @param sender The player or other CommandSender running this script. Cannot be null.
 	 * @param args A Map of String to valid Objects.
 	 * @throws ScriptExecutionException Thrown if an error occurs while executing the script
+	 * @since 2.0
 	 */
 	public void execute(CommandSender sender, Map<String, Object> args) throws ScriptExecutionException {
 		this.execute(sender, null, args);
@@ -105,6 +108,7 @@ public class CmdrScript {
 	 * @param sender The player or other CommandSender running this script. Cannot be null.
 	 * @param cmdMatcher The Matcher object (obtainable via the java.util.regex.Pattern class)
 	 * @throws ScriptExecutionException Thrown if an error occurs while executing the script
+	 * @since 2.0
 	 */
 	public void execute(CommandSender sender, MatchResult cmdMatcher) throws ScriptExecutionException {
 		this.execute(sender, cmdMatcher, null);
@@ -114,6 +118,7 @@ public class CmdrScript {
 	 * Executes this script with the given sender.
 	 * @param sender The player or other CommandSender running this script. Cannot be null.
 	 * @throws ScriptExecutionException Thrown if an error occurs while executing the script
+	 * @since 2.0
 	 */
 	public void execute(CommandSender sender) throws ScriptExecutionException {
 		this.execute(sender, null, null);
@@ -123,6 +128,7 @@ public class CmdrScript {
 	 * Allows values to be accessed from the variable listing of the last run of this script.
 	 * @param varname
 	 * @return
+	 * @since 2.0
 	 */
 	public Object getLastRunVariable(String varname) {
 		return lastRunEnv.getVariableValue(varname);

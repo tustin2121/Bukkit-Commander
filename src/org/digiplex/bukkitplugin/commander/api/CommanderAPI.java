@@ -49,11 +49,23 @@ public class CommanderAPI {
 	/**
 	 * This method allows plugins to unregister their previously registered EVM. This should probably
 	 * happen in the {@code onDisable()} function.
-	 * @param evm This plugin's subclass of the CmdrEnvVarModule class
+	 * @param evm This plugin's implementation of the CmdrEnvVarModule interface
 	 * @since 2.0
 	 */
 	public static void unregisterEVM(CmdrEnvVarModule evm) {
 		GameEnvironment.unregisterCommanderPlugin(evm.getNamespace());
+	}
+	
+	/**
+	 * This method allows plugins to unregister their previously registered EVM. This should probably
+	 * happen in the {@code onDisable()} function.
+	 * @param namespace 
+	 * 		The name of this plugin's namespace, returned by the function {@code evm.getNamespace()}. This should
+	 * 		be the same as the name of your plugin.
+	 * @since 2.0
+	 */
+	public static void unregisterEVM(String namespace) {
+		GameEnvironment.unregisterCommanderPlugin(namespace);
 	}
 	
 	/**

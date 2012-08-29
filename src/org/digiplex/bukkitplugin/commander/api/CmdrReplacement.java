@@ -13,7 +13,7 @@ import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptExcepti
  * And Opaque wrapper around Commander's replacement pairs, 
  * for use by plugins outside of the Commander engine.
  * @author Tim
- *
+ * @since 2.0
  */
 public class CmdrReplacement {
 	private ReplacementPair pair;
