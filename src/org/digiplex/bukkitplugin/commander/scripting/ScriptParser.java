@@ -26,6 +26,7 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDire
 import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDirectiveLoopLimLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.directives.ScriptDirectiveRunLimLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarAssignmentLine;
+import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarDeclarationLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarIncrementLine;
 import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarUnsetLine;
 
@@ -53,6 +54,9 @@ import org.digiplex.bukkitplugin.commander.scripting.lines.variables.ScriptVarUn
  *     statement constructs: (Not actually a construct, just using the brackets to stand out)
  *        [break] = break line, causes a loop or script to break out
  *        [run scriptname] = calls a aliased script from the Commander hash table of stored scripts (read: "function call")
+ *        
+ *        [link @var = player <name>.<var>]
+ *        [link @var = global <var>]
  *        
  *        [link @var to playername.varname] = links a variable to a player-persistent variable ?
  *        	 points to a special LinkedVariable type, which holds a player and the var name
@@ -388,6 +392,7 @@ public class ScriptParser {
 	private static final Pattern ASSIGN_GLOBAL = Pattern.compile("\\@(\\w+)\\s*\\:=\\s*(.*)");
 	private static final Pattern ASSIGN_INCREMENT = Pattern.compile("\\@(\\w+)\\s*\\+\\+");
 	private static final Pattern ASSIGN_DECREMENT = Pattern.compile("\\@(\\w+)\\s*\\-\\-");
+	private static final Pattern ASSIGN_DECLARE = Pattern.compile("\\@(\\w+)");
 	private static final Pattern ASSIGN_UNSET = Pattern.compile("\\@(\\w+)\\s+unset");
 	
 	private static ScriptLine parseVariable(String line) throws BadScriptException{
@@ -412,10 +417,14 @@ public class ScriptParser {
 			String variable = m.group(1);
 			
 			l = new ScriptVarIncrementLine(variable, true); //decrement
+		} else if ( (m = ASSIGN_DECLARE.matcher(line)).matches() ) {
+			String variable = m.group(1);
+			
+			l = new ScriptVarDeclarationLine(variable);
 		} else if ( (m = ASSIGN_UNSET.matcher(line)).matches() ) {
 			String variable = m.group(1);
 			
-			l = new ScriptVarUnsetLine(variable); //decrement
+			l = new ScriptVarUnsetLine(variable);
 		} else {
 			throw new BadScriptException("Variable assignment not properly formatted");
 		}

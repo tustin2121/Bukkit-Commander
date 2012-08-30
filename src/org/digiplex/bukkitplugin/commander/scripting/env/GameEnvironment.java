@@ -259,9 +259,8 @@ public class GameEnvironment {
 			
 			if (names[0].equalsIgnoreCase("level")) return p.getLevel();
 			if (names[0].equalsIgnoreCase("health")) return p.getHealth();
-			if (names[0].equalsIgnoreCase("healthmax")) return p.getMaxHealth();
+			
 			if (names[0].equalsIgnoreCase("air")) return p.getRemainingAir();
-			if (names[0].equalsIgnoreCase("airmax")) return p.getMaximumAir();
 			if (names[0].equalsIgnoreCase("food")) return p.getFoodLevel();
 			//if (names[0].equalsIgnoreCase("foodsat")) return p.getSaturation(); //no float support
 			
@@ -269,6 +268,12 @@ public class GameEnvironment {
 			if (names[0].equalsIgnoreCase("ismoving")) return p.getVelocity().lengthSquared() != 0; //TODO test
 			break;
 		case 2:
+			if (names[0].equalsIgnoreCase("health")) {
+				if (names[1].equalsIgnoreCase("max")) return p.getMaxHealth();
+			}
+			if (names[0].equalsIgnoreCase("air")) {
+				if (names[1].equalsIgnoreCase("max")) return p.getMaximumAir();
+			}
 			if (names[0].matches("(?i)location|position|at")) {
 				if (names[1].equalsIgnoreCase("x")) return p.getLocation().getBlockX();
 				if (names[1].equalsIgnoreCase("y")) return p.getLocation().getBlockY();
@@ -309,7 +314,11 @@ public class GameEnvironment {
 	
 	//////////////////////////////// Function Namespace ////////////////////////////////////
 	private static Object getFromFunctionNamespace(String name, String[] args, ScriptEnvironment env) {
-		if (name.equalsIgnoreCase("random"))	return random(args);
+		try {
+			if (name.equalsIgnoreCase("random"))	return random(args);
+		} catch (NumberFormatException ex) {
+			return evError("Arguments must be numbers!");
+		}
 		if (name.equalsIgnoreCase("intmath"))	return intmath(args);
 		if (name.equalsIgnoreCase("substr"))	return substr(args);
 		return evError("No function with name '"+name+"' in function namespace!");

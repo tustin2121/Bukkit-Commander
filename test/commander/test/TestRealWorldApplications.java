@@ -64,4 +64,23 @@ public class TestRealWorldApplications extends TestCase {
 		assertTrue("Commands don't match!", server.checkCommands(
 				"echo You are below sea level.", "echo You are above sea level.", "echo You are at sea level!"));
 	}
+	
+	@Test public void stringConcat() throws Exception {
+		String[] commands  = new String[] {
+				"@list",
+				"[foreach @player in $(server.players)] {",
+				"    [!if @list]    #check if the list is empty",
+				"        @list = @player",
+				"    [else]",
+				"        @list = @list, @player",
+				"}",
+				"echo We mourn the passing of these dickweeds: @list",
+		};
+		
+		Executable sl = ScriptParser.parseScript(commands);
+		sl.execute(environment);
+		
+		assertTrue("Commands don't match!", server.checkCommands(
+				"echo We mourn the passing of these dickweeds: TestPlayer, AAA, BBB, Notch, Ben"));
+	}
 }
