@@ -102,6 +102,37 @@ public class ScriptParser {
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	
+	/**
+	 * 
+	 * @param curr
+	 * @param loc Location of first detected hash character, for where it starts
+	 * @return
+	 */
+	private static String removeComments(String curr) {
+		StringBuilder sb = new StringBuilder();
+		int loc = -1, last = -1;
+		
+		while (true) {
+			last = loc;
+			loc = curr.indexOf('#', last+1);
+			
+			//If there was a hash sign, and we found no more, append the rest and break
+			if (loc == -1 && last > -1) {
+				sb.append(curr.substring(last));
+				break;
+			}
+			
+			sb.append(curr.substring((last<0)?0:last, loc));
+			
+			//if the found hash character is preceded by a slash, ignore
+			if (loc > 0 && curr.charAt(loc-1) == '\\') continue;
+			
+			break; //if we get here, this is where the comment starts
+		}
+		
+		return sb.toString();
+	}
+	
 	private static ScriptBlock parseScript(String[] script, int lineno) throws BadScriptException {
 		ParseState state = ParseState.NORMAL;
 		ArrayList<Executable> lines = new ArrayList<Executable>();
@@ -117,8 +148,9 @@ public class ScriptParser {
 			curr = script[i];
 			{ //remove any comments before parsing
 				int loc = curr.indexOf('#');
-				if (loc > -1)
-					curr = curr.substring(0, loc);
+				if (loc > -1) { //if there's a comment
+					curr = removeComments(curr);
+				}
 			}
 			curr = curr.trim();
 			if (curr.isEmpty()) continue; //ignore blank lines

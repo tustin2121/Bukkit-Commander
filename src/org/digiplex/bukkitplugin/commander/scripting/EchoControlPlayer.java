@@ -17,7 +17,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Note;
 import org.bukkit.Server;
+import org.bukkit.Sound;
 import org.bukkit.Statistic;
+import org.bukkit.WeatherType;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.conversations.Conversation;
@@ -31,6 +33,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.InventoryView.Property;
@@ -789,6 +792,90 @@ public class EchoControlPlayer extends EchoControl implements Player {
 
 	@Override public void setWalkSpeed(float arg0) throws IllegalArgumentException {
 		((Player)wrappedSender).setWalkSpeed(arg0);
+	}
+
+	@Override public Inventory getEnderChest() {
+		return ((Player)wrappedSender).getEnderChest();
+	}
+
+	@Override public boolean getCanPickupItems() {
+		return ((Player)wrappedSender).getCanPickupItems();
+	}
+
+	@Override public String getCustomName() {
+		return ((Player)wrappedSender).getCustomName();
+	}
+
+	@Override public EntityEquipment getEquipment() {
+		return ((Player)wrappedSender).getEquipment();
+	}
+
+	@Override public boolean getRemoveWhenFarAway() {
+		return ((Player)wrappedSender).getRemoveWhenFarAway();
+	}
+
+	@Override public boolean isCustomNameVisible() {
+		return ((Player)wrappedSender).isCustomNameVisible();
+	}
+
+	@Override public void setCanPickupItems(boolean pickup) {
+		((Player)wrappedSender).setCanPickupItems(pickup);
+	}
+
+	@Override public void setCustomName(String name) {
+		((Player)wrappedSender).setCustomName(name);
+	}
+
+	@Override public void setCustomNameVisible(boolean flag) {
+		((Player)wrappedSender).setCustomNameVisible(flag);
+	}
+
+	@Override public void setRemoveWhenFarAway(boolean remove) {
+		((Player)wrappedSender).setRemoveWhenFarAway(remove);
+	}
+
+	@Override public Location getLocation(Location loc) {
+		return ((Player)wrappedSender).getLocation(loc);
+	}
+
+	@Override public void resetMaxHealth() {
+		((Player)wrappedSender).resetMaxHealth();
+	}
+
+	@Override public void setMaxHealth(int health) {
+		((Player)wrappedSender).setMaxHealth(health);
+	}
+
+	@Override public WeatherType getPlayerWeather() {
+		return ((Player)wrappedSender).getPlayerWeather();
+	}
+
+	@Override public void giveExpLevels(int amount) {
+		((Player)wrappedSender).giveExpLevels(amount);
+	}
+
+	@Override @Deprecated public boolean isOnGround() {
+		return ((Player)wrappedSender).isOnGround();
+	}
+
+	@Override public void playSound(Location location, Sound sound, float volume, float pitch) {
+		((Player)wrappedSender).playSound(location, sound, volume, pitch);
+	}
+
+	@Override public void resetPlayerWeather() {
+		((Player)wrappedSender).resetPlayerWeather();
+	}
+
+	@Override public void setBedSpawnLocation(Location location, boolean force) {
+		((Player)wrappedSender).setBedSpawnLocation(location, force);
+	}
+
+	@Override public void setPlayerWeather(WeatherType type) {
+		((Player)wrappedSender).setPlayerWeather(type);
+	}
+
+	@Override public void setTexturePack(String url) {
+		((Player)wrappedSender).setTexturePack(url);
 	}
 
 }

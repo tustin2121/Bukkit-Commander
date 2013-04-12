@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -14,6 +15,7 @@ import org.digiplex.bukkitplugin.commander.CommanderEngine.MatchingContext;
 import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BreakScriptException;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.CommandExecutionException;
 
 public class ConsoleCommandModule implements Module {
 	public List<ReplacementPair> pairs;
@@ -52,8 +54,8 @@ public class ConsoleCommandModule implements Module {
 						rp.executeEffects(env);
 					} catch (BreakScriptException ex){
 						//this space intentionally left blank
-					} catch (CommandException ex) {
-						CommanderEngine.reportCommandException(ex);
+					} catch (CommandExecutionException ex) {
+						CommanderEngine.reportCommandException(ex, true);
 					}
 					e.setCommand(CommanderEngine.getConfig().getString("options.commands.null")); //does nothing, prints nothing
 					//e.setCommand(m.replaceFirst(rp.executeString(env)));

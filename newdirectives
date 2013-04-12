@@ -1,0 +1,23 @@
+The replacement directives: for doing a replace-all on something
+
+Making a replacement object:
+	@r = $/regex/ ==> replacement
+This makes a replacement object, consisting of the regex and the replacement in the same format
+as making replacements outside, with added $ to separate it from garbage. Making a replacement
+object MUST start with $/ and be in the format as above. It assigns it to the variable, like 
+a normal object (with the toString() printing like a collection: {r69436s46}). 
+
+
+/shout (.*)/ =={
+    @r = $/hello/ ==> replace
+    [replace $1 using @r]
+    [replace once $1 using @r] #same as above
+    [replace all $1 using @r]
+
+}
+
+
+/shout (.*)/ =={
+    @k = [replaceall "$1" /hello/ "world"]
+    shout @k
+}

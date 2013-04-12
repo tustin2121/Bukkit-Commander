@@ -29,6 +29,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.help.HelpMap;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.map.MapView;
@@ -429,6 +430,22 @@ public class TestServer implements Server {
 
 	@Override public WarningState getWarningState() {
 		return null;
+	}
+
+	@Override public int getAmbientSpawnLimit() {
+		return 0;
+	}
+
+	@Override public ItemFactory getItemFactory() {
+		return null;
+	}
+
+	@Override public String getShutdownMessage() {
+		return null;
+	}
+
+	@Override public boolean isHardcore() {
+		return false;
 	}
 
 }

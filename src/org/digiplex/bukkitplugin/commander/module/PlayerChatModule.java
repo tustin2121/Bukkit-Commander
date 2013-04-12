@@ -16,6 +16,7 @@ import org.digiplex.bukkitplugin.commander.replacement.ReplacementPair;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BreakScriptException;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.CommandExecutionException;
 
 public class PlayerChatModule implements Module {
 	private static final Logger Log = Logger.getLogger("Minecraft");
@@ -68,8 +69,8 @@ public class PlayerChatModule implements Module {
 					rp.executeEffects(env);
 				} catch (BreakScriptException ex) {
 					//This catch intentionally left empty
-				} catch (CommandException ex) {
-					CommanderEngine.reportCommandException(ex);
+				} catch (CommandExecutionException ex) {
+					CommanderEngine.reportCommandException(ex, true);
 					//if a command exception is thrown to here, then we will ignore the results of the script
 					continue;
 				}

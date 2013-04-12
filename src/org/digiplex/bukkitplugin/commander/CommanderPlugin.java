@@ -1,6 +1,7 @@
 package org.digiplex.bukkitplugin.commander;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -130,6 +131,7 @@ public class CommanderPlugin extends JavaPlugin {
 			Log.info("[Commander] Could not find "+listfile.getName()+", creating default file.");
 			try {
 				InputStream in = getResource("cfgdef/"+defresource);
+				if (in == null) throw new FileNotFoundException("Could not get default resource for "+listfile+"!");
 				FileOutputStream out = new FileOutputStream(listfile);
 				
 				// Transfer bytes from in to out
@@ -140,6 +142,8 @@ public class CommanderPlugin extends JavaPlugin {
 			    }
 			    in.close();
 			    out.close();
+			} catch (NullPointerException ex) {
+				Log.log(Level.SEVERE, "[Commander] NullPointer! This should never happen! ", ex);
 			} catch (IOException ex) {
 				Log.log(Level.WARNING, "[Commander] IOException while copying default file to data folder.", ex);
 			}

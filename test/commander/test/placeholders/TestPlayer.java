@@ -17,7 +17,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Note;
 import org.bukkit.Server;
+import org.bukkit.Sound;
 import org.bukkit.Statistic;
+import org.bukkit.WeatherType;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.conversations.Conversation;
@@ -31,6 +33,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.InventoryView.Property;
@@ -689,5 +692,66 @@ public class TestPlayer implements Player {
 
 	@Override public void setWalkSpeed(float arg0)
 			throws IllegalArgumentException {}
+
+	@Override public Inventory getEnderChest() {
+		return null;
+	}
+
+	@Override public boolean getCanPickupItems() {
+		return false;
+	}
+
+	@Override public String getCustomName() {
+		return null;
+	}
+
+	@Override public EntityEquipment getEquipment() {
+		return null;
+	}
+
+	@Override public boolean getRemoveWhenFarAway() {
+		return false;
+	}
+
+	@Override public boolean isCustomNameVisible() {
+		return false;
+	}
+
+	@Override public void setCanPickupItems(boolean pickup) {}
+
+	@Override public void setCustomName(String name) {}
+
+	@Override public void setCustomNameVisible(boolean flag) {}
+
+	@Override public void setRemoveWhenFarAway(boolean remove) {}
+
+	@Override public Location getLocation(Location loc) {
+		return null;
+	}
+
+	@Override public void resetMaxHealth() {}
+
+	@Override public void setMaxHealth(int health) {}
+
+	@Override public WeatherType getPlayerWeather() {
+		return null;
+	}
+
+	@Override public void giveExpLevels(int amount) {}
+
+	@Override @Deprecated public boolean isOnGround() {
+		return false;
+	}
+
+	@Override public void playSound(Location location, Sound sound,
+			float volume, float pitch) {}
+
+	@Override public void resetPlayerWeather() {}
+
+	@Override public void setBedSpawnLocation(Location location, boolean force) {}
+
+	@Override public void setPlayerWeather(WeatherType type) {}
+
+	@Override public void setTexturePack(String url) {}
 
 }

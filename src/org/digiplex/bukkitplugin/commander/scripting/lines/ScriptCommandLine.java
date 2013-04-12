@@ -2,10 +2,14 @@ package org.digiplex.bukkitplugin.commander.scripting.lines;
 
 import static org.digiplex.bukkitplugin.commander.CommanderEngine.printDebug;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandException;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.plugin.Plugin;
 import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.CommandExecutionException;
 
 public class ScriptCommandLine extends ScriptLine {
 	public String cmd;
@@ -41,10 +45,26 @@ public class ScriptCommandLine extends ScriptLine {
 		} catch (CommandException ex) {
 			printDebug("command", "Command has thrown exception. I am set to %s on error.", env.shouldContinueOnError()?"CONTINUE":"THROW");
 			
+			CommandExecutionException cex = null;
+			{
+				int idx = command.indexOf(' ');
+				String cmd = (idx > 0)? command.substring(idx) : command;
+				PluginCommand pc = Bukkit.getPluginCommand(cmd);
+				if (pc != null) {
+					Plugin p = pc.getPlugin();
+					if (p != null)
+						cex = new CommandExecutionException(String.format("\"%s\" from the plugin \"%s\"", command, p.getName()), ex);
+				}
+				
+				if (cex == null)
+					cex = new CommandExecutionException("\""+command+"\"", ex);
+				
+			}
+			
 			env.setCommandResultsError(ex);
-			if (!env.shouldContinueOnError()) throw ex;
+			if (!env.shouldContinueOnError()) throw cex;
 			//CommanderEngine.Log.log(Level.SEVERE, "Error from command while processing script! Command=\""+command+"\"\n", ex);
-			CommanderEngine.reportCommandException(ex); //report it despite continuing
+			CommanderEngine.reportCommandException(cex, false); //report it despite continuing
 		}
 	}
 	

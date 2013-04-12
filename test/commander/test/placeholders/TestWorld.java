@@ -14,6 +14,7 @@ import org.bukkit.Difficulty;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.TreeType;
 import org.bukkit.World;
 import org.bukkit.WorldType;
@@ -35,6 +36,7 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
+@SuppressWarnings("deprecation") 
 public class TestWorld implements World {
 	
 	TestServer myserver;
@@ -448,6 +450,36 @@ public class TestWorld implements World {
 	}
 
 	@Override public boolean unloadChunkRequest(int arg0, int arg1, boolean arg2) {
+		return false;
+	}
+
+	@Override public boolean createExplosion(double arg0, double arg1,
+			double arg2, float arg3, boolean arg4, boolean arg5) {
+		return false;
+	}
+
+	@Override public int getAmbientSpawnLimit() {
+		return 0;
+	}
+
+	@Override public String getGameRuleValue(String arg0) {
+		return null;
+	}
+
+	@Override public String[] getGameRules() {
+		return null;
+	}
+
+	@Override public boolean isGameRule(String arg0) {
+		return false;
+	}
+
+	@Override public void playSound(Location arg0, Sound arg1, float arg2,
+			float arg3) {}
+
+	@Override public void setAmbientSpawnLimit(int arg0) {}
+
+	@Override public boolean setGameRuleValue(String arg0, String arg1) {
 		return false;
 	}
 

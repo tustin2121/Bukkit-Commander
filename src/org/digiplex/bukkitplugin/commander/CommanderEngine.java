@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,6 +35,7 @@ import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptEnvironment;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.CommandExecutionException;
 
 public class CommanderEngine {
 	public static final Logger Log = Logger.getLogger("Minecraft");
@@ -306,17 +309,31 @@ public class CommanderEngine {
 	/**
 	 * Call this method from a catch block when a command called from a script throws an exception.
 	 * This method will properly report the exception to the console log.
-	 * @param ex The command exception thrown
+	 * @param cex The command exception thrown
 	 */
-	public static void reportCommandException(CommandException ex) {
-		//pull out the inner exception of a CommandException to get to the root of the problem
-		Throwable inner = ex.getCause(); 
-		if (inner == null) inner = ex; //if no inner exception (should not happen) use the CommandException
+	public static void reportCommandException(CommandExecutionException cex, boolean halt) {
+		//pull out the inner exception of the CommandExecutionException to get to the root of CommandException
+		Throwable ce = cex.getCause(); 
+		if (ce == null) ce = cex; //if no inner exception (should not happen) use the CommandExecutionException
 		
-		CommanderEngine.Log.log(
-				Level.SEVERE, 
-				"[Commander] An exception was thrown from an executed command:\n" +ex.getLocalizedMessage()+"\n Caused by:",
-				inner);
+		Throwable inner = ce.getCause(); //now reach in again and get the cause of the CommandException
+		if (inner == null) inner = ce;
+		
+		StringBuilder sb = new StringBuilder();
+		sb  .append("[Commander] Script execution ").append(halt?"halted":"interuppted").append(" due to error while executing the following command:\n")
+			.append(cex.getMessage()).append('\n')
+			//.append("This is not a Commander exception, but an exception thrown from another plugin.\n")
+			.append(inner.getClass().getName()).append(": ").append(inner.getMessage()).append('\n');
+		
+		{
+			StackTraceElement ste[] = inner.getStackTrace();
+			for (int i = 0; i < ste.length; i++) {
+				if (ste[i].getClassName().contains("org.digiplex")) break;
+				sb.append('\t').append("at ").append(ste[i]).append('\n');
+			}
+		}
+		
+		CommanderEngine.Log.log(Level.SEVERE, sb.toString(), inner);
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////////////////

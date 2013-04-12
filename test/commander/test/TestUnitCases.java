@@ -4,7 +4,6 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 import java.util.Arrays;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandException;
 import org.digiplex.bukkitplugin.commander.CommanderEngine;
 import org.digiplex.bukkitplugin.commander.scripting.Executable;
@@ -12,6 +11,7 @@ import org.digiplex.bukkitplugin.commander.scripting.ScriptBlock;
 import org.digiplex.bukkitplugin.commander.scripting.ScriptParser;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BadScriptException;
 import org.digiplex.bukkitplugin.commander.scripting.exceptions.BreakScriptException;
+import org.digiplex.bukkitplugin.commander.scripting.exceptions.CommandExecutionException;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -52,12 +52,16 @@ public class TestUnitCases extends TestCase {
 				"More stuff #Stuff #stuff!!",
 				"###############################",
 				" Test Line #42",
+				"Test Hashing \\# Escaping!",
+				"Test \"Quoted Hash\\# Keeping\"", //not implemented, use slashes still
 		};
 		
 		Executable sl = ScriptParser.parseScript(commands);
 		sl.execute(environment);
 		
-		assertTrue("Commands don't match!", server.checkCommands("Test Line 1", "Hello World!", "More stuff", "Test Line"));
+		assertTrue("Commands don't match!", server.checkCommands(
+				"Test Line 1", "Hello World!", "More stuff", "Test Line",
+				"Test Hashing # Escaping!", "Test \"Quoted Hash# Keeping\""));
 	}
 	
 	@Test(expected = BadScriptException.class) //this test WILL throw an exception. If it doesn't, fail it! :P
@@ -571,13 +575,19 @@ public class TestUnitCases extends TestCase {
 	
 	////////////////////////// Error Handling //////////////////////////
 	
-	@Test(expected = CommandException.class)
+	@Test(expected = CommandExecutionException.class)
 	public void unhandledExceptionFromBukkit() throws Exception {
 		String[] commands = new String[] {
 				"throw Line 42"
 		};
-		Executable sl = ScriptParser.parseScript(commands);
-		sl.execute(environment);
+		
+		try {
+			Executable sl = ScriptParser.parseScript(commands);
+			sl.execute(environment);
+		} catch (CommandExecutionException ex) {
+			CommanderEngine.reportCommandException(ex, true);
+			throw ex;
+		}
 	}
 	
 	@Test public void handlingExceptionFromBukkit() throws Exception {
